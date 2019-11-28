@@ -10,8 +10,6 @@ public class HandlerTest {
   public void test() {
     Server s = new Server();
     s.listenSocket();
-
-
   }
 
 }

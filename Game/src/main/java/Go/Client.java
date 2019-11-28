@@ -20,6 +20,7 @@ public class Client {
       pw.println(message);
 
       line = br.readLine();
+      pw.println("quit");
       //socket.close();
 
     } catch (UnknownHostException e) {
@@ -37,5 +38,11 @@ public class Client {
     message = string;
 
   }
+
+
+public void sentMessage(String string) {
+	pw.println(string);
+	
+}
 
 }

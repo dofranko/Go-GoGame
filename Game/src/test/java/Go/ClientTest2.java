@@ -12,6 +12,7 @@ public class ClientTest2 {
     c2.setMessage("Hello c2");
     c2.listenSocket();
     assertEquals("Hello c2", c2.line);
+   // c2.sentMessage("quit");
   }
 
 }
