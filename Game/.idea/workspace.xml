@@ -1,9 +1,105 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="ProjectId" id="1UCzv3bCVFTEWkIghgbqkIEPsti" />
+  <component name="ChangeListManager">
+    <list default="true" id="66981f53-ebe0-4545-86ff-5a6141b3a516" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/src/main/java/Go/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Go/App.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Go/GameMaker/TheGame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Go/GameMaker/TheGame.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Go/ServerClient/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Go/ServerClient/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Go/ServerClient/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Go/ServerClient/Server.java" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectId" id="1UGcoz3T7GpLR6GYt7dVaxN9Z9F" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Application.App">
+    <configuration name="App" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Go.App" />
+      <module name="Game" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Go.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Server" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Go.ServerClient.Server" />
+      <module name="Game" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Go.ServerClient.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.App" />
+        <item itemvalue="Application.Server" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="66981f53-ebe0-4545-86ff-5a6141b3a516" name="Default Changelist" comment="" />
+      <created>1574986550807</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1574986550807</updated>
+      <workItem from="1574986553138" duration="54000" />
+      <workItem from="1574986841013" duration="5000" />
+      <workItem from="1574986866250" duration="38000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="simpleUML.UMLToolWindowPlugin">
     <General>
