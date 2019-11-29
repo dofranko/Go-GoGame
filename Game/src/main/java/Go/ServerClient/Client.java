@@ -11,53 +11,65 @@ import java.net.Socket;
 import java.util.Scanner;
 
 // Client class
-public class Client
+public abstract class Client
 {
-  public static void main(String[] args) throws IOException
-  {
-    try
-    {
-      Scanner scn = new Scanner(System.in);
+  DataInputStream dis;
+  DataOutputStream dos;
+  Socket s;
+  protected String received = "";
 
+  public Client(){
+    try {
       // getting localhost ip
       InetAddress ip = InetAddress.getByName("localhost");
-
       // establish the connection with server port 5056
-      Socket s = new Socket(ip, 5056);
+      s = new Socket(ip, 5056);
 
       // obtaining input and out streams
-      DataInputStream dis = new DataInputStream(s.getInputStream());
-      DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+      dis = new DataInputStream(s.getInputStream());
+      dos = new DataOutputStream(s.getOutputStream());
 
       // the following loop performs the exchange of
       // information between client and client handler
-      while (true)
-      {
-        System.out.println(dis.readUTF());
-        String tosend = scn.nextLine();
-        dos.writeUTF(tosend);
+      System.out.println(dis.readUTF());
 
-        // If client sends exit,close this connection
-        // and then break from the while loop
-        if(tosend.equals("Exit"))
-        {
-          System.out.println("Closing this connection : " + s);
-          s.close();
-          System.out.println("Connection closed");
-          break;
-        }
+      // If client sends exit,close this connection
+      // and then break from the while loop
 
-        // printing date or time as requested by client
-        String received = dis.readUTF();
-        System.out.println(received);
-      }
+
+      // printing date or time as requested by client
 
       // closing resources
-      scn.close();
-      dis.close();
-      dos.close();
-    }catch(Exception e){
+    } catch (Exception e) {
       e.printStackTrace();
     }
   }
+    public void sendAndReceiveInformation(String toSend) {
+      try {
+        dos.writeUTF(toSend);
+        if (toSend.equals("Exit")) {
+          s.close();
+          System.out.println("Connection closed");
+          endGame();
+        }
+        else {
+          received = dis.readUTF();
+          System.out.println(received);
+        }
+
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
+    }
+    public void endGame(){
+      try {
+        dis.close();
+        dos.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
+    }
+
 }
