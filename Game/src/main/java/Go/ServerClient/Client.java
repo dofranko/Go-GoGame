@@ -16,9 +16,13 @@ public abstract class Client
   DataInputStream dis;
   DataOutputStream dos;
   Socket s;
-  protected String received = "";
+  private String received = "";
+  private final String myPlayerId;
+  private boolean isItMyTurn = false;
+
 
   public Client(){
+    String playerIdToSet="";
     try {
       // getting localhost ip
       InetAddress ip = InetAddress.getByName("localhost");
@@ -31,30 +35,56 @@ public abstract class Client
 
       // the following loop performs the exchange of
       // information between client and client handler
-      System.out.println(dis.readUTF());
-
-      // If client sends exit,close this connection
-      // and then break from the while loop
-
-
-      // printing date or time as requested by client
+      //odczytanie swojego id gracza
+      received = dis.readUTF();
+      System.out.println("Moje id: " + received);
+      playerIdToSet = received;
 
       // closing resources
     } catch (Exception e) {
       e.printStackTrace();
     }
+    //nie mozna przypisać w try catch
+      myPlayerId = playerIdToSet;
+
   }
+    public String getMyPlayerId(){
+      return myPlayerId;
+    }
+    public void setReceived(String received){
+      this.received = received;
+    }
+    public String getReceived(){
+      return received;
+    }
+
     public void sendAndReceiveInformation(String toSend) {
       try {
-        dos.writeUTF(toSend);
+
         if (toSend.equals("Exit")) {
+          dos.writeUTF(toSend);
           s.close();
           System.out.println("Connection closed");
           endGame();
         }
-        else {
+        else if(toSend.equals("whoseMove")){
+          dos.writeUTF(toSend);
           received = dis.readUTF();
           System.out.println(received);
+          if(received == myPlayerId){
+            isItMyTurn = true;
+          }
+        }
+        //wykouje ruch jeśli to jego tura
+        //true dla testów ! TODO
+        else if(isItMyTurn || true) {
+          dos.writeUTF(toSend);
+          received = dis.readUTF();
+          System.out.println(received);
+          if(received.substring(0,1) == "1" || true){
+            isItMyTurn = false;
+            updateGameBoard(received.substring(2));
+          }
         }
 
       } catch (IOException e) {
@@ -69,7 +99,7 @@ public abstract class Client
       } catch (IOException e) {
         e.printStackTrace();
       }
-
     }
+    public abstract void updateGameBoard(String stonesInString);
 
 }

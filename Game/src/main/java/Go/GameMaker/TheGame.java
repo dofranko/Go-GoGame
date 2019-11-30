@@ -4,7 +4,7 @@ public class TheGame {
 
   public TheGame(){
     //TODO jakieś rzeczy tu zrobić, przemyśleć klasę typu jakie pola powinna miec
-    //IMHO przynajmniej tab[2] idGraczy, actualPlayerMove, itp
+    //
   }
 
   public String makeMove(String move){
@@ -12,7 +12,7 @@ public class TheGame {
     //TODO powinien zwracać coś typu "liczba, pionki[][].toString()"
     //w liczbie np: "1"=ruch udany, kolej na ruch drugiego gracza, "0"=powtórz ruch;
 
-    return "jakiś ruch";
+    return move;
   }
   public String whoseMove(){
     //TODO tutaj jest metoda pomocnicza dla GUI, która sprawdza czyj ruch
@@ -21,7 +21,10 @@ public class TheGame {
     //tą metodą czy już może zrobić ruch; jak coś wymyślisz ciekawszego to daj znać
     return "69420";
   }
-  public void addPlayer(int playerID){
+  public String addPlayer(String playerID){
     //TODO server bedzie dodawał tutaj id nowych graczy - prosta metoda
+    //TODO powinna chyba zwracać kolor gracza, to czy znaleziono mecz mozna dac pod whoseMove();
+    //bo raczej zrobię tak, że będzie sprawdzać co sekundę czy już można zrobić ruch
+    return "White";
   }
 }

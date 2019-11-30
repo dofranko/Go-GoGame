@@ -26,7 +26,7 @@ public class Server
     // client request
     while (true)
     {
-      if(clientCounter <= 20 /*CHANGE TO 2 when done*/) {
+      if(clientCounter <= 200 /*CHANGE TO 2 when done*/) {
         Socket s = null;
 
         try {
@@ -35,7 +35,6 @@ public class Server
           clientCounter++;
           System.out.println("A new client is connected : " + s);
           System.out.println("port: " + s.getPort());
-          gameServer.addPlayer(s.getPort());
           // obtaining input and out streams
           DataInputStream dis = new DataInputStream(s.getInputStream());
           DataOutputStream dos = new DataOutputStream(s.getOutputStream());
@@ -87,7 +86,8 @@ class ClientHandler extends Thread
     String received;
     String toReturn;
     try{
-      dos.writeUTF("Your port: " + s.getPort());
+      //port jest IdGracza
+      dos.writeUTF(s.getPort() + "");
     }
     catch (IOException ex){}
     while (true)
@@ -107,9 +107,12 @@ class ClientHandler extends Thread
         else if(received.equals("playerIdMove")) {
           toReturn = gameServer.whoseMove();
         }
+        else if(received.equals("findGame")){
+          toReturn = gameServer.addPlayer(s.getPort() + "");
+        }
         else {
           //tutaj jeśli jest ruch gracza
-          toReturn = gameServer.makeMove(received);
+          toReturn = gameServer.makeMove(s.getPort() + "," + received);
         }
         dos.writeUTF(toReturn);
 
