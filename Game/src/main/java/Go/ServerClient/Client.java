@@ -16,7 +16,7 @@ public abstract class Client
   DataInputStream dis;
   DataOutputStream dos;
   Socket s;
-  private String received = "";
+  protected String received = "";
   private final String myPlayerId;
   private boolean isItMyTurn = false;
 

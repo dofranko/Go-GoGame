@@ -1,17 +1,16 @@
 package Go.GameMaker;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 public class Board {
 
-	int size;
-	char[][] board;
-	List<Stone> listOfStones;
-	Stone koCandidate;
+	private int size;
+	private char[][] board;
+	private List<Stone> listOfStones;
+	private Stone koCandidate;
 
 	public Board(int size) {
 		this.size = size;
@@ -24,22 +23,23 @@ public class Board {
 		listOfStones = new ArrayList<Stone>();
 	}
 
-	public boolean insert(int x, int y, char allyColor, char enemyColor) {
+	public int insert(int x, int y, char allyColor) {
 		if (x >= 0 && y >= 0 && x < size && y < size) {
-			Stone s = new Stone(x, y, allyColor, enemyColor);
-			if (board[x][y] == ' ' && possibleInsert(s)) {
+			Stone s = new Stone(x, y, allyColor);
+			int pointsScored = possibleInsert(s);
+			if (board[x][y] == ' ' && pointsScored >= 0) {
 				board[x][y] = allyColor;
 				listOfStones.add(s);
-				return true;
+				return pointsScored;
 			}
 		}
-		return false;
+		return -1; // illegal move
 
 	}
 
-	public void simpleInsert(int x, int y, char allyColor, char enemyColor) {
+	public void simpleInsert(int x, int y, char allyColor) {
 		if (x >= 0 && y >= 0 && x < size && y < size) {
-			Stone s = new Stone(x, y, allyColor, enemyColor);
+			Stone s = new Stone(x, y, allyColor);
 			board[x][y] = allyColor;
 			listOfStones.add(s);
 		}
@@ -49,23 +49,24 @@ public class Board {
 	public int countBreaths(int posX, int posY, char color, char[][] copyBoard) {
 		int breath = 0;
 		if (posX >= 0 && posY >= 0 && posX < size && posY < size && copyBoard[posX][posY] == color) {
-			copyBoard[posX][posY] = 'D'; // oznacza juz odwiedzone pole i zapobiega nieskończonej rekursji
-			if (posX != size - 1 && copyBoard[posX + 1][posY] == ' ') {
-				copyBoard[posX + 1][posY] = 'D';
+			copyBoard[posX][posY] = Markers.DONE.asChar(); // oznacza juz odwiedzone pole i zapobiega nieskończonej
+															// rekursji
+			if (posX != size - 1 && copyBoard[posX + 1][posY] == Markers.EMPTY.asChar()) {
+				copyBoard[posX + 1][posY] = Markers.DONE.asChar();
 				breath++;
 			}
-			if (posX != 0 && copyBoard[posX - 1][posY] == ' ') {
-				copyBoard[posX - 1][posY] = 'D';
-				breath++;
-			}
-
-			if (posY != size - 1 && copyBoard[posX][posY + 1] == ' ') {
-				copyBoard[posX][posY + 1] = 'D';
+			if (posX != 0 && copyBoard[posX - 1][posY] == Markers.EMPTY.asChar()) {
+				copyBoard[posX - 1][posY] = Markers.DONE.asChar();
 				breath++;
 			}
 
-			if (posY != 0 && copyBoard[posX][posY - 1] == ' ') {
-				copyBoard[posX][posY - 1] = 'D';
+			if (posY != size - 1 && copyBoard[posX][posY + 1] == Markers.EMPTY.asChar()) {
+				copyBoard[posX][posY + 1] = Markers.DONE.asChar();
+				breath++;
+			}
+
+			if (posY != 0 && copyBoard[posX][posY - 1] == Markers.EMPTY.asChar()) {
+				copyBoard[posX][posY - 1] = Markers.DONE.asChar();
 				breath++;
 			}
 
@@ -78,54 +79,62 @@ public class Board {
 		return breath;
 	}
 
-	private boolean possibleInsert(Stone stone) { // sprzawdza czy ruch jest legalny
+	private int possibleInsert(Stone stone) { // sprzawdza czy ruch jest legalny
 
-		if(blockedKo(stone))
-			return false;
+		if (blockedKo(stone))
+			return -1;
+		int x = stone.getX();
+		int y = stone.getY();
+		char colorAlly = stone.getColorAlly();
 
 		List<Stone> listEnemy = getEnemyNeighbours(stone); // sąsiedni wrogowie
 
 		char[][] copyBoard = copyBoard(); // kopia plaszy
-		copyBoard[stone.x][stone.y] = stone.colorAlly;
+		copyBoard[x][y] = colorAlly;
 
 		List<Stone> totalKillScore = new ArrayList<Stone>();
 		for (Stone s : listEnemy) {
 			copyBoard = copyBoard();
-			copyBoard[stone.x][stone.y] = stone.colorAlly;
-			if (countBreaths(s.x, s.y, s.colorAlly, copyBoard) == 0) { // sprawdza czy ruch zabija wrogow i zlicza trupy
+			copyBoard[x][y] = colorAlly;
+			if (countBreaths(s.getX(), s.getY(), s.getColorAlly(), copyBoard) == 0) { // sprawdza czy ruch zabija wrogow
+																						// i zlicza trupy
 				copyBoard = copyBoard();
-				copyBoard[stone.x][stone.y] = stone.colorAlly;
-				totalKillScore.addAll(killList(s.x, s.y, s.colorAlly, copyBoard));
+				copyBoard[x][y] = colorAlly;
+				totalKillScore.addAll(killList(s.getX(), s.getY(), s.getColorAlly(), copyBoard));
 
 			}
 		}
-		
-		if (totalKillScore.size() == 1) 
+
+		if (totalKillScore.size() == 1)
 			koCandidate = totalKillScore.get(0);
-		
+
 		if (totalKillScore.size() != 0) {
 			kill(totalKillScore);
-			return true;
+			return totalKillScore.size();
 		}
 
 		copyBoard = copyBoard();
-		copyBoard[stone.x][stone.y] = stone.colorAlly;
-		if (countBreaths(stone.x, stone.y, stone.colorAlly, copyBoard) == 0)  // zapobieganie samobojstwom
-			return false;
-		
-		return true;
+		copyBoard[x][y] = colorAlly;
+		if (countBreaths(x, y, colorAlly, copyBoard) == 0) // zapobieganie samobojstwom
+			return -1;
+
+		return 0;
 	}
 
 	private List<Stone> getEnemyNeighbours(Stone stone) {
+		int x = stone.getX();
+		int y = stone.getY();
+		char colorAlly = stone.getColorAlly();
 		List<Stone> list = new ArrayList<Stone>();
 		for (Stone s : listOfStones) {
-			if (s.x == stone.x + 1 && s.y == stone.y && s.colorAlly == stone.colorEnemy)
+
+			if (s.getX() == x + 1 && s.getY() == y && s.getColorEnemy() == colorAlly)
 				list.add(s);
-			else if (s.x == stone.x - 1 && s.y == stone.y && s.colorAlly == stone.colorEnemy)
+			else if (s.getX() == x - 1 && s.getY() == y && s.getColorEnemy() == colorAlly)
 				list.add(s);
-			else if (s.x == stone.x && s.y == stone.y + 1 && s.colorAlly == stone.colorEnemy)
+			else if (s.getX() == x && s.getY() == y + 1 && s.getColorEnemy() == colorAlly)
 				list.add(s);
-			else if (s.x == stone.x && s.y == stone.y - 1 && s.colorAlly == stone.colorEnemy)
+			else if (s.getX() == x && s.getY() == y - 1 && s.getColorEnemy() == colorAlly)
 				list.add(s);
 
 		}
@@ -137,9 +146,9 @@ public class Board {
 		Set<Stone> cleaner = new LinkedHashSet<Stone>();
 		if (posX >= 0 && posY >= 0 && posX < size && posY < size && copyBoard[posX][posY] == color) {
 
-			copyBoard[posX][posY] = 'D';
+			copyBoard[posX][posY] = Markers.DONE.asChar();
 			for (Stone s : listOfStones) {
-				if (s.x == posX && s.y == posY) {
+				if (s.getX() == posX && s.getY() == posY) {
 					cleaner.add(s);
 					break;
 
@@ -153,13 +162,13 @@ public class Board {
 		}
 		return cleaner;
 	}
-	
-	
+
 	private boolean blockedKo(Stone stone) {
 		if (koCandidate != null) {
-			if (koCandidate.x == stone.x && koCandidate.y == stone.y && koCandidate.colorAlly == stone.colorAlly) // próba ruchu w to samo pole
+			if (koCandidate.getX() == stone.getX() && koCandidate.getY() == stone.getY()
+					&& koCandidate.getColorAlly() == stone.getColorAlly()) // próba ruchu w to samo pole
 				return true;
-			else if(koCandidate.colorAlly == stone.colorAlly) {// ruch został wykonany gdzie indziej
+			else if (koCandidate.getColorAlly() == stone.getColorAlly()) {// ruch został wykonany gdzie indziej, reset ko
 				koCandidate = null;
 			}
 		}
@@ -168,7 +177,7 @@ public class Board {
 
 	public void kill(List<Stone> list) {
 		for (Stone s : list) {
-			board[s.x][s.y] = ' ';
+			board[s.getX()][s.getY()] = ' ';
 		}
 		listOfStones.removeAll(list);
 	}
@@ -181,18 +190,50 @@ public class Board {
 		return copy;
 	}
 
-	
 	public void printBoard(char[][] arr) {
-		for (int i = size - 1; i >= 0; i--) {
+		for (int i = 0; i < size; i++) {
 			String s = "";
-			for (int j = 0; j < size - 1; j++) {
-				if (arr[j][i] == ' ') {
+			for (int j = 0; j < size; j++) {
+				if (arr[i][j] == Markers.EMPTY.asChar()) {
 					s += "[ ]";
 				} else
-					s += (" " + String.valueOf(arr[j][i]) + " ");
+					s += (" " + String.valueOf(arr[i][j]) + " ");
 			}
 			System.out.println(s);
 		}
+		System.out.println("+-----------------------------+");
+	}
+
+	public String boardToString() {
+		String string = "";
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				String mark = "";
+				if (board[i][j] == Markers.EMPTY.asChar())
+					mark = "0";
+				else if (board[i][j] == Markers.WHITE.asChar())
+					mark = "1";
+				else
+					mark = "2";
+				string += ("x" + mark + String.valueOf(i) + "," + "y" + mark + String.valueOf(j) + ",");
+			}
+			string += ";";
+
+		}
+		return string;
+
+	}
+
+	public int getSize() {
+		return size;
+	}
+
+	public char[][] getBoard() {
+		return board;
+	}
+
+	public List<Stone> getListOfStones() {
+		return listOfStones;
 	}
 
 }

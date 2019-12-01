@@ -1,20 +1,40 @@
 package Go.GameMaker;
 
 public class Stone {
-	
-	int x, y;
-	char colorAlly;
-	char colorEnemy;
-	boolean isAlive;
 
-	public Stone(int x, int y, char colorAlly, char colorEnemy) {
+	private int x, y;
+	private char colorAlly;
+	private char colorEnemy;
+	//boolean isAlive;
+
+	public Stone(int x, int y, char colorAlly) {
 		this.x = x;
 		this.y = y;
+		//this.isAlive = true;
 		this.colorAlly = colorAlly;
-		this.colorEnemy = colorEnemy;
-		this.isAlive = true;
+		if (colorAlly == Markers.WHITE.asChar())
+			this.colorEnemy = Markers.BLACK.asChar();
+		else
+			this.colorEnemy = Markers.WHITE.asChar();
+		
 	}
-	
+
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public char getColorAlly() {
+		return colorAlly;
+	}
+
+	public char getColorEnemy() {
+		return colorEnemy;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

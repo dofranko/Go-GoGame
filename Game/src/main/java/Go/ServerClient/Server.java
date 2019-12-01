@@ -20,7 +20,7 @@ public class Server
   public static void main(String[] args) throws IOException, InterruptedException {
     // server is listening on port 5056
     ServerSocket serverSocket = new ServerSocket(5056);
-    final TheGame gameServer = new TheGame();
+    final TheGame gameServer = TheGame.getInstance();
 
     // running infinite loop for getting
     // client request
@@ -108,7 +108,7 @@ class ClientHandler extends Thread
           toReturn = gameServer.whoseMove();
         }
         else if(received.equals("findGame")){
-          toReturn = gameServer.addPlayer(s.getPort()+"");
+          toReturn = gameServer.addPlayer(s.getPort() + "");
         }
         else {
           //tutaj jeśli jest ruch gracza
