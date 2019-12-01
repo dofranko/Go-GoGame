@@ -57,6 +57,9 @@ public abstract class Client
     public String getReceived(){
       return received;
     }
+    public boolean getIsItmyTurn() {
+      return isItMyTurn;
+    }
 
     public void sendAndReceiveInformation(String toSend) {
       try {

@@ -87,8 +87,6 @@ public class ClientGUI extends Client {
       }
     });
 
-
-
     gameBoardJPanel.repaint();
     jFrame.repaint();
     jFrame.pack();
@@ -118,7 +116,7 @@ public class ClientGUI extends Client {
     //TODO zrobić implementer ze string stonsów do int[][] stones
     //int stones[][]
     //this.gameBoardJPanel.setStones(int[][]);
-    int[][] st = new int[19][19];
+    /*int[][] st = new int[19][19];
     for(int i=0; i<19; i++){
       for(int j=0; j<19; j++){
        st[i][j]=0;
@@ -127,6 +125,6 @@ public class ClientGUI extends Client {
     st[5][8] = 1;
     st[2][3] = 2;
     st[1][1]=1;
-    this.gameBoardJPanel.setStones(st);
+    this.gameBoardJPanel.setStones(st);*/
   }
 }

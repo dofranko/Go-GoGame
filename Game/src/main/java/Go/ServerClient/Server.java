@@ -19,45 +19,45 @@ public class Server
   private static int clientCounter = 1;
   public static void main(String[] args) throws IOException, InterruptedException {
     // server is listening on port 5056
-    ServerSocket ss = new ServerSocket(5056);
+    ServerSocket serverSocket = new ServerSocket(5056);
     final TheGame gameServer = new TheGame();
 
     // running infinite loop for getting
     // client request
-    while (true)
-    {
-      if(clientCounter <= 200 /*CHANGE TO 2 when done*/) {
-        Socket s = null;
+    while (true) {
+      //częśc kodu jeśli ograniczamy iloś graczy
+      //if(clientCounter <= 200 /*CHANGE TO 2 when done*/) {
+      Socket socket = null;
 
-        try {
-          // socket object to receive incoming client requests
-          s = ss.accept();
-          clientCounter++;
-          System.out.println("A new client is connected : " + s);
-          System.out.println("port: " + s.getPort());
-          // obtaining input and out streams
-          DataInputStream dis = new DataInputStream(s.getInputStream());
-          DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+      try {
+        // socket object to receive incoming client requests
+        socket = serverSocket.accept();
+        clientCounter++;
+        System.out.println("A new client is connected : " + socket);
+        System.out.println("port: " + socket.getPort());
+        // obtaining input and out streams
+        DataInputStream dis = new DataInputStream(socket.getInputStream());
+        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 
-          System.out.println("Assigning new thread for this client");
+        System.out.println("Assigning new thread for client: " + socket.getPort());
 
-          // create a new thread object
-          Thread t = new ClientHandler(s, dis, dos, gameServer);
+        // create a new thread object
+        Thread t = new ClientHandler(socket, dis, dos, gameServer);
 
-          // Invoking the start() method
-          t.start();
+        // Invoking the start() method
+        t.start();
 
 
-        } catch (Exception e) {
-          s.close();
-          e.printStackTrace();
+      } catch (Exception e) {
+        socket.close();
+        e.printStackTrace();
 
-        }
-      } else {
-        System.out.println("za duża ilość połączeń");
-        Thread.sleep(Long.MAX_VALUE);
       }
-    }
+    } //else{ //częśc kodu jeśli ograniczamy iloś graczy
+    //System.out.println("za duża ilość połączeń");
+    //Thread.sleep(Long.MAX_VALUE);
+    //}
+    //}
   }
 }
 
@@ -108,7 +108,7 @@ class ClientHandler extends Thread
           toReturn = gameServer.whoseMove();
         }
         else if(received.equals("findGame")){
-          toReturn = gameServer.addPlayer(s.getPort() + "");
+          toReturn = gameServer.addPlayer(s.getPort()+"");
         }
         else {
           //tutaj jeśli jest ruch gracza
