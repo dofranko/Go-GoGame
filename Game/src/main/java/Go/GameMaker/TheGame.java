@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class TheGame {
 	// private static final TheGame instance;
-	private static TheGame instance = null;
+	private static volatile TheGame instance = null;
 	private Board board = null;
 	private Map<String, Integer> players;
 	private Map<Integer, Markers> colors;
@@ -52,9 +52,9 @@ public class TheGame {
 				whoseMove = playerColor.getEnemy();
 				return Integer.toString(points[id]) + ";" + board.boardToString();
 			} else
-				return "-1" + ";";// + board.boardToString(); // illegal move
+				return "-1";// + ";";// + board.boardToString(); // illegal move
 		} else
-			return "NotYrMove" + ";";// + board.boardToString(); // not your turn
+			return "NotYrMove"; //+ ";";// + board.boardToString(); // not your turn
 
 	}
 
@@ -65,7 +65,7 @@ public class TheGame {
 		// sprawdza co chwilę
 		// tą metodą czy już może zrobić ruch; jak coś wymyślisz ciekawszego to daj znać
 		
-		return whoseMove.asString();
+		return whoseMove.asString() + ";" + board.boardToString();
 	}
 
 	public String addPlayer(String playerID) {

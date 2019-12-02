@@ -95,7 +95,6 @@ public class ClientGUI extends Client {
             jFrame.getInsets().top + jFrame.getInsets().bottom + 650));
     jFrame.setVisible(true);
     jFrame.setResizable(false);
-
   }
   private GameBoardJPanel createGameBoard(){
     return new GameBoardJPanel(getColor());
@@ -113,18 +112,9 @@ public class ClientGUI extends Client {
 
   @Override
   public void updateGameBoard(String stonesInString){
-    //TODO zrobić implementer ze string stonsów do int[][] stones
-    //int stones[][]
-    //this.gameBoardJPanel.setStones(int[][]);
-    /*int[][] st = new int[19][19];
-    for(int i=0; i<19; i++){
-      for(int j=0; j<19; j++){
-       st[i][j]=0;
-      }
-    }
-    st[5][8] = 1;
-    st[2][3] = 2;
-    st[1][1]=1;
-    this.gameBoardJPanel.setStones(st);*/
+    gameBoardJPanel.setStones(convertStonesToIntFromString(stonesInString));
   }
+
+
+
 }

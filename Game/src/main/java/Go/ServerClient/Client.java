@@ -3,51 +3,51 @@ package Go.ServerClient;
 // Java implementation for a client
 // Save file as Client.java
 
-import Go.GameMaker.Markers;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.Scanner;
 
 // Client class
 public abstract class Client
 {
   DataInputStream dis;
   DataOutputStream dos;
-  Socket s;
+  private Socket socket;
   protected String received = "";
   private final String myPlayerId;
-  private boolean isItMyTurn = false;
-  private char color;
-
+  private boolean isItMyTurn = true;
+  private String color;
+  //private Thread waitForMove = createWaitingForTurnThread();
 
   public Client(){
     String playerIdToSet="";
     try {
-      // getting localhost ip
+      // Ip lokalne hosta
       InetAddress ip = InetAddress.getByName("localhost");
-      // establish the connection with server port 5056
-      s = new Socket(ip, 5056);
+      /*InetAddress inetAddress = InetAddress.getLocalHost();
+      inetAddress.getHostAddress());
+      inetAddress.getHostName()); */ //crossdevice
+      // połączenie się na porcie: 8523
+      socket = new Socket(ip, 8523);
 
-      // obtaining input and out streams
-      dis = new DataInputStream(s.getInputStream());
-      dos = new DataOutputStream(s.getOutputStream());
+      // pobranie DataInputStream i DataOutputSteam do komunikacji z serwerem(socketem)
+      dis = new DataInputStream(socket.getInputStream());
+      dos = new DataOutputStream(socket.getOutputStream());
 
-      // the following loop performs the exchange of
-      // information between client and client handler
-      //odczytanie swojego id gracza
+
+      //odczytanie swojego id gracza ( = port socketa)
       received = dis.readUTF();
       System.out.println("Moje id: " + received);
       playerIdToSet = received;
 
+      //odczytanie koloru gracza
       received = dis.readUTF();
       System.out.println("Mój color: " + received);
-      color = received.charAt(0);
+      color = received;
+      //sendAndReceiveInformation("WhoseMove");
 
-      // closing resources
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -58,42 +58,53 @@ public abstract class Client
     public String getMyPlayerId(){
       return myPlayerId;
     }
-    public void setReceived(String received){
+
+   /* public void setReceived(String received){
       this.received = received;
-    }
+    }*/
     public String getReceived(){
       return received;
     }
-    public boolean getIsItmyTurn() {
+
+    public boolean getIsItMyTurn() {
       return isItMyTurn;
     }
 
     public void sendAndReceiveInformation(String toSend) {
       try {
-
+        //waitForMove.start();
+        //Client jeszcze sprawdza, co chce GUI wysłać i czy musi podjąć jakieś działania
         if (toSend.equals("Exit")) {
           dos.writeUTF(toSend);
-          s.close();
+          disconnect();
           System.out.println("Connection closed");
-          endGame();
         }
-        else if(toSend.equals("whoseMove")){
+        //możliwe że do wyrzucenia
+        else if(toSend.equals("WhoseMove")){
           dos.writeUTF(toSend);
           received = dis.readUTF();
           System.out.println(received);
-          if(received == myPlayerId){
+          String color = received.split(";")[0];
+          if(color == this.color){
             isItMyTurn = true;
           }
         }
         //wykouje ruch jeśli to jego tura
         //true dla testów ! TODO
-        else if(isItMyTurn || true) {
+        else if(isItMyTurn) {
           dos.writeUTF(toSend);
           received = dis.readUTF();
           System.out.println(received);
-          if(received.substring(0,1) == "1" || true){
+          //warunki rozdzieli się potem na labele
+          if(!received.equals("NotYrMove") && !received.equals("-1")){
             isItMyTurn = false;
             updateGameBoard(received.substring(2));
+            Thread waitForMove = createWaitingForTurnThread();
+            waitForMove.start();
+          }
+          else if(received.equals("NotYrMove")) {
+            this.isItMyTurn = false;
+            System.out.println(received);
           }
         }
 
@@ -102,8 +113,9 @@ public abstract class Client
       }
 
     }
-    public void endGame(){
+    public void disconnect(){
       try {
+        socket.close();
         dis.close();
         dos.close();
       } catch (IOException e) {
@@ -111,8 +123,60 @@ public abstract class Client
       }
     }
     public abstract void updateGameBoard(String stonesInString);
-    public char getColor(){
+    public String getColor(){
       return this.color;
+    }
+
+    protected int[][] convertStonesToIntFromString(String stonesInString){
+      int[][] stones;
+      String[] columns = stonesInString.split(";");
+      stones = new int[columns.length][columns.length];
+
+      int i=0;
+      int j=0;
+      for(String column : columns){
+        String[] fields = column.split(",");
+        for(String field : fields){
+          stones[i][j] = Integer.parseInt(field);
+          j++;
+        }
+        j=0;
+        i++;
+      }
+      return stones;
+    }
+    private Thread createWaitingForTurnThread(){
+     return new Thread(){
+        public String canIMove(){
+          try {
+            dos.writeUTF("WhoseMove");
+            return received = dis.readUTF();
+          } catch (IOException e) {
+            e.printStackTrace();
+            return "KILL!";
+          }
+        }
+        public void run(){
+          String whoseMove = canIMove();
+          String colorMove = whoseMove.split(";")[0];
+          while(!colorMove.equals(color) ){
+            String fields="";
+            System.out.println(whoseMove);
+            try {
+              sleep(500);
+            } catch (InterruptedException e) {
+              e.printStackTrace();
+            }
+            whoseMove = canIMove();
+            colorMove = whoseMove.split(";")[0];
+            if(whoseMove.equals("KILL!"))
+              break;
+            System.out.println(Thread.activeCount());
+          }
+          isItMyTurn = true;
+          updateGameBoard(whoseMove.substring(colorMove.length()+1));
+        }
+      };
     }
 
 }

@@ -4,7 +4,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 public class ClientTest {
   Client client;
@@ -26,7 +25,7 @@ public class ClientTest {
 
   @Test
   public void getSetReceived(){
-    client.setReceived("testingMethod");
+    //client.setReceived("testingMethod");
     System.out.println(client.getMyPlayerId());
     assertEquals("testingMethod", client.getReceived() );
   }
@@ -34,10 +33,10 @@ public class ClientTest {
   @Test
   public void whoseMove(){
     client.sendAndReceiveInformation("whoseMove");
-    assertEquals(false, client.getIsItmyTurn());
+    assertEquals(false, client.getIsItMyTurn());
 
     client.sendAndReceiveInformation("1,1");
-    assertEquals(false, client.getIsItmyTurn());
+    assertEquals(false, client.getIsItMyTurn());
   }
   @Test
   public void myIdTest(){
