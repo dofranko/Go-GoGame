@@ -1,5 +1,7 @@
 package GUI;
 
+import Go.GameMaker.Markers;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -9,7 +11,7 @@ public class GameBoardJPanel extends JPanel {
   private int[][] stones;
   private JLabel[][] stonesJLabels;
 
-  public GameBoardJPanel() {
+  public GameBoardJPanel(char color) {
     this.setLayout(null);
     this.setBounds(0, 0, 608, 608);
     this.setOpaque(true);
@@ -45,9 +47,16 @@ public class GameBoardJPanel extends JPanel {
         this.add(field);
       }
     }
-    this.setCursor(Toolkit.getDefaultToolkit().createCustomCursor(
-            new ImageIcon("files/cursor-black.cur").getImage(),
-            new Point(16, 16), "Stone Cursor"));
+    if(Character.compare(color, 'B')==0) {
+      this.setCursor(Toolkit.getDefaultToolkit().createCustomCursor(
+              new ImageIcon("files/cursor-black.cur").getImage(),
+              new Point(16, 16), "Stone Cursor"));
+    }
+    else if(Character.compare(color, 'W')==0) {
+      this.setCursor(Toolkit.getDefaultToolkit().createCustomCursor(
+              new ImageIcon("files/cursor-white.cur").getImage(),
+              new Point(16, 16), "Stone Cursor"));
+    }
     createStartingStones();
   }
 

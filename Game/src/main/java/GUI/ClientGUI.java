@@ -98,7 +98,7 @@ public class ClientGUI extends Client {
 
   }
   private GameBoardJPanel createGameBoard(){
-    return new GameBoardJPanel();
+    return new GameBoardJPanel(getColor());
   }
   private JPanel createMainBoard() {
     JPanel mainJPanel = new JPanel();

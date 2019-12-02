@@ -66,13 +66,13 @@ public class TheGame {
 			players.put(playerID, counter);
 			colors.put(counter, Markers.BLACK.asChar()); // gracz który pierwszy się połączył jest czarny
 			counter++;
-			return "Succes";
+			return "Succes;Black";
 		}
 		case 1: {
 			players.put(playerID, counter);
 			colors.put(counter, Markers.WHITE.asChar());
 			counter++;
-			return "Succes";
+			return "Succes;White";
 		}
 		default: 
 			return "Error";
