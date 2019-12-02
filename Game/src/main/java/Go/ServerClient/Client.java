@@ -3,6 +3,8 @@ package Go.ServerClient;
 // Java implementation for a client
 // Save file as Client.java
 
+import Go.GameMaker.Markers;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -19,6 +21,7 @@ public abstract class Client
   protected String received = "";
   private final String myPlayerId;
   private boolean isItMyTurn = false;
+  private char color;
 
 
   public Client(){
@@ -39,6 +42,10 @@ public abstract class Client
       received = dis.readUTF();
       System.out.println("Moje id: " + received);
       playerIdToSet = received;
+
+      received = dis.readUTF();
+      System.out.println("Mój color: " + received);
+      color = received.charAt(0);
 
       // closing resources
     } catch (Exception e) {
@@ -104,5 +111,8 @@ public abstract class Client
       }
     }
     public abstract void updateGameBoard(String stonesInString);
+    public char getColor(){
+      return this.color;
+    }
 
 }

@@ -37,91 +37,92 @@ public class Board {
 
 	}
 
-	public void simpleInsert(int x, int y, char allyColor) {
-		if (x >= 0 && y >= 0 && x < size && y < size) {
-			Stone s = new Stone(x, y, allyColor);
-			board[x][y] = allyColor;
-			listOfStones.add(s);
-		}
+	//sprzawdza czy ruch jest legalny
+	private int possibleInsert(Stone stone) { 
 
-	}
-
-	public int countBreaths(int posX, int posY, char color, char[][] copyBoard) {
-		int breath = 0;
-		if (posX >= 0 && posY >= 0 && posX < size && posY < size && copyBoard[posX][posY] == color) {
-			copyBoard[posX][posY] = Markers.DONE.asChar(); // oznacza juz odwiedzone pole i zapobiega nieskończonej
-															// rekursji
-			if (posX != size - 1 && copyBoard[posX + 1][posY] == Markers.EMPTY.asChar()) {
-				copyBoard[posX + 1][posY] = Markers.DONE.asChar();
-				breath++;
-			}
-			if (posX != 0 && copyBoard[posX - 1][posY] == Markers.EMPTY.asChar()) {
-				copyBoard[posX - 1][posY] = Markers.DONE.asChar();
-				breath++;
-			}
-
-			if (posY != size - 1 && copyBoard[posX][posY + 1] == Markers.EMPTY.asChar()) {
-				copyBoard[posX][posY + 1] = Markers.DONE.asChar();
-				breath++;
-			}
-
-			if (posY != 0 && copyBoard[posX][posY - 1] == Markers.EMPTY.asChar()) {
-				copyBoard[posX][posY - 1] = Markers.DONE.asChar();
-				breath++;
-			}
-
-			breath += countBreaths(posX + 1, posY, color, copyBoard); // rekurencja w przypadku bycia łancuchem
-			breath += countBreaths(posX - 1, posY, color, copyBoard);
-			breath += countBreaths(posX, posY + 1, color, copyBoard);
-			breath += countBreaths(posX, posY - 1, color, copyBoard);
-		}
-
-		return breath;
-	}
-
-	private int possibleInsert(Stone stone) { // sprzawdza czy ruch jest legalny
-
-		if (blockedKo(stone))
+		List<Stone> killList = prepareKillList(stone); //kamienie, które zostałyby zabite tym ruchem
+		int killScore = killList.size();
+		
+		if (blockedKo(stone, killScore))
 			return -1;
+		
+		
+		if (killScore == 1)
+			koCandidate = killList.get(0); //ko wystepuje tylko jak zbity zostal jeden kamien
+
+		if (killScore > 0) {
+			kill(killList);
+			return killScore;
+		}
+		
 		int x = stone.getX();
 		int y = stone.getY();
 		char colorAlly = stone.getColorAlly();
-
-		List<Stone> listEnemy = getEnemyNeighbours(stone); // sąsiedni wrogowie
-
 		char[][] copyBoard = copyBoard(); // kopia plaszy
-		copyBoard[x][y] = colorAlly;
-
-		List<Stone> totalKillScore = new ArrayList<Stone>();
-		for (Stone s : listEnemy) {
-			copyBoard = copyBoard();
-			copyBoard[x][y] = colorAlly;
-			if (countBreaths(s.getX(), s.getY(), s.getColorAlly(), copyBoard) == 0) { // sprawdza czy ruch zabija wrogow
-																						// i zlicza trupy
-				copyBoard = copyBoard();
-				copyBoard[x][y] = colorAlly;
-				totalKillScore.addAll(killList(s.getX(), s.getY(), s.getColorAlly(), copyBoard));
-
-			}
-		}
-
-		if (totalKillScore.size() == 1)
-			koCandidate = totalKillScore.get(0);
-
-		if (totalKillScore.size() != 0) {
-			kill(totalKillScore);
-			return totalKillScore.size();
-		}
-
-		copyBoard = copyBoard();
 		copyBoard[x][y] = colorAlly;
 		if (countBreaths(x, y, colorAlly, copyBoard) == 0) // zapobieganie samobojstwom
 			return -1;
 
 		return 0;
 	}
+	
+	//zlicza wolne pola dookoła struktury
+		public int countBreaths(int posX, int posY, char color, char[][] copyBoard) {
+			int breath = 0;
+			if (posX >= 0 && posY >= 0 && posX < size && posY < size && copyBoard[posX][posY] == color) {
+				copyBoard[posX][posY] = Markers.DONE.asChar(); // oznacza juz odwiedzone pole i zapobiega nieskończonej
+																// rekursji
+				if (posX != size - 1 && copyBoard[posX + 1][posY] == Markers.EMPTY.asChar()) {
+					copyBoard[posX + 1][posY] = Markers.DONE.asChar();
+					breath++;
+				}
+				if (posX != 0 && copyBoard[posX - 1][posY] == Markers.EMPTY.asChar()) {
+					copyBoard[posX - 1][posY] = Markers.DONE.asChar();
+					breath++;
+				}
 
-	private List<Stone> getEnemyNeighbours(Stone stone) {
+				if (posY != size - 1 && copyBoard[posX][posY + 1] == Markers.EMPTY.asChar()) {
+					copyBoard[posX][posY + 1] = Markers.DONE.asChar();
+					breath++;
+				}
+
+				if (posY != 0 && copyBoard[posX][posY - 1] == Markers.EMPTY.asChar()) {
+					copyBoard[posX][posY - 1] = Markers.DONE.asChar();
+					breath++;
+				}
+
+				breath += countBreaths(posX + 1, posY, color, copyBoard); // rekurencja w przypadku bycia łancuchem
+				breath += countBreaths(posX - 1, posY, color, copyBoard);
+				breath += countBreaths(posX, posY + 1, color, copyBoard);
+				breath += countBreaths(posX, posY - 1, color, copyBoard);
+			}
+
+			return breath;
+		}
+	
+	private List<Stone> prepareKillList(Stone stone) {
+		int x = stone.getX();
+		int y = stone.getY();
+		char colorAlly = stone.getColorAlly();
+		List<Stone> listEnemy = getEnemyNeighbours(stone); // sąsiedni wrogowie
+		List<Stone> totalKillList = new ArrayList<Stone>();
+		for (Stone s : listEnemy) {
+			char[][] copyBoard = copyBoard();
+			copyBoard[x][y] = colorAlly;
+			if (countBreaths(s.getX(), s.getY(), s.getColorAlly(), copyBoard) == 0) { // sprawdza czy ruch zabija wrogow i zlicza trupy
+				copyBoard = copyBoard(); // reset pomocniczej kopii planszy
+				copyBoard[x][y] = colorAlly;
+				totalKillList.addAll(killList(s.getX(), s.getY(), s.getColorAlly(), copyBoard));
+
+			}
+		}
+		return totalKillList;
+
+
+	}
+	
+	//lista wrogich sąsiadów
+	private List<Stone> getEnemyNeighbours(Stone stone) { 
 		int x = stone.getX();
 		int y = stone.getY();
 		char colorAlly = stone.getColorAlly();
@@ -141,8 +142,9 @@ public class Board {
 		return list;
 
 	}
-
-	private Set<Stone> killList(int posX, int posY, char color, char[][] copyBoard) { // dodaje pionka do killListy
+	
+	//dodaje rekurencyjnie pionki do killListy
+	private Set<Stone> killList(int posX, int posY, char color, char[][] copyBoard) { 
 		Set<Stone> cleaner = new LinkedHashSet<Stone>();
 		if (posX >= 0 && posY >= 0 && posX < size && posY < size && copyBoard[posX][posY] == color) {
 
@@ -162,11 +164,11 @@ public class Board {
 		}
 		return cleaner;
 	}
-
-	private boolean blockedKo(Stone stone) {
-		if (koCandidate != null) {
-			if (koCandidate.getX() == stone.getX() && koCandidate.getY() == stone.getY()
-					&& koCandidate.getColorAlly() == stone.getColorAlly()) // próba ruchu w to samo pole
+	
+	//warunek blokady ko
+	private boolean blockedKo(Stone stone, int kills) {
+		if (koCandidate != null ) {
+			if (koCandidate.equals(stone) && kills == 1) // próba ruchu w to samo pole z warunkiem zabicia jednego pionka
 				return true;
 			else if (koCandidate.getColorAlly() == stone.getColorAlly()) {// ruch został wykonany gdzie indziej, reset ko
 				koCandidate = null;
@@ -174,14 +176,15 @@ public class Board {
 		}
 		return false;
 	}
-
+	
+	//pozostałe metody są self explanatory
 	public void kill(List<Stone> list) {
 		for (Stone s : list) {
 			board[s.getX()][s.getY()] = ' ';
 		}
 		listOfStones.removeAll(list);
 	}
-
+	
 	public char[][] copyBoard() {
 		char[][] copy = new char[size][size];
 		for (int i = 0; i < size; i++) {
@@ -208,14 +211,14 @@ public class Board {
 		String string = "";
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
-				String mark = "";
+				String mark;
 				if (board[i][j] == Markers.EMPTY.asChar())
 					mark = "0";
 				else if (board[i][j] == Markers.WHITE.asChar())
 					mark = "1";
 				else
 					mark = "2";
-				string += ("x" + mark + String.valueOf(i) + "," + "y" + mark + String.valueOf(j) + ",");
+				string += (mark + ",") ;
 			}
 			string += ";";
 

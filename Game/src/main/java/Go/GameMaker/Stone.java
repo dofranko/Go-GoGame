@@ -13,9 +13,9 @@ public class Stone {
 		//this.isAlive = true;
 		this.colorAlly = colorAlly;
 		if (colorAlly == Markers.WHITE.asChar())
-			this.colorEnemy = Markers.BLACK.asChar();
+			this.colorEnemy = Markers.WHITE.getEnemy().asChar();
 		else
-			this.colorEnemy = Markers.WHITE.asChar();
+			this.colorEnemy = Markers.BLACK.getEnemy().asChar();
 		
 	}
 

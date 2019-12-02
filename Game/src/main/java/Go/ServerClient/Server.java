@@ -5,7 +5,9 @@ package Go.ServerClient;
 // It contains two classes : Server and ClientHandler
 // Save file as Server.java
 
+import Go.GameMaker.Markers;
 import Go.GameMaker.TheGame;
+
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -21,6 +23,7 @@ public class Server
     // server is listening on port 5056
     ServerSocket serverSocket = new ServerSocket(5056);
     final TheGame gameServer = TheGame.getInstance();
+    gameServer.setBoard(19);
 
     // running infinite loop for getting
     // client request
@@ -33,6 +36,18 @@ public class Server
         // socket object to receive incoming client requests
         socket = serverSocket.accept();
         clientCounter++;
+        String result = gameServer.addPlayer(socket.getPort()+"");
+        String[] resultSet = result.split(";");
+        Markers color = Markers.EMPTY;
+        if(resultSet[0].equals("Succes")){
+          if(resultSet[1].equals("White"))
+            color = Markers.WHITE;
+          else if(resultSet[1].equals("Black"))
+            color = Markers.BLACK;
+        }
+        else
+          System.out.println("jakiś błąd"); // tu będzie własny exception
+
         System.out.println("A new client is connected : " + socket);
         System.out.println("port: " + socket.getPort());
         // obtaining input and out streams
@@ -42,7 +57,7 @@ public class Server
         System.out.println("Assigning new thread for client: " + socket.getPort());
 
         // create a new thread object
-        Thread t = new ClientHandler(socket, dis, dos, gameServer);
+        Thread t = new ClientHandler(socket, dis, dos, color);
 
         // Invoking the start() method
         t.start();
@@ -69,15 +84,17 @@ class ClientHandler extends Thread
   final DataOutputStream dos;
   final Socket s;
   final TheGame gameServer;
+  private Markers color;
 
 
   // Constructor
-  public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos, TheGame gameServer)
+  public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos, Markers color)
   {
     this.s = s;
     this.dis = dis;
     this.dos = dos;
-    this.gameServer = gameServer;
+    this.gameServer = TheGame.getInstance();
+    this.color = color;
   }
 
   @Override
@@ -88,6 +105,7 @@ class ClientHandler extends Thread
     try{
       //port jest IdGracza
       dos.writeUTF(s.getPort() + "");
+      dos.writeUTF(color.asChar()+"");
     }
     catch (IOException ex){}
     while (true)
