@@ -8,20 +8,21 @@ public class TheGame {
 	private static TheGame instance = null;
 	private Board board = null;
 	private Map<String, Integer> players;
-	private Map<Integer, Character> colors;
-	private int points[]; 
+	private Map<Integer, Markers> colors;
+	private int points[];
 	private int counter;
+	private Markers whoseMove;
 
 	private TheGame() {
 		players = new HashMap<String, Integer>();
-		colors = new HashMap<Integer, Character>();
+		colors = new HashMap<Integer, Markers>();
 		points = new int[2];
 		counter = 0;
-		
-		//bedzie też wkrótce kontrola wykonywania ruchów na zmiane
+		whoseMove = Markers.BLACK;
+
 	}
 
-	public static TheGame getInstance() { //double checker metoda statyczna na zwracanie singletona
+	public static TheGame getInstance() { // double checker metoda statyczna na zwracanie singletona
 		if (instance == null) {
 			synchronized (TheGame.class) {
 				if (instance == null)
@@ -36,19 +37,25 @@ public class TheGame {
 	}
 
 	public String makeMove(String move) {
-		String[] splittedCommand = move.split(",");
+		String[] splittedCommand = move.split(","); //parsing
 		String idGracza = splittedCommand[0];
 		int x = Integer.parseInt(splittedCommand[1]);
 		int y = Integer.parseInt(splittedCommand[2]);
 		int id = players.get(idGracza);
-		
-		int pointsScored = board.insert(x, y, colors.get(id));
-		if (pointsScored >= 0) {
-			points[id] += pointsScored;
-			return Integer.toString(points[id]) + ";" + board.boardToString();
-		} else 
-			return "-1" + ";" + board.boardToString(); //illegal move
-		
+		Markers playerColor = colors.get(id);
+
+		if (whoseMove.equals(playerColor)) {
+
+			int pointsScored = board.insert(x, y, playerColor.asChar());
+			if (pointsScored >= 0) {
+				points[id] += pointsScored;
+				whoseMove = playerColor.getEnemy();
+				return Integer.toString(points[id]) + ";" + board.boardToString();
+			} else
+				return "-1" + ";";// + board.boardToString(); // illegal move
+		} else
+			return "NotYrMove" + ";";// + board.boardToString(); // not your turn
+
 	}
 
 	public String whoseMove() {
@@ -57,46 +64,43 @@ public class TheGame {
 		// więc będzie na razie coś typu: jeśli client oczekuje na ruch przeciwnika to
 		// sprawdza co chwilę
 		// tą metodą czy już może zrobić ruch; jak coś wymyślisz ciekawszego to daj znać
-		return "69420";
+		
+		return whoseMove.asString();
 	}
 
 	public String addPlayer(String playerID) {
 		switch (counter) {
 		case 0: {
 			players.put(playerID, counter);
-			colors.put(counter, Markers.BLACK.asChar()); // gracz który pierwszy się połączył jest czarny
+			colors.put(counter, Markers.BLACK); // gracz który pierwszy się połączył jest czarny
 			counter++;
 			return "Succes;Black";
 		}
 		case 1: {
 			players.put(playerID, counter);
-			colors.put(counter, Markers.WHITE.asChar());
+			colors.put(counter, Markers.WHITE);
 			counter++;
 			return "Succes;White";
 		}
-		default: 
+		default:
 			return "Error";
-		
+
 		}
 
 	}
 
-	
 	public Board getBoard() {
 		return board;
 	}
 
-	
 	public Map<String, Integer> getPlayers() {
 		return players;
 	}
 
-	
-	public Map<Integer, Character> getColors() {
+	public Map<Integer, Markers> getColors() {
 		return colors;
 	}
 
-	
 	public int[] getPoints() {
 		return points;
 	}

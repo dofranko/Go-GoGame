@@ -2,9 +2,8 @@ package Go.GameMaker;
 
 import static org.junit.Assert.*;
 
-import java.util.List;
-
 import org.junit.Test;
+
 
 public class BoardTest {
 		
@@ -61,7 +60,7 @@ public class BoardTest {
 	@Test
 	public void testKill() {
 		Board b = new Board(9);
-		b.insert(5, 5, Markers.WHITE.asChar());
+		b.insert(5, 5, Markers.BLACK.getEnemy().asChar()); //checking getEnemy method
 		b.insert(5, 6, Markers.WHITE.asChar());
 		b.insert(5, 7, Markers.WHITE.asChar());
 		b.insert(4, 5, Markers.WHITE.asChar());
