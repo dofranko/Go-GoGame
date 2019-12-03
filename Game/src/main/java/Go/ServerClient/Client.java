@@ -17,8 +17,9 @@ public abstract class Client
   private Socket socket;
   protected String received = "";
   private final String myPlayerId;
-  private boolean isItMyTurn = true;
+  private boolean isItMyTurn = false;
   private String color;
+  Thread check = createWaitingForTurnThread();
   //private Thread waitForMove = createWaitingForTurnThread();
 
   public Client(){
@@ -46,6 +47,8 @@ public abstract class Client
       received = dis.readUTF();
       System.out.println("Mój color: " + received);
       color = received;
+      if(color.equals("Black"))
+        isItMyTurn = true;
       //sendAndReceiveInformation("WhoseMove");
 
     } catch (Exception e) {
@@ -85,28 +88,34 @@ public abstract class Client
           received = dis.readUTF();
           System.out.println(received);
           String color = received.split(";")[0];
-          if(color == this.color){
+          if(color.equals(this.color)){
             isItMyTurn = true;
           }
         }
         //wykouje ruch jeśli to jego tura
-        //true dla testów ! TODO
+        //
         else if(isItMyTurn) {
           dos.writeUTF(toSend);
+          try {
+            Thread.sleep(200);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
           received = dis.readUTF();
           System.out.println(received);
           //warunki rozdzieli się potem na labele
           if(!received.equals("NotYrMove") && !received.equals("-1")){
             isItMyTurn = false;
             updateGameBoard(received.substring(2));
-            Thread waitForMove = createWaitingForTurnThread();
-            waitForMove.start();
+            startWaitingThread();
           }
           else if(received.equals("NotYrMove")) {
             this.isItMyTurn = false;
             System.out.println(received);
           }
         }
+        else
+          startWaitingThread();
 
       } catch (IOException e) {
         e.printStackTrace();
@@ -127,22 +136,40 @@ public abstract class Client
       return this.color;
     }
 
-    protected int[][] convertStonesToIntFromString(String stonesInString){
+    protected void startWaitingThread(){
+      if(!check.isAlive()) {
+        check = createWaitingForTurnThread();
+        check.start();
+      }
+    }
+
+    protected int[][] convertStonesToIntFromString(String stonesInString) {
       int[][] stones;
       String[] columns = stonesInString.split(";");
       stones = new int[columns.length][columns.length];
-
-      int i=0;
-      int j=0;
-      for(String column : columns){
-        String[] fields = column.split(",");
-        for(String field : fields){
-          stones[i][j] = Integer.parseInt(field);
-          j++;
+      try {
+        int i = 0;
+        int j = 0;
+        for (String column : columns) {
+          String[] fields = column.split(",");
+          for (String field : fields) {
+            stones[i][j] = Integer.parseInt(field);
+            j++;
+          }
+          j = 0;
+          i++;
         }
-        j=0;
-        i++;
+        return stones;
+      } catch (Exception ex) {
+        try {
+          dos = new DataOutputStream(socket.getOutputStream());
+          dis = new DataInputStream(socket.getInputStream());
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
       }
+      stones = new int[19][19];
+      stones[0][0]=3;
       return stones;
     }
     private Thread createWaitingForTurnThread(){
@@ -150,11 +177,14 @@ public abstract class Client
         public String canIMove(){
           try {
             dos.writeUTF("WhoseMove");
-            return received = dis.readUTF();
+            sleep(100);
+            received = dis.readUTF();
+            return received;
           } catch (IOException e) {
             e.printStackTrace();
-            return "KILL!";
           }
+          catch (InterruptedException ex){}
+          return "KILL!";
         }
         public void run(){
           String whoseMove = canIMove();
@@ -163,7 +193,7 @@ public abstract class Client
             String fields="";
             System.out.println(whoseMove);
             try {
-              sleep(500);
+              sleep(1000);
             } catch (InterruptedException e) {
               e.printStackTrace();
             }
@@ -171,10 +201,12 @@ public abstract class Client
             colorMove = whoseMove.split(";")[0];
             if(whoseMove.equals("KILL!"))
               break;
-            System.out.println(Thread.activeCount());
+            System.out.println("Watki:" +Thread.activeCount());
+            updateGameBoard(whoseMove.substring(colorMove.length() + 1));
           }
-          isItMyTurn = true;
-          updateGameBoard(whoseMove.substring(colorMove.length()+1));
+          if(!whoseMove.equals("KILL!")) {
+            isItMyTurn = true;
+          }
         }
       };
     }

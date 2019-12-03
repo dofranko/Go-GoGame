@@ -112,7 +112,10 @@ public class ClientGUI extends Client {
 
   @Override
   public void updateGameBoard(String stonesInString){
-    gameBoardJPanel.setStones(convertStonesToIntFromString(stonesInString));
+      int[][] stones = convertStonesToIntFromString(stonesInString);
+      if(stones[0][0]!=3)
+        gameBoardJPanel.setStones(stones);
+
   }
 
 
