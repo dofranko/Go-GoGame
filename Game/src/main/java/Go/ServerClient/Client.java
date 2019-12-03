@@ -56,6 +56,7 @@ public abstract class Client
     }
     //nie mozna przypisać w try catch
       myPlayerId = playerIdToSet;
+    startWaitingThread();
 
   }
     public String getMyPlayerId(){
@@ -106,7 +107,10 @@ public abstract class Client
           //warunki rozdzieli się potem na labele
           if(!received.equals("NotYrMove") && !received.equals("-1")){
             isItMyTurn = false;
-            updateGameBoard(received.substring(2));
+            //pierwsze dwa znaki to liczba punktow i ;, trza potem zmienic bo ktos moze otrzymac wiecej punktow
+            String toSent = received.substring(received.split(";")[0].length()+1);
+            updateGameBoard(toSent);
+            check = createWaitingForTurnThread();
             startWaitingThread();
           }
           else if(received.equals("NotYrMove")) {
@@ -147,7 +151,6 @@ public abstract class Client
       int[][] stones;
       String[] columns = stonesInString.split(";");
       stones = new int[columns.length][columns.length];
-      try {
         int i = 0;
         int j = 0;
         for (String column : columns) {
@@ -160,18 +163,8 @@ public abstract class Client
           i++;
         }
         return stones;
-      } catch (Exception ex) {
-        try {
-          dos = new DataOutputStream(socket.getOutputStream());
-          dis = new DataInputStream(socket.getInputStream());
-        } catch (IOException e) {
-          e.printStackTrace();
         }
-      }
-      stones = new int[19][19];
-      stones[0][0]=3;
-      return stones;
-    }
+    
     private Thread createWaitingForTurnThread(){
      return new Thread(){
         public String canIMove(){
