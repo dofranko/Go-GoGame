@@ -105,7 +105,7 @@ public abstract class Client
           received = dis.readUTF();
           System.out.println(received);
           //warunki rozdzieli się potem na labele
-          if(!received.equals("NotYrMove") && !received.equals("-1")){
+          if(!received.equals("NotYrMove") && !received.equals("IllegalMove")){
             isItMyTurn = false;
             //pierwsze dwa znaki to liczba punktow i ;, trza potem zmienic bo ktos moze otrzymac wiecej punktow
             String toSent = received.substring(received.split(";")[0].length()+1);
