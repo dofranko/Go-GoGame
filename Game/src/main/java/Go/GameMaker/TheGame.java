@@ -12,6 +12,7 @@ public class TheGame {
 	private int points[];
 	private int counter;
 	private Markers whoseMove;
+	private boolean playerAlreadySkipped;
 
 	private TheGame() {
 		players = new HashMap<String, Integer>();
@@ -19,6 +20,7 @@ public class TheGame {
 		points = new int[2];
 		counter = 0;
 		whoseMove = Markers.BLACK;
+		playerAlreadySkipped = false;
 
 	}
 
@@ -43,6 +45,7 @@ public class TheGame {
 		int y = Integer.parseInt(splittedCommand[2]);
 		int id = players.get(idGracza);
 		Markers playerColor = colors.get(id);
+		playerAlreadySkipped = false;
 
 		if (whoseMove.equals(playerColor)) {
 
@@ -52,19 +55,14 @@ public class TheGame {
 				whoseMove = playerColor.getEnemy();
 				return Integer.toString(points[id]) + ";" + board.boardToString();
 			} else
-				return "-1";// + ";";// + board.boardToString(); // illegal move
+				return "IllegalMove";
 		} else
-			return "NotYrMove"; //+ ";";// + board.boardToString(); // not your turn
+			return "NotYrMove"; 
 
 	}
 
 	public String whoseMove() {
-		// TODO tutaj jest metoda pomocnicza dla GUI, która sprawdza czyj ruch
-		// póki co nie wymyśliłem jak powiadomić wszystkich klientó o ruchu
-		// więc będzie na razie coś typu: jeśli client oczekuje na ruch przeciwnika to
-		// sprawdza co chwilę
-		// tą metodą czy już może zrobić ruch; jak coś wymyślisz ciekawszego to daj znać
-		
+				
 		return whoseMove.asString() + ";" + board.boardToString();
 	}
 
@@ -87,6 +85,19 @@ public class TheGame {
 
 		}
 
+	}
+	
+	public String skip(String playerID) {
+		if(!playerAlreadySkipped) {
+			playerAlreadySkipped = true;
+			int id = players.get(playerID);
+			Markers playerColor = colors.get(id);
+			whoseMove = playerColor.getEnemy();
+			return "EnemyWantsToContinue";
+		}
+		else
+			return "EnemyPassedToo";	
+	
 	}
 
 	public Board getBoard() {
