@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement />
+  <nodes>
+    <node x="226.0" y="0.0">Go.GameMaker.Stone</node>
+    <node x="699.3541666666666" y="430.0">GUI.ClientGUI</node>
+    <node x="792.0208333333333" y="77.0">GUI.GameBoardJPanel</node>
+    <node x="176.02083333333334" y="278.0">Go.GameMaker.Board</node>
+    <node x="214.02083333333334" y="774.0">Go.GameMaker.TheGame</node>
+    <node x="266.125" y="1460.0">Go.ServerClient.Server</node>
+    <node x="0.0" y="1182.0">Go.ServerClient.ClientHandler</node>
+    <node x="490.0208333333333" y="0.0">Go.ServerClient.Client</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="Go.ServerClient.Server" target="Go.ServerClient.ClientHandler">
+      <point x="-37.25" y="-49.0" />
+      <point x="303.375" y="1435.0" />
+      <point x="208.0" y="1435.0" />
+      <point x="0.0" y="114.0" />
+    </edge>
+    <edge source="Go.GameMaker.TheGame" target="Go.GameMaker.Board">
+      <point x="64.33333333333331" y="-179.0" />
+      <point x="374.85416666666663" y="749.0" />
+      <point x="400.1875" y="749.0" />
+      <point x="89.66666666666669" y="223.0" />
+    </edge>
+    <edge source="GUI.ClientGUI" target="Go.ServerClient.Client">
+      <point x="-99.60000000000002" y="-114.0" />
+      <point x="724.2541666666666" y="410.0" />
+      <point x="560.5208333333333" y="410.0" />
+      <point x="-70.5" y="190.0" />
+    </edge>
+    <edge source="GUI.ClientGUI" target="GUI.GameBoardJPanel">
+      <point x="49.799999999999955" y="-114.0" />
+      <point x="873.6541666666666" y="410.0" />
+      <point x="887.5208333333333" y="410.0" />
+      <point x="0.0" y="113.0" />
+    </edge>
+    <edge source="Go.ServerClient.Server" target="Go.GameMaker.TheGame">
+      <point x="37.25" y="-49.0" />
+      <point x="377.875" y="1435.0" />
+      <point x="426.5" y="1435.0" />
+      <point x="426.5" y="1157.0" />
+      <point x="374.85416666666663" y="1157.0" />
+      <point x="64.33333333333331" y="179.0" />
+    </edge>
+    <edge source="Go.GameMaker.Board" target="Go.GameMaker.Stone">
+      <point x="-33.625" y="-223.0" />
+      <point x="276.89583333333337" y="253.0" />
+      <point x="290.5" y="253.0" />
+      <point x="-21.5" y="114.0" />
+    </edge>
+    <edge source="Go.ServerClient.ClientHandler" target="Go.GameMaker.TheGame">
+      <point x="-104.0" y="-114.0" />
+      <point x="104.0" y="1157.0" />
+      <point x="246.18750000000003" y="1157.0" />
+      <point x="-64.33333333333331" y="179.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="421.5" y="227.0" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Inner Classes</Category>
+    <Category>Properties</Category>
+    <Category>Fields</Category>
+    <Category>Methods</Category>
+    <Category>Constructors</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

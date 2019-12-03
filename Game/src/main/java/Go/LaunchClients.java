@@ -1,6 +1,7 @@
 package Go;
 
 import GUI.ClientGUI;
+import Go.GameMaker.TheGame;
 import Go.ServerClient.Client;
 
 import java.util.Arrays;
@@ -9,7 +10,7 @@ import java.util.Arrays;
  * Hello world!
  *
  */
-public class App 
+public class LaunchClients
 {
     public static void main( String[] args )
     {

@@ -14,7 +14,7 @@ public class GameBoardJPanelTest {
 
   @Before
   public void createGameBoardJPanel(){
-    this.gameBoardJPanel = new GameBoardJPanel('B');
+    this.gameBoardJPanel = new GameBoardJPanel("Black");
   }
 
   @Test

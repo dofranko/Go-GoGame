@@ -20,8 +20,8 @@ public class Server
 {
   private static int clientCounter = 1;
   public static void main(String[] args) throws IOException, InterruptedException {
-    // server is listening on port 5056
-    ServerSocket serverSocket = new ServerSocket(5056);
+    // Stworzenie servera socketa na porcie: 8523
+    ServerSocket serverSocket = new ServerSocket(8523);
     final TheGame gameServer = TheGame.getInstance();
     gameServer.setBoard(19);
 
@@ -105,7 +105,7 @@ class ClientHandler extends Thread
     try{
       //port jest IdGracza
       dos.writeUTF(s.getPort() + "");
-      dos.writeUTF(color.asChar()+"");
+      dos.writeUTF(color.asString()+"");
     }
     catch (IOException ex){}
     while (true)
@@ -122,10 +122,10 @@ class ClientHandler extends Thread
           System.out.println("Connection closed");
           break;
         }
-        else if(received.equals("playerIdMove")) {
+        else if(received.equals("WhoseMove")) {
           toReturn = gameServer.whoseMove();
         }
-        else if(received.equals("findGame")){
+        else if(received.equals("FindGame")){
           toReturn = gameServer.addPlayer(s.getPort() + "");
         }
         else {
