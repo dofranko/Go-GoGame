@@ -19,8 +19,8 @@ public class MultiClientTest {
   }
   @After
   public void closeClients(){
-    player2.sendAndReceiveInformation("Exit");
-    player1.sendAndReceiveInformation("Exit");
+    player2.sendExit();
+    player1.sendExit();
   }
 
   //TODO dodać metody testujące przebieg rozgrywki, typu ruch jeen ruch drugi,
@@ -31,11 +31,11 @@ public class MultiClientTest {
   @Test
   public void simpleInsert() throws InterruptedException {
     Thread.sleep(2000);
-    player1.sendAndReceiveInformation("1,1");
+    player1.sendMakeMove("1,1");
     Thread.sleep(2000);
-    player2.sendAndReceiveInformation("2,3");
+    player2.sendMakeMove("2,3");
     Thread.sleep(2000);
-    player1.sendAndReceiveInformation("0,10");
+    player1.sendMakeMove("0,10");
     Thread.sleep(2000);
 
     int[][] array = createArrayForGameBoard();

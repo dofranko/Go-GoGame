@@ -10,6 +10,8 @@ public class ClientGUI extends Client {
 
   private JLabel[][] pionki;
   private GameBoardJPanel gameBoardJPanel;
+  private JLabel pointsJLabel;
+  private JLabel statusJLabel;
 
   public ClientGUI(){
     initialize();
@@ -29,9 +31,7 @@ public class ClientGUI extends Client {
     jFrame.addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
-        sendAndReceiveInformation("Exit");
-        try {sendAndReceiveInformation("Exit");}
-        catch (Exception ex){}
+        sendExit();
         jFrame.dispose();
       }
     });
@@ -41,7 +41,7 @@ public class ClientGUI extends Client {
     giveUpJButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        sendAndReceiveInformation("GiveUp");
+        sendGiveUp();
       }
     });
     JButton passJButton = new JButton("Spasuj");
@@ -49,7 +49,7 @@ public class ClientGUI extends Client {
     passJButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        sendAndReceiveInformation("Pass");
+        sendPass();
       }
     });
     mainJPanel.add(passJButton);
@@ -71,7 +71,7 @@ public class ClientGUI extends Client {
           else
             posY++;
         }
-        sendAndReceiveInformation(posX+","+posY);
+        sendMakeMove(posX+","+posY);
       }
       @Override
       public void mousePressed(MouseEvent e) {
@@ -110,6 +110,10 @@ public class ClientGUI extends Client {
     return  mainJPanel;
   }
 
+  private void createJLabels(){
+
+  }
+
   @Override
   public void updateGameBoard(String stonesInString){
       int[][] stones = convertStonesToIntFromString(stonesInString);
@@ -118,6 +122,15 @@ public class ClientGUI extends Client {
 
   }
 
+  @Override
+  protected void updateStatusLabel(String info) {
+
+  }
+
+  @Override
+  protected void updatePointsLabel() {
+
+  }
 
 
 }

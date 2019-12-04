@@ -3,6 +3,9 @@ package Go.ServerClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.IOException;
+
 import static org.junit.Assert.*;
 
 public class ClientTest {
@@ -20,17 +23,21 @@ public class ClientTest {
   }
   @After
   public void closeConnection(){
-    client.sendAndReceiveInformation("Exit");
+    client.sendExit();
   }
 
   @Test
   public void whoseMove(){
     System.out.println("tu jesem");
-    client.sendAndReceiveInformation("WhoseMove");
+    try {
+      client.sendWhoseMove();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
     assertEquals(false, client.getIsItMyTurn());
 
 
-    client.sendAndReceiveInformation("1,1");
+    client.sendMakeMove("1,1");
     assertEquals(false, client.getIsItMyTurn());
   }
 

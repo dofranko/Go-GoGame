@@ -84,6 +84,7 @@ class ClientHandler extends Thread
   final Socket s;
   final TheGame gameServer;
   private Markers color;
+  private String playerID;
 
 
   // Constructor
@@ -94,6 +95,7 @@ class ClientHandler extends Thread
     this.dos = dos;
     this.gameServer = TheGame.getInstance();
     this.color = color;
+    this.playerID = s.getPort() + "";
   }
 
   @Override
@@ -126,14 +128,18 @@ class ClientHandler extends Thread
           toReturn = gameServer.whoseMove();
         }
         else if(received.equals("FindGame")){
-          toReturn = gameServer.addPlayer(s.getPort() + "");
+          toReturn = gameServer.addPlayer(this.playerID);
+        }
+        else if(received.equals("GiveUp")){
+          gameServer.exit(this.playerID);
+          continue;
         }
         else if(received.equals("Pass")){
-          toReturn = gameServer.skip(this.s.getPort()+"");
+          toReturn = gameServer.skip(this.playerID);
         }
         else {
           //tutaj jeśli jest ruch gracza
-          toReturn = gameServer.makeMove(s.getPort() + "," + received);
+          toReturn = gameServer.makeMove(this.playerID + "," + received);
         }
         dos.writeUTF(toReturn);
 

@@ -11,5 +11,15 @@ public class ClientExtendToTest extends Client {
 
   }
 
+  @Override
+  protected void updateStatusLabel(String info) {
+
+  }
+
+  @Override
+  protected void updatePointsLabel() {
+
+  }
+
 
 }
