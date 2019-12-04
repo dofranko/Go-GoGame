@@ -16,7 +16,7 @@ public class LaunchClients
     {
        // System.out.println( "Hello World!" );
         ClientGUI gui = new ClientGUI();
-        ClientGUI gui2 = new ClientGUI();
+        //ClientGUI gui2 = new ClientGUI();
 
     }
 }

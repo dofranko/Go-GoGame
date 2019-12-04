@@ -20,6 +20,7 @@ public abstract class Client
   private boolean isItMyTurn = false;
   private String color;
   Thread check = createWaitingForTurnThread();
+  private String myPoints = "0" ;
   //private Thread waitForMove = createWaitingForTurnThread();
 
   public Client(){
@@ -31,7 +32,7 @@ public abstract class Client
       inetAddress.getHostAddress());
       inetAddress.getHostName()); */ //crossdevice
       // połączenie się na porcie: 8523
-      socket = new Socket(ip, 8523);
+      socket = new Socket("10.182.89.206", 8523);
 
       // pobranie DataInputStream i DataOutputSteam do komunikacji z serwerem(socketem)
       dis = new DataInputStream(socket.getInputStream());
@@ -50,6 +51,8 @@ public abstract class Client
       if(color.equals("Black"))
         isItMyTurn = true;
       //sendAndReceiveInformation("WhoseMove");
+      else if(color.equals("Error"))
+        disconnect();
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -108,7 +111,8 @@ public abstract class Client
           if(!received.equals("NotYrMove") && !received.equals("IllegalMove")){
             isItMyTurn = false;
             //pierwsze dwa znaki to liczba punktow i ;, trza potem zmienic bo ktos moze otrzymac wiecej punktow
-            String toSent = received.substring(received.split(";")[0].length()+1);
+            String myPoints = received.split(";")[0];
+            String toSent = received.substring(myPoints.length()+1);
             updateGameBoard(toSent);
             check = createWaitingForTurnThread();
             startWaitingThread();
@@ -116,6 +120,13 @@ public abstract class Client
           else if(received.equals("NotYrMove")) {
             this.isItMyTurn = false;
             System.out.println(received);
+          }
+        }
+        else if(toSend.equals("Pass")){
+          dos.writeUTF(toSend);
+          received = dis.readUTF();
+          if(received.equals("EnemyPassedToo")){
+            //tutaj coś będzie
           }
         }
         else

@@ -39,7 +39,7 @@ public class TheGame {
 		board = new Board(size);
 	}
 
-	public synchronized String makeMove(String move) {
+	public String makeMove(String move) {
 		String[] splittedCommand = move.split(","); //parsing
 		String idGracza = splittedCommand[0];
 		int x = Integer.parseInt(splittedCommand[1]);
@@ -62,7 +62,7 @@ public class TheGame {
 
 	}
 
-	public synchronized String whoseMove() {
+	public String whoseMove() {
 				
 		return whoseMove.asString() + ";" + board.boardToString();
 	}
@@ -85,7 +85,7 @@ public class TheGame {
 		players.put(playerID, counter);
 		points[counter] = 0;
 		counter++;
-		return "Succes;" + colors.get(counter).asString();
+		return "Succes;" + colors.get(counter-1).asString();
 
 	}
 	

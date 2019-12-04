@@ -18,22 +18,21 @@ import java.net.Socket;
 // Server class
 public class Server
 {
-  private static int clientCounter = 1;
+  private static int clientCounter = 0;
   public static void main(String[] args) throws IOException, InterruptedException {
     // Stworzenie servera socketa na porcie: 8523
     ServerSocket serverSocket = new ServerSocket(8523);
     final TheGame gameServer = TheGame.getInstance();
     gameServer.setBoard(19);
 
-    // running infinite loop for getting
-    // client request
+    //
+    // Dołączanie kolejnych klientów
     while (true) {
       //częśc kodu jeśli ograniczamy iloś graczy
-      //if(clientCounter <= 200 /*CHANGE TO 2 when done*/) {
       Socket socket = null;
 
       try {
-        // socket object to receive incoming client requests
+        // Ackeptowanie nowych klientów
         socket = serverSocket.accept();
         clientCounter++;
         String result = gameServer.addPlayer(socket.getPort()+"");
@@ -118,6 +117,7 @@ class ClientHandler extends Thread
         if (received.equals("Exit")) {
           System.out.println("Client " + this.s + " sends exit...");
           System.out.println("Closing this connection.");
+          gameServer.exit(this.s.getPort()+"");
           this.s.close();
           System.out.println("Connection closed");
           break;
@@ -127,6 +127,9 @@ class ClientHandler extends Thread
         }
         else if(received.equals("FindGame")){
           toReturn = gameServer.addPlayer(s.getPort() + "");
+        }
+        else if(received.equals("Pass")){
+          toReturn = gameServer.skip(this.s.getPort()+"");
         }
         else {
           //tutaj jeśli jest ruch gracza

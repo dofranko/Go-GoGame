@@ -104,7 +104,7 @@ public class ClientGUI extends Client {
     mainJPanel.setLayout(null);
     mainJPanel.setBounds(0,0,800,800);
     mainJPanel.setOpaque(true);
-    mainJPanel.setBackground(Color.RED);
+    mainJPanel.setBackground(Color.LIGHT_GRAY);
     mainJPanel.setMinimumSize(new Dimension(mainJPanel.getWidth(),mainJPanel.getHeight()));
     mainJPanel.setPreferredSize(new Dimension(mainJPanel.getWidth(),mainJPanel.getHeight()));
     return  mainJPanel;
