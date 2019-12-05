@@ -83,7 +83,7 @@ class ClientHandler extends Thread
   final DataOutputStream dos;
   final Socket s;
   final TheGame gameServer;
-  private Markers color;
+  private String color;
   private String playerID;
 
 
@@ -94,7 +94,7 @@ class ClientHandler extends Thread
     this.dis = dis;
     this.dos = dos;
     this.gameServer = TheGame.getInstance();
-    this.color = color;
+    this.color = color.asString();
     this.playerID = s.getPort() + "";
   }
 
@@ -105,8 +105,8 @@ class ClientHandler extends Thread
     String toReturn;
     try{
       //port jest IdGracza
-      dos.writeUTF(s.getPort() + "");
-      dos.writeUTF(color.asString()+"");
+      dos.writeUTF(playerID);
+      dos.writeUTF(color);
     }
     catch (IOException ex){}
     while (true)
@@ -119,7 +119,7 @@ class ClientHandler extends Thread
         if (received.equals("Exit")) {
           System.out.println("Client " + this.s + " sends exit...");
           System.out.println("Closing this connection.");
-          gameServer.exit(this.s.getPort()+"");
+          gameServer.exit(playerID);
           this.s.close();
           System.out.println("Connection closed");
           break;

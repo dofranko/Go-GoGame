@@ -36,24 +36,10 @@ public class ClientGUI extends Client {
       }
     });
 
-    JButton giveUpJButton = new JButton("Poddaj się");
-    giveUpJButton.setBounds(660,300,100,30);
-    giveUpJButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        sendGiveUp();
-      }
-    });
-    JButton passJButton = new JButton("Spasuj");
-    passJButton.setBounds(660,200,100,30);
-    passJButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        sendPass();
-      }
-    });
-    mainJPanel.add(passJButton);
-    mainJPanel.add(giveUpJButton);
+
+    addJButtons(mainJPanel);
+    createJLabels(mainJPanel);
+
     gameBoardJPanel.addMouseListener(new MouseListener() {
       @Override
       public void mouseClicked(MouseEvent e) {
@@ -110,26 +96,72 @@ public class ClientGUI extends Client {
     return  mainJPanel;
   }
 
-  private void createJLabels(){
+  private void createJLabels(JPanel panel){
+    this.statusJLabel = new JLabel("Label statusu");
+    this.statusJLabel.setBounds(5,5,400,30);
+    panel.add(this.statusJLabel);
 
+    this.pointsJLabel = new JLabel("Liczba jeńców: 0");
+    this.pointsJLabel.setBounds(450,5,400,30);
+    panel.add(this.pointsJLabel);
+  }
+
+  private void addJButtons(JPanel panel){
+    JButton giveUpJButton = new JButton("Poddaj się");
+    giveUpJButton.setBounds(660,300,100,30);
+    giveUpJButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        sendGiveUp();
+      }
+    });
+
+    JButton passJButton = new JButton("Spasuj");
+    passJButton.setBounds(660,200,100,30);
+    passJButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        sendPass();
+      }
+    });
+
+    panel.add(giveUpJButton);
+    panel.add(passJButton);
   }
 
   @Override
   public void updateGameBoard(String stonesInString){
       int[][] stones = convertStonesToIntFromString(stonesInString);
-      if(stones[0][0]!=3)
-        gameBoardJPanel.setStones(stones);
-
+      gameBoardJPanel.setStones(stones);
   }
 
   @Override
   protected void updateStatusLabel(String info) {
-
+    switch (info) {
+      case "NotYrMove":
+        this.statusJLabel.setText("Wciąż jest ruch przeciwnika");
+        break;
+      case "IllegalMove":
+        this.statusJLabel.setText("Wykonałeś nieporpawny ruch.");
+        this.statusJLabel.setForeground(Color.YELLOW);
+        break;
+      case "YrMove":
+        this.statusJLabel.setText("Twój ruch. Wykorzystaj go mądrze.");
+        this.statusJLabel.setForeground(new Color(23,95,5));
+        break;
+      case "MoveMade":
+        this.statusJLabel.setText("Ruch przeciwnika.");
+        this.statusJLabel.setForeground(Color.RED);
+        break;
+      default:
+        this.statusJLabel.setText("Jeśli to widzisz to zgłoś się do programisty ;-;");
+        break;
+    }
   }
 
   @Override
   protected void updatePointsLabel() {
-
+    this.pointsJLabel.setText("Liczba jeńców: " + getMyPoints());
   }
 
 

@@ -29,9 +29,11 @@ public abstract class Client
     try {
       // Ip lokalne hosta
       InetAddress ip = InetAddress.getByName("localhost");
+
       /*InetAddress inetAddress = InetAddress.getLocalHost();
       inetAddress.getHostAddress());
       inetAddress.getHostName()); */ //crossdevice
+
       // połączenie się na porcie: 8523
       socket = new Socket(ip, 8523);
 
@@ -125,7 +127,11 @@ public abstract class Client
           updateStatusLabel("NotYrMove");
           System.out.println(received);
         }
+        else if(received.equals("IllegalMove"))
+          updateStatusLabel("IllegalMove");
       }
+      else
+        updateStatusLabel("NotYrMove");
     }
 
     public void sendPass(){
@@ -205,9 +211,12 @@ public abstract class Client
             catch (IOException e) { e.printStackTrace(); disconnect(); break; }
             System.out.println(whoseMove);
             System.out.println("Watki:" +Thread.activeCount());
+            //updateGameBoard(whoseMove.substring(colorMove.length() + 1));
 
           }while(!colorMove.equals(color));
-          updateGameBoard(whoseMove.substring(colorMove.length() + 1));
+          if(whoseMove.substring(colorMove.length() + 1)!=null)
+           updateGameBoard(whoseMove.substring(colorMove.length() + 1));
+          updateStatusLabel("YrMove");
         }
       };
     }
@@ -216,4 +225,7 @@ public abstract class Client
 
     protected abstract void updatePointsLabel();
 
+  public String getMyPoints() {
+    return myPoints;
+  }
 }
