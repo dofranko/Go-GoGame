@@ -62,8 +62,6 @@ public abstract class Client
     }
     //nie mozna przypisać w try catch
     myPlayerId = playerIdToSet;
-    startWaitingThread();
-
   }
     public String getMyPlayerId(){
       return myPlayerId;
@@ -95,9 +93,16 @@ public abstract class Client
       received = dis.readUTF();
       System.out.println(received);
       String color = received.split(";")[0];
-      if(color.equals(this.color)){
+      if(color.equals(this.color) || color.equals("EnemyWantsToContinue")){
         isItMyTurn = true;
       }
+      if(color.equals("EnemyWantsToConitnue")){
+        updateStatusLabel("EnemyWantsToContinue");
+      }
+      if(color.equals("EnemyWantsToPass")){
+        updateStatusLabel("EnemyWantsToPass");
+      }
+
     }
 
     public void sendMakeMove(String move){
@@ -137,12 +142,9 @@ public abstract class Client
     public void sendPass(){
       try {
         dos.writeUTF("Pass");
-        received = dis.readUTF();
       }
       catch (IOException e){ e.printStackTrace(); }
-      if(received.equals("EnemyPassedToo")){
-        //tutaj coś będzie
-      }
+      startWaitingThread();
     }
 
     public void sendGiveUp(){
@@ -212,11 +214,15 @@ public abstract class Client
             System.out.println(whoseMove);
             System.out.println("Watki:" +Thread.activeCount());
             //updateGameBoard(whoseMove.substring(colorMove.length() + 1));
-
+            if(colorMove.equals("BothPassed"))
+              break;
           }while(!colorMove.equals(color));
-          if(whoseMove.substring(colorMove.length() + 1)!=null)
-           updateGameBoard(whoseMove.substring(colorMove.length() + 1));
-          updateStatusLabel("YrMove");
+          if(whoseMove.length() > colorMove.length() + 5) {
+            updateGameBoard(whoseMove.substring(colorMove.length() + 1));
+            updateStatusLabel("YrMove");
+          }
+          if(colorMove.equals("BothPassed"))
+            updateStatusLabel("BothPassed");
         }
       };
     }
@@ -225,7 +231,9 @@ public abstract class Client
 
     protected abstract void updatePointsLabel();
 
-  public String getMyPoints() {
+    protected abstract void startFinalPhase();
+
+    public String getMyPoints() {
     return myPoints;
   }
 }

@@ -8,7 +8,7 @@ public class ClientExtendToTest extends Client {
 
   @Override
   public void updateGameBoard(String stonesInString) {
-
+    this.gameBoard.setStones(convertStonesToIntFromString(stonesInString));
   }
 
   @Override
@@ -18,6 +18,11 @@ public class ClientExtendToTest extends Client {
 
   @Override
   protected void updatePointsLabel() {
+
+  }
+
+  @Override
+  protected void startFinalPhase() {
 
   }
 

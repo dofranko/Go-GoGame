@@ -89,16 +89,16 @@ public class TheGame {
 
 	}
 	
-	public String skip(String playerID) {
+	public void skip(String playerID) {
 		if(!playerAlreadySkipped) {
 			playerAlreadySkipped = true;
 			int id = players.get(playerID);
 			Markers playerColor = colors.get(id);
 			whoseMove = playerColor.getEnemy();
-			return "EnemyWantsToContinue";
+			//return "EnemyWantsToContinue";
 		}
-		else
-			return "EnemyPassedToo";	
+		//else
+			//return "EnemyPassedToo";
 	
 	}
 	public void exit(String playerID) {

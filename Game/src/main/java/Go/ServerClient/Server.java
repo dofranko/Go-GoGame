@@ -135,7 +135,8 @@ class ClientHandler extends Thread
           continue;
         }
         else if(received.equals("Pass")){
-          toReturn = gameServer.skip(this.playerID);
+          gameServer.skip(this.playerID);
+          continue;
         }
         else {
           //tutaj jeśli jest ruch gracza

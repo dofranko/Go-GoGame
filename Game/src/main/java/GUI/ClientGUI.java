@@ -8,7 +8,7 @@ import java.awt.event.*;
 
 public class ClientGUI extends Client {
 
-  private JLabel[][] pionki;
+  //private JLabel[][] pionki;
   private GameBoardJPanel gameBoardJPanel;
   private JLabel pointsJLabel;
   private JLabel statusJLabel;
@@ -81,6 +81,7 @@ public class ClientGUI extends Client {
             jFrame.getInsets().top + jFrame.getInsets().bottom + 650));
     jFrame.setVisible(true);
     jFrame.setResizable(false);
+    startWaitingThread();
   }
   private GameBoardJPanel createGameBoard(){
     return new GameBoardJPanel(getColor());
@@ -98,11 +99,13 @@ public class ClientGUI extends Client {
 
   private void createJLabels(JPanel panel){
     this.statusJLabel = new JLabel("Label statusu");
-    this.statusJLabel.setBounds(5,5,400,30);
+    this.statusJLabel.setBounds(2,5,400,30);
+    this.statusJLabel.setFont(new Font(statusJLabel.getFont().getFontName(), Font.BOLD, 23));
     panel.add(this.statusJLabel);
 
     this.pointsJLabel = new JLabel("Liczba jeńców: 0");
     this.pointsJLabel.setBounds(450,5,400,30);
+    this.pointsJLabel.setFont(new Font(pointsJLabel.getFont().getFontName(), Font.BOLD, 23));
     panel.add(this.pointsJLabel);
   }
 
@@ -140,6 +143,7 @@ public class ClientGUI extends Client {
     switch (info) {
       case "NotYrMove":
         this.statusJLabel.setText("Wciąż jest ruch przeciwnika");
+        this.statusJLabel.setForeground(Color.RED);
         break;
       case "IllegalMove":
         this.statusJLabel.setText("Wykonałeś nieporpawny ruch.");
@@ -153,6 +157,12 @@ public class ClientGUI extends Client {
         this.statusJLabel.setText("Ruch przeciwnika.");
         this.statusJLabel.setForeground(Color.RED);
         break;
+      case "EnemyWantsToPass":
+        this.statusJLabel.setText("Przeciwnik pasuje.");
+        this.statusJLabel.setForeground(new Color(255, 9, 88));
+      case "EnemyWantsToPassToo":
+        this.statusJLabel.setText("Przeciwnik również pasuje! Zaraz nastąpi etap końcowy.");
+        this.statusJLabel.setForeground(new Color(255, 9, 88));
       default:
         this.statusJLabel.setText("Jeśli to widzisz to zgłoś się do programisty ;-;");
         break;
@@ -162,6 +172,11 @@ public class ClientGUI extends Client {
   @Override
   protected void updatePointsLabel() {
     this.pointsJLabel.setText("Liczba jeńców: " + getMyPoints());
+  }
+
+  @Override
+  protected void startFinalPhase() {
+
   }
 
 

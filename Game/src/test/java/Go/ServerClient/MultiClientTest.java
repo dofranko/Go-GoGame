@@ -1,24 +1,22 @@
 package Go.ServerClient;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import static org.junit.Assert.assertEquals;
 
 public class MultiClientTest {
 
-  ClientExtendToTest player1;
-  ClientExtendToTest player2;
+  static ClientExtendToTest player1;
+  static ClientExtendToTest player2;
 
-  @Before
-  public void createPlayers() throws InterruptedException {
+  @BeforeClass
+  public static void createPlayers() throws InterruptedException {
     player1 = new ClientExtendToTest();
     Thread.sleep(2000);
     player2 = new ClientExtendToTest();
   }
-  @After
-  public void closeClients(){
+  @AfterClass
+  public static void closeClients(){
     player2.sendExit();
     player1.sendExit();
   }
@@ -31,17 +29,29 @@ public class MultiClientTest {
   @Test
   public void simpleInsert() throws InterruptedException {
     Thread.sleep(2000);
+    System.out.println("Ruch robi gracz 1: 1,1");
     player1.sendMakeMove("1,1");
     Thread.sleep(2000);
     player2.sendMakeMove("2,3");
+    System.out.println("Ruch robi gracz 2: 2,3");
     Thread.sleep(2000);
     player1.sendMakeMove("0,10");
+    System.out.println("Ruch robi gracz 1: 0,10");
     Thread.sleep(2000);
 
     int[][] array = createArrayForGameBoard();
-    array[1][1] = 1;
-    array[2][3]=2;
-    array[0][10] = 1;
+    array[1][1] = 2;
+    array[2][3]= 1 ;
+    array[0][10] = 2;
+    int[][] st = player1.gameBoard.getStones();
+    for(int i=0; i<19; i++) {
+      for (int j = 0; j < 19; j++) {
+        System.out.print(st[i][j] +",") ;
+
+      }
+      System.out.println();
+    }
+
     assertEquals(array, player1.gameBoard.getStones());
     assertEquals(array, player2.gameBoard.getStones());
     //player1
