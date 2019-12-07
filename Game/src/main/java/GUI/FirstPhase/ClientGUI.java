@@ -1,11 +1,13 @@
 package GUI.FirstPhase;
 
+import GUI.ChatJPanel;
 import GUI.FinalPhase.FinalPhaseJFrame;
 import Go.ServerClient.Client;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.net.Socket;
 
 public class ClientGUI extends Client {
@@ -14,6 +16,8 @@ public class ClientGUI extends Client {
   private GameBoardJPanel gameBoardJPanel;
   private JLabel pointsJLabel;
   private JLabel statusJLabel;
+  private ChatJPanel chatJPanel;
+  private Thread chatThread;
   final private JFrame jFrame;
 
   public ClientGUI(){
@@ -22,6 +26,20 @@ public class ClientGUI extends Client {
   }
   private void initialize(){
     jFrame.setLayout(null);
+    this.chatJPanel = new ChatJPanel();
+    this.chatJPanel.setLocation(650,5);
+    this.chatJPanel.getSendMessageJButton().addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        String message = chatJPanel.getMessage();
+        if(!message.equals("")) {
+          sendChatMessage(message);
+          updateChatField("\nMe: " + message);
+        }
+      }
+    });
+    //chatJPanel.setSize(220,400);
+    jFrame.add(chatJPanel);
 
     JPanel mainJPanel = createMainBoard();
     GameBoardJPanel gameBoardJPanel = createGameBoard();
@@ -35,6 +53,7 @@ public class ClientGUI extends Client {
       @Override
       public void windowClosing(WindowEvent e) {
         sendExit();
+        chatThread.stop();
         jFrame.dispose();
       }
     });
@@ -80,11 +99,13 @@ public class ClientGUI extends Client {
     jFrame.repaint();
     jFrame.pack();
     //insets = rozmiary dla ramki wokól frame
-    jFrame.setSize(new Dimension(jFrame.getInsets().left + jFrame.getInsets().right + 800,
-            jFrame.getInsets().top + jFrame.getInsets().bottom + 650));
+    jFrame.setSize(new Dimension(jFrame.getInsets().left + jFrame.getInsets().right + mainJPanel.getWidth(),
+            jFrame.getInsets().top + jFrame.getInsets().bottom + mainJPanel.getHeight()));
     jFrame.setVisible(true);
     jFrame.setResizable(false);
+
     startWaitingThread();
+    startChatThread();
   }
   private GameBoardJPanel createGameBoard(){
     return new GameBoardJPanel(getColor());
@@ -92,7 +113,7 @@ public class ClientGUI extends Client {
   private JPanel createMainBoard() {
     JPanel mainJPanel = new JPanel();
     mainJPanel.setLayout(null);
-    mainJPanel.setBounds(0,0,800,800);
+    mainJPanel.setBounds(0,0,900,800);
     mainJPanel.setOpaque(true);
     mainJPanel.setBackground(Color.LIGHT_GRAY);
     mainJPanel.setMinimumSize(new Dimension(mainJPanel.getWidth(),mainJPanel.getHeight()));
@@ -114,7 +135,7 @@ public class ClientGUI extends Client {
 
   private void addJButtons(JPanel panel){
     JButton giveUpJButton = new JButton("Poddaj się");
-    giveUpJButton.setBounds(660,300,100,30);
+    giveUpJButton.setBounds(660,500,100,30);
     giveUpJButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -123,7 +144,7 @@ public class ClientGUI extends Client {
     });
 
     JButton passJButton = new JButton("Spasuj");
-    passJButton.setBounds(660,200,100,30);
+    passJButton.setBounds(660,400,100,30);
     passJButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -193,11 +214,29 @@ public class ClientGUI extends Client {
     disconnect();
   }
 
-
   public void resumeGame(Socket socket){
     super.connect(socket);
     this.jFrame.setVisible(true);
     updateStatusLabel("ResumeGame");
+  }
+
+  private void startChatThread(){
+    chatThread = new Thread() {
+      @Override
+      public void run() {
+        while(true){
+          String message = "";
+          try {
+            message = getChatis().readUTF();
+          } catch (IOException ex){ex.printStackTrace(); break;}
+          updateChatField("\nEnemy: " + message);
+        }
+      }
+    };
+    chatThread.start();
+  }
+  private void updateChatField(String message){
+    this.chatJPanel.appendMessage(message);
   }
 }
 
