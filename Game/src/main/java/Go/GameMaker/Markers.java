@@ -1,7 +1,9 @@
 package Go.GameMaker;
 
 public enum Markers {
-	EMPTY(' ', "Empty"), WHITE('W', "White"), BLACK('B', "Black"), DONE('D', "Done");
+	EMPTY(' ', "Empty"), WHITE('W', "White"), BLACK('B', "Black"), DONE('D', "Done"), 
+	WHITEPASSED('P', "WhitePassed"), BLACKPASSED('P', "BlackPassed"), BOTHPASSED('P', "BothPassed"),
+	BLACKWIN('b', "BlackWins"), WHITEWIN('w', "WhiteWins");
 
 	public char asChar() {
 		return asChar;

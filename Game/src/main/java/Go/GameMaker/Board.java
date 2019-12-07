@@ -1,7 +1,7 @@
 package Go.GameMaker;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -27,7 +27,7 @@ public class Board {
 		if (x >= 0 && y >= 0 && x < size && y < size) {
 			Stone s = new Stone(x, y, allyColor);
 			int pointsScored = possibleInsert(s);
-			if (board[x][y] == ' ' && pointsScored >= 0) {
+			if (board[x][y] == Markers.EMPTY.asChar() && pointsScored >= 0) {
 				board[x][y] = allyColor;
 				listOfStones.add(s);
 				return pointsScored;
@@ -145,7 +145,7 @@ public class Board {
 	
 	//dodaje rekurencyjnie pionki do killListy
 	private Set<Stone> killList(int posX, int posY, char color, char[][] copyBoard) { 
-		Set<Stone> cleaner = new LinkedHashSet<Stone>();
+		Set<Stone> cleaner = new HashSet<Stone>();
 		if (posX >= 0 && posY >= 0 && posX < size && posY < size && copyBoard[posX][posY] == color) {
 
 			copyBoard[posX][posY] = Markers.DONE.asChar();
@@ -180,7 +180,7 @@ public class Board {
 	//pozostałe metody są self explanatory
 	public void kill(List<Stone> list) {
 		for (Stone s : list) {
-			board[s.getX()][s.getY()] = ' ';
+			board[s.getX()][s.getY()] = Markers.EMPTY.asChar();
 		}
 		listOfStones.removeAll(list);
 	}
