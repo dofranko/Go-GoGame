@@ -75,8 +75,9 @@ public class TheGame {
 	}
 
 	public String makeMove(String move) {
-		String[] splittedCommand = move.split(","); //parsing
-		String idGracza = splittedCommand[0];
+
+		String[] splittedCommand = move.split(","); // parsing
+		String clientID = splittedCommand[0];
 		int x = Integer.parseInt(splittedCommand[1]);
 		int y = Integer.parseInt(splittedCommand[2]);
 		int playerID = players.get(clientID);
@@ -105,9 +106,10 @@ public class TheGame {
 
 	}
 
-	public String whoseMove() {
-				
-		return whoseMove.asString() + ";" + board.boardToString();
+	public String whoseMove(String clientID) {
+		int boardID = boardsID.get(clientID);
+
+		return whoseMove[boardID].asString() + ";" + boards[boardID].boardToString();
 	}
 
 	public String addPlayer(String clientID) {
@@ -135,24 +137,61 @@ public class TheGame {
 		}
 
 		}
-		players.put(playerID, counter);
-		points[counter] = 0;
-		counter++;
-		return "Succes;" + colors.get(counter-1).asString();
+		players.put(clientID, playerCounter);
+		points[playerCounter] = 0;
+		playerCounter++;
+		return "Succes;" + colors.get(clientID).asString();
 
 	}
-	
-	public void skip(String playerID) {
-		if(!playerAlreadySkipped) {
-			playerAlreadySkipped = true;
-			int id = players.get(playerID);
-			Markers playerColor = colors.get(id);
-			whoseMove = playerColor.getEnemy();
-			//return "EnemyWantsToContinue";
+
+	public void skip(String clientID) {
+		int boardID = boardsID.get(clientID);
+		if (!playerAlreadySkipped[boardID]) {
+			playerAlreadySkipped[boardID] = true;
+			Markers playerColor = colors.get(clientID);
+			if (playerColor.equals(Markers.WHITE))
+				whoseMove[boardID] = Markers.WHITEPASSED;
+			else
+				whoseMove[boardID] = Markers.BLACKPASSED;
+		} else
+			whoseMove[boardID] = Markers.BOTHPASSED;
+
+	}
+
+	public void exit(String clientID) { // czyszczenie map i tablic
+		String enemyID = playerPairs.get(clientID);
+		int boardID = boardsID.get(clientID);
+		players.remove(clientID);
+		players.remove(enemyID);
+		if (colors.get(clientID).equals(Markers.BLACK)) {
+			whoseMove[boardID] = Markers.WHITEWIN;
+			playerPairs.remove(clientID);
+		} else {
+			whoseMove[boardID] = Markers.BLACKWIN;
+			playerPairs.remove(enemyID);
 		}
-		//else
-			//return "EnemyPassedToo";
-	
+
+		colors.remove(clientID);
+		colors.remove(enemyID);
+		players.remove(clientID);
+		players.remove(enemyID);
+
+	}
+
+	public String getEnemyID(String clientID) {
+		String enemyID;
+		if (playerPairs.containsKey(clientID)) {
+			 enemyID = playerPairs.get(clientID);
+			
+		}
+		else if(playerPairs.containsValue(clientID)) {
+			enemyID = getKeyByValue(playerPairs, clientID);
+			
+		}
+		else
+			enemyID = "NoSuchPlayer";
+		return enemyID;
+
 	}
 
 	private <T, E> T getKeyByValue(Map<T, E> map, E value) { // odzyskiwanie klucza z wartości
@@ -179,10 +218,11 @@ public class TheGame {
 		return points;
 	}
 
-	public String pickDeadStones(String move){
+	public String pickDeadStones(String move) {
 		return "0";
 	}
-	public String pickTerritory(String move){
+
+	public String pickTerritory(String move) {
 		return "1";
 	}
 }

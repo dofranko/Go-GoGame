@@ -19,160 +19,63 @@ import java.util.Set;
 import static Go.ServerClient.Server.chatOutputs;
 
 // Server class
-public class Server
-{
-  private static int clientCounter = 0;
-  public static void main(String[] args) throws IOException, InterruptedException {
-    // Stworzenie servera socketa na porcie: 8523
-    ServerSocket serverSocket = new ServerSocket(8523);
-    final TheGame gameServer = TheGame.getInstance();
-    gameServer.setBoard(19);
+public class Server {
+	private static int clientCounter = 0;
 
-    //
-    // Dołączanie kolejnych klientów
-    while (true) {
-      //częśc kodu jeśli ograniczamy iloś graczy
-      Socket socket = null;
+	public static void main(String[] args) throws IOException, InterruptedException {
+		// Stworzenie servera socketa na porcie: 8523
+		ServerSocket serverSocket = new ServerSocket(8523);
+		final TheGame gameServer = TheGame.getInstance();
+		System.out.println("Server has started");
+		// gameServer.setBoard(19);		
+		// TODO na razie TheGame tworzy domyślnie planszę 19x19, w przyszłości należy mu przekazac rozmiar w addPlayer()
 
-      try {
-        // Ackeptowanie nowych klientów
-        socket = serverSocket.accept();
-        clientCounter++;
-        String result = gameServer.addPlayer(socket.getPort()+"");
-        String[] resultSet = result.split(";");
-        Markers color = Markers.EMPTY;
-        if(resultSet[0].equals("Succes")){
-          if(resultSet[1].equals("White"))
-            color = Markers.WHITE;
-          else if(resultSet[1].equals("Black"))
-            color = Markers.BLACK;
-        }
-        else
-          System.out.println("jakiś błąd"); // tu będzie własny exception
+		//
+		// Dołączanie kolejnych klientów
+		while (true) {
+			// częśc kodu jeśli ograniczamy iloś graczy
+			Socket socket = null;
 
-        System.out.println("A new client is connected : " + socket);
-        System.out.println("port: " + socket.getPort());
-        // obtaining input and out streams
-        DataInputStream dis = new DataInputStream(socket.getInputStream());
-        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+			try {
+				// Ackeptowanie nowych klientów
+				socket = serverSocket.accept();
+				clientCounter++;
+				String result = gameServer.addPlayer(socket.getPort() + "");
+				String[] resultSet = result.split(";");
+				Markers color = Markers.EMPTY;
+				if (resultSet[0].equals("Succes")) {
+					if (resultSet[1].equals("White"))
+						color = Markers.WHITE;
+					else if (resultSet[1].equals("Black"))
+						color = Markers.BLACK;
+				} else
+					System.out.println("jakiś błąd"); // tu będzie własny exception
 
-        System.out.println("Assigning new thread for client: " + socket.getPort());
+				System.out.println("A new client is connected : " + socket);
+				System.out.println("port: " + socket.getPort());
+				// obtaining input and out streams
+				DataInputStream dis = new DataInputStream(socket.getInputStream());
+				DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 
-        // create a new thread object
-        Thread t = new ClientHandler(socket, dis, dos, color);
+				System.out.println("Assigning new thread for client: " + socket.getPort());
 
-        // Invoking the start() method
-        t.start();
+				// create a new thread object
+				Thread t = new ClientHandler(socket, dis, dos, color);
 
+				// Invoking the start() method
+				t.start();
 
-      } catch (Exception e) {
-        socket.close();
-        e.printStackTrace();
+			} catch (Exception e) {
+				socket.close();
+				e.printStackTrace();
 
-      }
-    } //else{ //częśc kodu jeśli ograniczamy iloś graczy
-    //System.out.println("za duża ilość połączeń");
-    //Thread.sleep(Long.MAX_VALUE);
-    //}
-    //}
-  }
-}
-
-// ClientHandler class
-class ClientHandler extends Thread
-{
-
-  final DataInputStream dis;
-  final DataOutputStream dos;
-  final Socket s;
-  final TheGame gameServer;
-  private String color;
-  private String playerID;
-
-
-  // Constructor
-  public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos, Markers color)
-  {
-    this.s = s;
-    this.dis = dis;
-    this.dos = dos;
-    this.gameServer = TheGame.getInstance();
-    this.color = color.asString();
-    this.playerID = s.getPort() + "";
-  }
-
-  @Override
-  public void run()
-  {
-    String received;
-    String toReturn;
-    try{
-      //port jest IdGracza
-      dos.writeUTF(playerID);
-      dos.writeUTF(color);
-    }
-    catch (IOException ex){}
-    while (true)
-    {
-      try {
-
-        // receive the answer from client
-        received = dis.readUTF();
-        toReturn = "UnknownCommand";
-        if (received.equals("Exit")) {
-          System.out.println("Client " + this.s + " sends exit...");
-          System.out.println("Closing this connection.");
-          gameServer.exit(playerID);
-          this.s.close();
-          System.out.println("Connection closed");
-          break;
-        }
-        else if(received.equals("WhoseMove")) {
-          toReturn = gameServer.whoseMove();
-        }
-        else if(received.equals("FindGame")){
-          toReturn = gameServer.addPlayer(this.playerID);
-        }
-        else if(received.equals("GiveUp")){
-          gameServer.exit(this.playerID);
-          continue;
-        }
-        else if(received.equals("Pass")){
-          gameServer.skip(this.playerID);
-          continue;
-        }
-        else if(received.equals("MakeMove")) {
-          received = dis.readUTF();
-          //tutaj jeśli jest ruch gracza
-          toReturn = gameServer.makeMove(this.playerID + "," + received);
-        }
-        else if(received.equals("PickDeadStones")){
-          received = dis.readUTF();
-          toReturn = gameServer.pickDeadStones(this.playerID+","+received);
-        }
-        else if(received.equals("PickTerritory")){
-          received = dis.readUTF();
-          toReturn = gameServer.pickTerritory(this.playerID+","+received);
-        }
-        dos.writeUTF(toReturn);
-
-      } catch (IOException e) {
-        e.printStackTrace();
-        System.out.println("Ktoś się rozłączył lub wysątpił błąd. Koniec rozgrywki");
-        break;
-      }
-    }
-
-    try
-    {
-      // closing resources
-      this.dis.close();
-      this.dos.close();
-
-    }catch(IOException e){
-      e.printStackTrace();
-    }
-  }
+			}
+		} // else{ //częśc kodu jeśli ograniczamy iloś graczy
+			// System.out.println("za duża ilość połączeń");
+			// Thread.sleep(Long.MAX_VALUE);
+			// }
+			// }
+	}
 }
 
 // ClientHandler class
@@ -204,8 +107,6 @@ class ClientHandler extends Thread {
 			// port jest IdGracza
 			dos.writeUTF(playerID);
 			dos.writeUTF(color);
-			if(color.equals("Empty"))
-				throw new IOException();
 		} catch (IOException ex) {
 		}
 		while (!exit) {
@@ -215,50 +116,48 @@ class ClientHandler extends Thread {
 				received = dis.readUTF();
 				toReturn = "UnknownCommand";
 				switch (received) {
-					case "Exit": {
-						System.out.println("Client " + this.s + " sends exit...");
-						System.out.println("Closing this connection.");
-						gameServer.exit(playerID);
-						this.s.close();
-						System.out.println("Connection closed");
-						exit = true;
-						continue;
-					}
-					case "WhoseMove": {
-						toReturn = gameServer.whoseMove(this.playerID);
-						break;
-					}
-					case "FindGame": {
-						toReturn = gameServer.addPlayer(this.playerID);
-						break;
-					}
-					case "GiveUp": {
-						gameServer.exit(this.playerID);
-						continue;
-					}
-					case "Pass": {
-						gameServer.skip(this.playerID);
-						continue;
-					}
-					case "MakeMove": {
-						received = dis.readUTF();
-						// tutaj jeśli jest ruch gracza
-						toReturn = gameServer.makeMove(this.playerID + "," + received);
-						break;
-					}
-					case "PickDeadStones": {
-						received = dis.readUTF();
-						toReturn = gameServer.pickDeadStones(this.playerID + "," + received);
-						break;
-					}
-					case "PickTerritory": {
-						received = dis.readUTF();
-						toReturn = gameServer.pickTerritory(this.playerID + "," + received);
-						break;
-					}
-					case "GetEnemyId": {
-						toReturn = gameServer.getEnemyID(this.playerID);
-					}
+				case "Exit": {
+					System.out.println("Client " + this.s + " sends exit...");
+					System.out.println("Closing this connection.");
+					gameServer.exit(playerID);
+					this.s.close();
+					System.out.println("Connection closed");
+					exit = true;
+					continue;
+					
+				}
+				case "WhoseMove": {
+					toReturn = gameServer.whoseMove(this.playerID);
+					break;
+				}
+				case "FindGame": {
+					toReturn = gameServer.addPlayer(this.playerID);
+					break;
+				}
+				case "GiveUp": {
+					gameServer.exit(this.playerID);
+					continue;
+				}
+				case "Pass": {
+					gameServer.skip(this.playerID);
+					continue;
+				}
+				case "MakeMove": {
+					received = dis.readUTF();
+					// tutaj jeśli jest ruch gracza
+					toReturn = gameServer.makeMove(this.playerID + "," + received);
+					break;
+				}
+				case "PickDeadStones": {
+					received = dis.readUTF();
+					toReturn = gameServer.pickDeadStones(this.playerID + "," + received);
+					break;
+				}
+				case "PickTerritory": {
+					received = dis.readUTF();
+					toReturn = gameServer.pickTerritory(this.playerID + "," + received);
+					break;
+				}
 				}
 
 				dos.writeUTF(toReturn);
@@ -301,7 +200,7 @@ class ClientHandler extends Thread {
 			// closing resources
 			this.dis.close();
 			this.dos.close();
-
+			
 
 		} catch (IOException e) {
 			e.printStackTrace();
