@@ -1,13 +1,11 @@
 package GUI.FirstPhase;
 
-import GUI.ChatJPanel;
 import GUI.FinalPhase.FinalPhaseJFrame;
 import Go.ServerClient.Client;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
 import java.net.Socket;
 
 public class ClientGUI extends Client {
@@ -16,21 +14,14 @@ public class ClientGUI extends Client {
   private GameBoardJPanel gameBoardJPanel;
   private JLabel pointsJLabel;
   private JLabel statusJLabel;
-  private ChatJPanel chatJPanel;
-  private Thread chatThread;
   final private JFrame jFrame;
 
   public ClientGUI(){
-
     jFrame = new JFrame();
-    if(!getMyColor().equals("Empty"))
-      initialize();
-    else
-      jFrame.dispose();
+    initialize();
   }
   private void initialize(){
     jFrame.setLayout(null);
-    createChatJPanel();
 
     JPanel mainJPanel = createMainBoard();
     GameBoardJPanel gameBoardJPanel = createGameBoard();
@@ -89,23 +80,19 @@ public class ClientGUI extends Client {
     jFrame.repaint();
     jFrame.pack();
     //insets = rozmiary dla ramki wokól frame
-    jFrame.setSize(new Dimension(jFrame.getInsets().left + jFrame.getInsets().right + mainJPanel.getWidth(),
-            jFrame.getInsets().top + jFrame.getInsets().bottom + mainJPanel.getHeight()));
+    jFrame.setSize(new Dimension(jFrame.getInsets().left + jFrame.getInsets().right + 800,
+            jFrame.getInsets().top + jFrame.getInsets().bottom + 650));
     jFrame.setVisible(true);
     jFrame.setResizable(false);
-
-
-    startWaitingForTurnThread();
-
-    startChatThread();
+    startWaitingThread();
   }
   private GameBoardJPanel createGameBoard(){
-    return new GameBoardJPanel(getMyColor());
+    return new GameBoardJPanel(getColor());
   }
   private JPanel createMainBoard() {
     JPanel mainJPanel = new JPanel();
     mainJPanel.setLayout(null);
-    mainJPanel.setBounds(0,0,900,800);
+    mainJPanel.setBounds(0,0,800,800);
     mainJPanel.setOpaque(true);
     mainJPanel.setBackground(Color.LIGHT_GRAY);
     mainJPanel.setMinimumSize(new Dimension(mainJPanel.getWidth(),mainJPanel.getHeight()));
@@ -114,7 +101,7 @@ public class ClientGUI extends Client {
   }
 
   private void createJLabels(JPanel panel){
-    this.statusJLabel = new JLabel("Ruch przeciwnika.");
+    this.statusJLabel = new JLabel("Label statusu");
     this.statusJLabel.setBounds(2,5,400,30);
     this.statusJLabel.setFont(new Font(statusJLabel.getFont().getFontName(), Font.BOLD, 23));
     panel.add(this.statusJLabel);
@@ -127,7 +114,7 @@ public class ClientGUI extends Client {
 
   private void addJButtons(JPanel panel){
     JButton giveUpJButton = new JButton("Poddaj się");
-    giveUpJButton.setBounds(660,500,100,30);
+    giveUpJButton.setBounds(660,300,100,30);
     giveUpJButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -136,7 +123,7 @@ public class ClientGUI extends Client {
     });
 
     JButton passJButton = new JButton("Spasuj");
-    passJButton.setBounds(660,400,100,30);
+    passJButton.setBounds(660,200,100,30);
     passJButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -146,23 +133,6 @@ public class ClientGUI extends Client {
 
     panel.add(giveUpJButton);
     panel.add(passJButton);
-  }
-
-  private void createChatJPanel(){
-    this.chatJPanel = new ChatJPanel();
-    this.chatJPanel.setLocation(650,5);
-    this.chatJPanel.getSendMessageJButton().addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        String message = chatJPanel.getMessage();
-        if(!message.equals("")) {
-          sendChatMessage(message);
-          updateChatField("\nMe: " + message);
-        }
-      }
-    });
-    this.chatJPanel.setSize(220,400);
-    this.jFrame.add(chatJPanel);
   }
 
   @Override
@@ -190,35 +160,18 @@ public class ClientGUI extends Client {
         this.statusJLabel.setText("Ruch przeciwnika.");
         this.statusJLabel.setForeground(Color.RED);
         break;
-      case "EnemyPassed":
+      case "EnemyWantsToPass":
         this.statusJLabel.setText("Przeciwnik pasuje.");
         this.statusJLabel.setForeground(new Color(255, 9, 88));
-        JOptionPane.showMessageDialog(jFrame, "Przeciwnik pasuje!");
         break;
-      case "BothPassed":
-        this.statusJLabel.setText("Przeciwnik również pasuje!");
-        this.statusJLabel.setForeground(new Color(30, 26, 255));
+      case "EnemyWantsToPassToo":
+        this.statusJLabel.setText("Przeciwnik również pasuje! Zaraz nastąpi etap końcowy.");
+        this.statusJLabel.setForeground(new Color(255, 9, 88));
         startFinalPhase();
-        break;
-      case "YouPassed":
-        this.statusJLabel.setText("Spasowałeś. Oczekiwanie...");
-        this.statusJLabel.setForeground(new Color(105, 16, 64));
         break;
       case "ResumeGame":
         this.statusJLabel.setText("Gra jest kontynuowana.");
         this.statusJLabel.setForeground(new Color(23,95,5));
-        break;
-      case "EnemyGaveUp":
-        this.statusJLabel.setText("Przeciwnik się poddał!");
-        this.statusJLabel.setForeground(new Color(255, 199, 35));
-        break;
-      case "YouWin":
-        this.statusJLabel.setText("Wygrałeś!");
-        this.statusJLabel.setForeground(new Color(218, 255, 22));
-        break;
-      case "YouLose":
-        this.statusJLabel.setText("Przegrałeś. :'(");
-        this.statusJLabel.setForeground(new Color(34, 0, 2));
         break;
       default:
         this.statusJLabel.setText("Jeśli to widzisz to zgłoś się do programisty ;-;");
@@ -233,45 +186,18 @@ public class ClientGUI extends Client {
 
   @Override
   protected void startFinalPhase() {
-    super.startFinalPhase();
     JOptionPane.showMessageDialog(jFrame, "Oboje spasowaliście. Zaraz rozpocznie się etap końcowy");
     this.jFrame.setVisible(false);
-    JFrame finalJFrame = new FinalPhaseJFrame(gameBoardJPanel.getStones(), this.getMyColor(),
-            this, this.getMyPoints(), this.getSocket(), this.getChatSocket());
-    finalJFrame.setVisible(true);
-
+    JFrame finalJFrame = new FinalPhaseJFrame(gameBoardJPanel.getStones(), this.getColor(),
+            this, this.getMyPoints(), this.getSocket());
+    disconnect();
   }
 
-  public void resumeGame(Socket socket, Socket chatSocket){
-    super.connect(socket, chatSocket);
 
+  public void resumeGame(Socket socket){
+    super.connect(socket);
     this.jFrame.setVisible(true);
     updateStatusLabel("ResumeGame");
-  }
-
-  private void startChatThread(){
-    chatThread = new Thread() {
-      @Override
-      public void run() {
-        while(true){
-          String message = "";
-          try {
-            message = getChatis().readUTF();
-          } catch (IOException ex){ex.printStackTrace(); break;}
-
-          if(message.equals("!dc")) {
-            break;
-          }
-
-          updateChatField("\nEnemy: " + message);
-        }
-      }
-    };
-    chatThread.start();
-  }
-
-  private void updateChatField(String message){
-    this.chatJPanel.appendMessage(message);
   }
 }
 
