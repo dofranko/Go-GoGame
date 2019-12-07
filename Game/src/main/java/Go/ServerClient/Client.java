@@ -12,14 +12,15 @@ import java.net.Socket;
 // Client class
 public abstract class Client
 {
-  DataInputStream dis;
-  DataOutputStream dos;
+  private DataInputStream dis;
+  private DataOutputStream dos;
   private Socket socket;
   protected String received = "";
   private final String myPlayerId;
   private boolean isItMyTurn = false;
   private String color;
   private String myPoints = "0" ;
+  private boolean didIPass = false;
   Thread waitingForTurnThread = createWaitingForTurnThread();
 
   //private Thread waitForMove = createWaitingForTurnThread();
@@ -108,6 +109,7 @@ public abstract class Client
     public void sendMakeMove(String move){
       if(isItMyTurn) {
         try {
+          dos.writeUTF("MakeMove");
           dos.writeUTF(move);
           received = dis.readUTF();
         }
@@ -140,6 +142,7 @@ public abstract class Client
     }
 
     public void sendPass(){
+      didIPass = true;
       try {
         dos.writeUTF("Pass");
       }
@@ -214,15 +217,21 @@ public abstract class Client
             System.out.println(whoseMove);
             System.out.println("Watki:" +Thread.activeCount());
             //updateGameBoard(whoseMove.substring(colorMove.length() + 1));
-            if(colorMove.equals("BothPassed"))
+            if(colorMove.equals("BothPassed")) {
+              updateStatusLabel("BothPassed");
               break;
+            }
+            if(colorMove.equals("EnemyWantsToPass") && didIPass == false){
+              updateStatusLabel("EnemyWantsToPass");
+              break;
+            }
+
           }while(!colorMove.equals(color));
           if(whoseMove.length() > colorMove.length() + 5) {
             updateGameBoard(whoseMove.substring(colorMove.length() + 1));
             updateStatusLabel("YrMove");
           }
-          if(colorMove.equals("BothPassed"))
-            updateStatusLabel("BothPassed");
+
         }
       };
     }
@@ -236,4 +245,16 @@ public abstract class Client
     public String getMyPoints() {
     return myPoints;
   }
+
+  public Socket getSocket(){
+      return this.socket;
+  }
+  protected void connect(Socket socket){
+      this.socket = socket;
+      try {
+        this.dos = new DataOutputStream(socket.getOutputStream());
+        this.dis = new DataInputStream(socket.getInputStream());
+      }catch (IOException ex){ex.printStackTrace();}
+  }
+
 }

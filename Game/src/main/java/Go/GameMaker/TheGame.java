@@ -124,4 +124,11 @@ public class TheGame {
 	public int[] getPoints() {
 		return points;
 	}
+
+	public String pickDeadStones(String move){
+		return "0";
+	}
+	public String pickTerritory(String move){
+		return "1";
+	}
 }

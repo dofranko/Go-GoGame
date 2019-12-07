@@ -1,6 +1,6 @@
 package Go.ServerClient;
 
-import GUI.GameBoardJPanel;
+import GUI.FirstPhase.GameBoardJPanel;
 
 public class ClientExtendToTest extends Client {
 

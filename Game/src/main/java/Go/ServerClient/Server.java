@@ -115,7 +115,7 @@ class ClientHandler extends Thread
 
         // receive the answer from client
         received = dis.readUTF();
-
+        toReturn = "UnknownCommand";
         if (received.equals("Exit")) {
           System.out.println("Client " + this.s + " sends exit...");
           System.out.println("Closing this connection.");
@@ -138,9 +138,18 @@ class ClientHandler extends Thread
           gameServer.skip(this.playerID);
           continue;
         }
-        else {
+        else if(received.equals("MakeMove")) {
+          received = dis.readUTF();
           //tutaj jeśli jest ruch gracza
           toReturn = gameServer.makeMove(this.playerID + "," + received);
+        }
+        else if(received.equals("PickDeadStones")){
+          received = dis.readUTF();
+          toReturn = gameServer.pickDeadStones(this.playerID+","+received);
+        }
+        else if(received.equals("PickTerritory")){
+          received = dis.readUTF();
+          toReturn = gameServer.pickTerritory(this.playerID+","+received);
         }
         dos.writeUTF(toReturn);
 

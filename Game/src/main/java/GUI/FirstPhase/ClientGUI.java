@@ -1,10 +1,12 @@
-package GUI;
+package GUI.FirstPhase;
 
+import GUI.FinalPhase.FinalPhaseJFrame;
 import Go.ServerClient.Client;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.net.Socket;
 
 public class ClientGUI extends Client {
 
@@ -12,12 +14,13 @@ public class ClientGUI extends Client {
   private GameBoardJPanel gameBoardJPanel;
   private JLabel pointsJLabel;
   private JLabel statusJLabel;
+  final private JFrame jFrame;
 
   public ClientGUI(){
+    jFrame = new JFrame();
     initialize();
   }
   private void initialize(){
-    final JFrame jFrame = new JFrame();
     jFrame.setLayout(null);
 
     JPanel mainJPanel = createMainBoard();
@@ -160,9 +163,16 @@ public class ClientGUI extends Client {
       case "EnemyWantsToPass":
         this.statusJLabel.setText("Przeciwnik pasuje.");
         this.statusJLabel.setForeground(new Color(255, 9, 88));
+        break;
       case "EnemyWantsToPassToo":
         this.statusJLabel.setText("Przeciwnik również pasuje! Zaraz nastąpi etap końcowy.");
         this.statusJLabel.setForeground(new Color(255, 9, 88));
+        startFinalPhase();
+        break;
+      case "ResumeGame":
+        this.statusJLabel.setText("Gra jest kontynuowana.");
+        this.statusJLabel.setForeground(new Color(23,95,5));
+        break;
       default:
         this.statusJLabel.setText("Jeśli to widzisz to zgłoś się do programisty ;-;");
         break;
@@ -176,8 +186,18 @@ public class ClientGUI extends Client {
 
   @Override
   protected void startFinalPhase() {
-
+    JOptionPane.showMessageDialog(jFrame, "Oboje spasowaliście. Zaraz rozpocznie się etap końcowy");
+    this.jFrame.setVisible(false);
+    JFrame finalJFrame = new FinalPhaseJFrame(gameBoardJPanel.getStones(), this.getColor(),
+            this, this.getMyPoints(), this.getSocket());
+    disconnect();
   }
 
 
+  public void resumeGame(Socket socket){
+    super.connect(socket);
+    this.jFrame.setVisible(true);
+    updateStatusLabel("ResumeGame");
+  }
 }
+
