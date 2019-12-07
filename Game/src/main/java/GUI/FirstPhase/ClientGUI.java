@@ -94,7 +94,9 @@ public class ClientGUI extends Client {
     jFrame.setVisible(true);
     jFrame.setResizable(false);
 
+
     startWaitingForTurnThread();
+
     startChatThread();
   }
   private GameBoardJPanel createGameBoard(){
@@ -235,13 +237,14 @@ public class ClientGUI extends Client {
     JOptionPane.showMessageDialog(jFrame, "Oboje spasowaliście. Zaraz rozpocznie się etap końcowy");
     this.jFrame.setVisible(false);
     JFrame finalJFrame = new FinalPhaseJFrame(gameBoardJPanel.getStones(), this.getMyColor(),
-            this, this.getMyPoints(), this.getSocket());
+            this, this.getMyPoints(), this.getSocket(), this.getChatSocket());
     finalJFrame.setVisible(true);
 
   }
 
   public void resumeGame(Socket socket, Socket chatSocket){
     super.connect(socket, chatSocket);
+
     this.jFrame.setVisible(true);
     updateStatusLabel("ResumeGame");
   }
@@ -255,9 +258,11 @@ public class ClientGUI extends Client {
           try {
             message = getChatis().readUTF();
           } catch (IOException ex){ex.printStackTrace(); break;}
+
           if(message.equals("!dc")) {
             break;
           }
+
           updateChatField("\nEnemy: " + message);
         }
       }

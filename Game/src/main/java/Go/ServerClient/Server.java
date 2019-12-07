@@ -102,6 +102,7 @@ class ChatThread extends Thread {
 					new DataOutputStream(chatOutputs.get(recipient)).writeUTF("!dc");
 					break;
 				}
+
 				DataOutputStream recipientsStream = chatOutputs.get(recipient);
 				if (recipientsStream != null)
 					recipientsStream.writeUTF(message);

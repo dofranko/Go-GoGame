@@ -213,6 +213,7 @@ public abstract class Client {
 			else
 				chatos.writeUTF(enemyPlayerId + ";" + message);
 
+
 		} catch (IOException ex) { ex.printStackTrace(); }
 	}
 
@@ -329,7 +330,9 @@ public abstract class Client {
 			ex.printStackTrace();
 		}
 	}
-
+	protected Socket getChatSocket(){
+		return this.chatSocket;
+	}
 	protected DataInputStream getChatis(){
 		return this.chatis;
 	}
