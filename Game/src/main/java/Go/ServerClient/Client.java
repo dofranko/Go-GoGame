@@ -12,14 +12,17 @@ import java.net.Socket;
 // Client class
 public abstract class Client
 {
-  DataInputStream dis;
-  DataOutputStream dos;
+  private DataInputStream dis;
+  private DataOutputStream dos;
   private Socket socket;
   protected String received = "";
   private final String myPlayerId;
   private boolean isItMyTurn = false;
   private String color;
-  Thread check = createWaitingForTurnThread();
+  private String myPoints = "0" ;
+  private boolean didIPass = false;
+  Thread waitingForTurnThread = createWaitingForTurnThread();
+
   //private Thread waitForMove = createWaitingForTurnThread();
 
   public Client(){
@@ -27,9 +30,11 @@ public abstract class Client
     try {
       // Ip lokalne hosta
       InetAddress ip = InetAddress.getByName("localhost");
+
       /*InetAddress inetAddress = InetAddress.getLocalHost();
       inetAddress.getHostAddress());
       inetAddress.getHostName()); */ //crossdevice
+
       // połączenie się na porcie: 8523
       socket = new Socket(ip, 8523);
 
@@ -50,14 +55,14 @@ public abstract class Client
       if(color.equals("Black"))
         isItMyTurn = true;
       //sendAndReceiveInformation("WhoseMove");
+      else if(color.equals("Error"))
+        disconnect();
 
     } catch (Exception e) {
       e.printStackTrace();
     }
     //nie mozna przypisać w try catch
-      myPlayerId = playerIdToSet;
-    startWaitingThread();
-
+    myPlayerId = playerIdToSet;
   }
     public String getMyPlayerId(){
       return myPlayerId;
@@ -74,58 +79,85 @@ public abstract class Client
       return isItMyTurn;
     }
 
-    public void sendAndReceiveInformation(String toSend) {
+    public void sendExit(){
       try {
-        //waitForMove.start();
-        //Client jeszcze sprawdza, co chce GUI wysłać i czy musi podjąć jakieś działania
-        if (toSend.equals("Exit")) {
-          dos.writeUTF(toSend);
-          disconnect();
-          System.out.println("Connection closed");
-        }
-        //możliwe że do wyrzucenia
-        else if(toSend.equals("WhoseMove")){
-          dos.writeUTF(toSend);
-          received = dis.readUTF();
-          System.out.println(received);
-          String color = received.split(";")[0];
-          if(color.equals(this.color)){
-            isItMyTurn = true;
-          }
-        }
-        //wykouje ruch jeśli to jego tura
-        //
-        else if(isItMyTurn) {
-          dos.writeUTF(toSend);
-          try {
-            Thread.sleep(200);
-          } catch (InterruptedException e) {
-            e.printStackTrace();
-          }
-          received = dis.readUTF();
-          System.out.println(received);
-          //warunki rozdzieli się potem na labele
-          if(!received.equals("NotYrMove") && !received.equals("IllegalMove")){
-            isItMyTurn = false;
-            //pierwsze dwa znaki to liczba punktow i ;, trza potem zmienic bo ktos moze otrzymac wiecej punktow
-            String toSent = received.substring(received.split(";")[0].length()+1);
-            updateGameBoard(toSent);
-            check = createWaitingForTurnThread();
-            startWaitingThread();
-          }
-          else if(received.equals("NotYrMove")) {
-            this.isItMyTurn = false;
-            System.out.println(received);
-          }
-        }
-        else
-          startWaitingThread();
-
+        dos.writeUTF("Exit");
       } catch (IOException e) {
         e.printStackTrace();
       }
+      disconnect();
+      System.out.println("Connection closed");
+    }
+
+    public void sendWhoseMove() throws IOException {
+      dos.writeUTF("WhoseMove");
+      received = dis.readUTF();
+      System.out.println(received);
+      String color = received.split(";")[0];
+      if(color.equals(this.color) || color.equals("EnemyWantsToContinue")){
+        isItMyTurn = true;
+      }
+      if(color.equals("EnemyWantsToConitnue")){
+        updateStatusLabel("EnemyWantsToContinue");
+      }
+      if(color.equals("EnemyWantsToPass")){
+        updateStatusLabel("EnemyWantsToPass");
+      }
 
     }
+
+    public void sendMakeMove(String move){
+      if(isItMyTurn) {
+        try {
+          dos.writeUTF("MakeMove");
+          dos.writeUTF(move);
+          received = dis.readUTF();
+        }
+        catch (IOException e){e.printStackTrace();}
+
+        System.out.println(received);
+        //warunki rozdzieli się potem na labele
+        if(!received.equals("NotYrMove") && !received.equals("IllegalMove")){
+          isItMyTurn = false;
+          updateStatusLabel("MoveMade");
+          //pierwsze kilka znakó to punkty gracza
+          this.myPoints = received.split(";")[0];
+          updatePointsLabel();
+          String arrayOfStonesToUpdate = received.substring(myPoints.length()+1);
+          updateGameBoard(arrayOfStonesToUpdate);
+          //stworzenie i urchomienie wątku czekającego na turę gracza
+          waitingForTurnThread = createWaitingForTurnThread();
+          startWaitingThread();
+        }
+        else if(received.equals("NotYrMove")) {
+          this.isItMyTurn = false;
+          updateStatusLabel("NotYrMove");
+          System.out.println(received);
+        }
+        else if(received.equals("IllegalMove"))
+          updateStatusLabel("IllegalMove");
+      }
+      else
+        updateStatusLabel("NotYrMove");
+    }
+
+    public void sendPass(){
+      didIPass = true;
+      try {
+        dos.writeUTF("Pass");
+      }
+      catch (IOException e){ e.printStackTrace(); }
+      startWaitingThread();
+    }
+
+    public void sendGiveUp(){
+      try {
+        dos.writeUTF("GiveUp");
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+
     public void disconnect(){
       try {
         socket.close();
@@ -135,15 +167,17 @@ public abstract class Client
         e.printStackTrace();
       }
     }
+
     public abstract void updateGameBoard(String stonesInString);
+
     public String getColor(){
       return this.color;
     }
 
     protected void startWaitingThread(){
-      if(!check.isAlive()) {
-        check = createWaitingForTurnThread();
-        check.start();
+      if(!waitingForTurnThread.isAlive()) {
+        waitingForTurnThread = createWaitingForTurnThread();
+        waitingForTurnThread.start();
       }
     }
 
@@ -167,41 +201,60 @@ public abstract class Client
     
     private Thread createWaitingForTurnThread(){
      return new Thread(){
-        public String canIMove(){
-          try {
-            dos.writeUTF("WhoseMove");
-            sleep(100);
-            received = dis.readUTF();
-            return received;
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-          catch (InterruptedException ex){}
-          return "KILL!";
-        }
         public void run(){
-          String whoseMove = canIMove();
-          String colorMove = whoseMove.split(";")[0];
-          while(!colorMove.equals(color) ){
-            String fields="";
-            System.out.println(whoseMove);
+          String colorMove = getColor();
+          String whoseMove = "";
+          do{
+            try {sleep(1000); }
+            catch (InterruptedException e) { e.printStackTrace(); }
+
             try {
-              sleep(1000);
-            } catch (InterruptedException e) {
-              e.printStackTrace();
+              sendWhoseMove();
+              whoseMove = received;
+              colorMove = whoseMove.split(";")[0];
             }
-            whoseMove = canIMove();
-            colorMove = whoseMove.split(";")[0];
-            if(whoseMove.equals("KILL!"))
-              break;
+            catch (IOException e) { e.printStackTrace(); disconnect(); break; }
+            System.out.println(whoseMove);
             System.out.println("Watki:" +Thread.activeCount());
+            //updateGameBoard(whoseMove.substring(colorMove.length() + 1));
+            if(colorMove.equals("BothPassed")) {
+              updateStatusLabel("BothPassed");
+              break;
+            }
+            if(colorMove.equals("EnemyWantsToPass") && didIPass == false){
+              updateStatusLabel("EnemyWantsToPass");
+              break;
+            }
+
+          }while(!colorMove.equals(color));
+          if(whoseMove.length() > colorMove.length() + 5) {
             updateGameBoard(whoseMove.substring(colorMove.length() + 1));
+            updateStatusLabel("YrMove");
           }
-          if(!whoseMove.equals("KILL!")) {
-            isItMyTurn = true;
-          }
+
         }
       };
     }
+
+    protected abstract void updateStatusLabel(String info);
+
+    protected abstract void updatePointsLabel();
+
+    protected abstract void startFinalPhase();
+
+    public String getMyPoints() {
+    return myPoints;
+  }
+
+  public Socket getSocket(){
+      return this.socket;
+  }
+  protected void connect(Socket socket){
+      this.socket = socket;
+      try {
+        this.dos = new DataOutputStream(socket.getOutputStream());
+        this.dis = new DataInputStream(socket.getInputStream());
+      }catch (IOException ex){ex.printStackTrace();}
+  }
 
 }

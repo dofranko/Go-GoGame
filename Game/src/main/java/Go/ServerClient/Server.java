@@ -18,22 +18,21 @@ import java.net.Socket;
 // Server class
 public class Server
 {
-  private static int clientCounter = 1;
+  private static int clientCounter = 0;
   public static void main(String[] args) throws IOException, InterruptedException {
     // Stworzenie servera socketa na porcie: 8523
     ServerSocket serverSocket = new ServerSocket(8523);
     final TheGame gameServer = TheGame.getInstance();
     gameServer.setBoard(19);
 
-    // running infinite loop for getting
-    // client request
+    //
+    // Dołączanie kolejnych klientów
     while (true) {
       //częśc kodu jeśli ograniczamy iloś graczy
-      //if(clientCounter <= 200 /*CHANGE TO 2 when done*/) {
       Socket socket = null;
 
       try {
-        // socket object to receive incoming client requests
+        // Ackeptowanie nowych klientów
         socket = serverSocket.accept();
         clientCounter++;
         String result = gameServer.addPlayer(socket.getPort()+"");
@@ -84,7 +83,8 @@ class ClientHandler extends Thread
   final DataOutputStream dos;
   final Socket s;
   final TheGame gameServer;
-  private Markers color;
+  private String color;
+  private String playerID;
 
 
   // Constructor
@@ -94,7 +94,8 @@ class ClientHandler extends Thread
     this.dis = dis;
     this.dos = dos;
     this.gameServer = TheGame.getInstance();
-    this.color = color;
+    this.color = color.asString();
+    this.playerID = s.getPort() + "";
   }
 
   @Override
@@ -104,8 +105,8 @@ class ClientHandler extends Thread
     String toReturn;
     try{
       //port jest IdGracza
-      dos.writeUTF(s.getPort() + "");
-      dos.writeUTF(color.asString()+"");
+      dos.writeUTF(playerID);
+      dos.writeUTF(color);
     }
     catch (IOException ex){}
     while (true)
@@ -114,10 +115,11 @@ class ClientHandler extends Thread
 
         // receive the answer from client
         received = dis.readUTF();
-
+        toReturn = "UnknownCommand";
         if (received.equals("Exit")) {
           System.out.println("Client " + this.s + " sends exit...");
           System.out.println("Closing this connection.");
+          gameServer.exit(playerID);
           this.s.close();
           System.out.println("Connection closed");
           break;
@@ -126,11 +128,28 @@ class ClientHandler extends Thread
           toReturn = gameServer.whoseMove();
         }
         else if(received.equals("FindGame")){
-          toReturn = gameServer.addPlayer(s.getPort() + "");
+          toReturn = gameServer.addPlayer(this.playerID);
         }
-        else {
+        else if(received.equals("GiveUp")){
+          gameServer.exit(this.playerID);
+          continue;
+        }
+        else if(received.equals("Pass")){
+          gameServer.skip(this.playerID);
+          continue;
+        }
+        else if(received.equals("MakeMove")) {
+          received = dis.readUTF();
           //tutaj jeśli jest ruch gracza
-          toReturn = gameServer.makeMove(s.getPort() + "," + received);
+          toReturn = gameServer.makeMove(this.playerID + "," + received);
+        }
+        else if(received.equals("PickDeadStones")){
+          received = dis.readUTF();
+          toReturn = gameServer.pickDeadStones(this.playerID+","+received);
+        }
+        else if(received.equals("PickTerritory")){
+          received = dis.readUTF();
+          toReturn = gameServer.pickTerritory(this.playerID+","+received);
         }
         dos.writeUTF(toReturn);
 

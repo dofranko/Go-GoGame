@@ -1,10 +1,6 @@
 package Go;
 
-import GUI.ClientGUI;
-import Go.GameMaker.TheGame;
-import Go.ServerClient.Client;
-
-import java.util.Arrays;
+import GUI.FirstPhase.ClientGUI;
 
 /**
  * Hello world!

@@ -1,6 +1,6 @@
 package Go.ServerClient;
 
-import GUI.GameBoardJPanel;
+import GUI.FirstPhase.GameBoardJPanel;
 
 public class ClientExtendToTest extends Client {
 
@@ -8,6 +8,21 @@ public class ClientExtendToTest extends Client {
 
   @Override
   public void updateGameBoard(String stonesInString) {
+    this.gameBoard.setStones(convertStonesToIntFromString(stonesInString));
+  }
+
+  @Override
+  protected void updateStatusLabel(String info) {
+
+  }
+
+  @Override
+  protected void updatePointsLabel() {
+
+  }
+
+  @Override
+  protected void startFinalPhase() {
 
   }
 

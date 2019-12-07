@@ -39,7 +39,7 @@ public class TheGame {
 		board = new Board(size);
 	}
 
-	public synchronized String makeMove(String move) {
+	public String makeMove(String move) {
 		String[] splittedCommand = move.split(","); //parsing
 		String idGracza = splittedCommand[0];
 		int x = Integer.parseInt(splittedCommand[1]);
@@ -62,7 +62,7 @@ public class TheGame {
 
 	}
 
-	public synchronized String whoseMove() {
+	public String whoseMove() {
 				
 		return whoseMove.asString() + ";" + board.boardToString();
 	}
@@ -85,20 +85,20 @@ public class TheGame {
 		players.put(playerID, counter);
 		points[counter] = 0;
 		counter++;
-		return "Succes;" + colors.get(counter).asString();
+		return "Succes;" + colors.get(counter-1).asString();
 
 	}
 	
-	public String skip(String playerID) {
+	public void skip(String playerID) {
 		if(!playerAlreadySkipped) {
 			playerAlreadySkipped = true;
 			int id = players.get(playerID);
 			Markers playerColor = colors.get(id);
 			whoseMove = playerColor.getEnemy();
-			return "EnemyWantsToContinue";
+			//return "EnemyWantsToContinue";
 		}
-		else
-			return "EnemyPassedToo";	
+		//else
+			//return "EnemyPassedToo";
 	
 	}
 	public void exit(String playerID) {
@@ -123,5 +123,12 @@ public class TheGame {
 
 	public int[] getPoints() {
 		return points;
+	}
+
+	public String pickDeadStones(String move){
+		return "0";
+	}
+	public String pickTerritory(String move){
+		return "1";
 	}
 }

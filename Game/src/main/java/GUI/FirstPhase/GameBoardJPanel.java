@@ -1,4 +1,4 @@
-package GUI;
+package GUI.FirstPhase;
 
 import Go.GameMaker.Markers;
 
@@ -8,14 +8,14 @@ import java.awt.*;
 
 public class GameBoardJPanel extends JPanel {
 
-  private int[][] stones;
-  private JLabel[][] stonesJLabels;
+  protected int[][] stones;
+  protected JLabel[][] stonesJLabels;
 
   public GameBoardJPanel(String color) {
     this.setLayout(null);
     this.setBounds(0, 0, 608, 608);
     this.setOpaque(true);
-    this.setBackground(Color.GREEN);
+    this.setBackground(Color.GRAY);
     this.setMinimumSize(new Dimension(this.getWidth(), this.getHeight()));
     this.setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));
     //kolejność następnych komponentow jest wazna
@@ -75,7 +75,7 @@ public class GameBoardJPanel extends JPanel {
    public void setStonesJLabels(JLabel[][] stonesJLabels){
      this.stonesJLabels = stonesJLabels;
    }*/
-  private void updateGameBoard() {
+  protected void updateGameBoard() {
     for (int i = 0; i < 19; i++) {
       for (int j = 0; j < 19; j++) {
         if (stones[i][j] == 1)

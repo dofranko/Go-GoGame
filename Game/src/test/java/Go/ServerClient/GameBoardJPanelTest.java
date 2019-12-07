@@ -1,10 +1,8 @@
 package Go.ServerClient;
 
-import GUI.GameBoardJPanel;
+import GUI.FirstPhase.GameBoardJPanel;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.swing.*;
 
 import static org.junit.Assert.assertEquals;
 
