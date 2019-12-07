@@ -12,14 +12,20 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import static Go.ServerClient.Server.chatOutputs;
 
 // Server class
 public class Server {
-	private static int clientCounter = 0;
+	public static Map<String, DataOutputStream> chatOutputs = new HashMap<>();
 
 	public static void main(String[] args) throws IOException, InterruptedException {
 		// Stworzenie servera socketa na porcie: 8523
 		ServerSocket serverSocket = new ServerSocket(8523);
+		ServerSocket chatServerSocket = new ServerSocket(8524);
 		final TheGame gameServer = TheGame.getInstance();
 		System.out.println("Server has started");
 		// gameServer.setBoard(19);		
@@ -30,11 +36,16 @@ public class Server {
 		while (true) {
 			// częśc kodu jeśli ograniczamy iloś graczy
 			Socket socket = null;
+			Socket chatSocket = null;
 
 			try {
 				// Ackeptowanie nowych klientów
 				socket = serverSocket.accept();
-				clientCounter++;
+				chatSocket = chatServerSocket.accept();
+				chatOutputs.put(socket.getPort()+"", new DataOutputStream(chatSocket.getOutputStream()));
+				Thread chat = new ChatThread(chatSocket);
+				chat.start();
+
 				String result = gameServer.addPlayer(socket.getPort() + "");
 				String[] resultSet = result.split(";");
 				Markers color = Markers.EMPTY;
@@ -65,14 +76,37 @@ public class Server {
 				e.printStackTrace();
 
 			}
-		} // else{ //częśc kodu jeśli ograniczamy iloś graczy
-			// System.out.println("za duża ilość połączeń");
-			// Thread.sleep(Long.MAX_VALUE);
-			// }
-			// }
+		}
 	}
 }
+class ChatThread extends Thread {
+	private Socket socket;
+	private DataInputStream dis;
 
+	public ChatThread(Socket socket){
+		this.socket = socket;
+		try {
+			this.dis = new DataInputStream(socket.getInputStream());
+		} catch(IOException ex){ex.printStackTrace();}
+	}
+	//funkcjonalnosc chatu
+	@Override
+	public void run() {
+		while(true) {
+			try {
+				String received = dis.readUTF();
+				String recipient = received.split(";")[0];
+				String message = received.split(";")[1];
+				DataOutputStream recipientsStream = chatOutputs.get(recipient);
+				if (recipientsStream != null)
+					recipientsStream.writeUTF(message);
+			} catch (IOException ex) {
+				ex.printStackTrace();
+				break;
+			}
+		}
+	}
+}
 // ClientHandler class
 class ClientHandler extends Thread {
 
@@ -111,48 +145,51 @@ class ClientHandler extends Thread {
 				received = dis.readUTF();
 				toReturn = "UnknownCommand";
 				switch (received) {
-				case "Exit": {
-					System.out.println("Client " + this.s + " sends exit...");
-					System.out.println("Closing this connection.");
-					gameServer.exit(playerID);
-					this.s.close();
-					System.out.println("Connection closed");
-					exit = true;
-					continue;
-					
-				}
-				case "WhoseMove": {
-					toReturn = gameServer.whoseMove(this.playerID);
-					break;
-				}
-				case "FindGame": {
-					toReturn = gameServer.addPlayer(this.playerID);
-					break;
-				}
-				case "GiveUp": {
-					gameServer.exit(this.playerID);
-					continue;
-				}
-				case "Pass": {
-					gameServer.skip(this.playerID);
-					continue;
-				}
-				case "MakeMove": {
-					received = dis.readUTF();
-					// tutaj jeśli jest ruch gracza
-					toReturn = gameServer.makeMove(this.playerID + "," + received);
-					break;
-				}
-				case "PickDeadStones": {
-					received = dis.readUTF();
-					toReturn = gameServer.pickDeadStones(this.playerID + "," + received);
-					break;
-				}
-				case "PickTerritory": {
-					received = dis.readUTF();
-					toReturn = gameServer.pickTerritory(this.playerID + "," + received);
-					break;
-				}
+					case "Exit": {
+						System.out.println("Client " + this.s + " sends exit...");
+						System.out.println("Closing this connection.");
+						gameServer.exit(playerID);
+						this.s.close();
+						System.out.println("Connection closed");
+						exit = true;
+						continue;
+
+					}
+					case "WhoseMove": {
+						toReturn = gameServer.whoseMove(this.playerID);
+						break;
+					}
+					case "FindGame": {
+						toReturn = gameServer.addPlayer(this.playerID);
+						break;
+					}
+					case "GiveUp": {
+						gameServer.exit(this.playerID);
+						continue;
+					}
+					case "Pass": {
+						gameServer.skip(this.playerID);
+						continue;
+					}
+					case "MakeMove": {
+						received = dis.readUTF();
+						// tutaj jeśli jest ruch gracza
+						toReturn = gameServer.makeMove(this.playerID + "," + received);
+						break;
+					}
+					case "PickDeadStones": {
+						received = dis.readUTF();
+						toReturn = gameServer.pickDeadStones(this.playerID + "," + received);
+						break;
+					}
+					case "PickTerritory": {
+						received = dis.readUTF();
+						toReturn = gameServer.pickTerritory(this.playerID + "," + received);
+						break;
+					}
+					case "GetEnemyId": {
+						toReturn = gameServer.getEnemyID(this.playerID);
+					}
 				}
 
 				dos.writeUTF(toReturn);
@@ -195,7 +232,7 @@ class ClientHandler extends Thread {
 			// closing resources
 			this.dis.close();
 			this.dos.close();
-			
+
 
 		} catch (IOException e) {
 			e.printStackTrace();
