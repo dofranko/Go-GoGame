@@ -14,8 +14,12 @@ public abstract class Client {
 	private DataInputStream dis;
 	private DataOutputStream dos;
 	private Socket socket;
+	private Socket chatSocket;
+	private DataOutputStream chatos;
+	private DataInputStream chatis;
 	protected String received = "";
 	private final String myPlayerId;
+	private String enemyPlayerId = "";
 	private boolean isItMyTurn = false;
 	private String color;
 	private String myPoints = "0";
@@ -37,6 +41,12 @@ public abstract class Client {
 
 			// połączenie się na porcie: 8523
 			socket = new Socket(ip, 8523);
+			chatSocket = new Socket(ip, 8524);
+			chatos = new DataOutputStream(chatSocket.getOutputStream());
+			chatis = new DataInputStream(chatSocket.getInputStream());
+			// pobranie DataInputStream i DataOutputSteam do komunikacji z serwerem(socketem)
+			dis = new DataInputStream(socket.getInputStream());
+			dos = new DataOutputStream(socket.getOutputStream());
 
 			// pobranie DataInputStream i DataOutputSteam do komunikacji z
 			// serwerem(socketem)
@@ -158,6 +168,17 @@ public abstract class Client {
 		}
 	}
 
+	public void sendChatMessage(String message) {
+		try {
+			if (enemyPlayerId.isEmpty()) {
+				dos.writeUTF("GetEnemyId");
+				enemyPlayerId = dis.readUTF();
+			}
+			chatos.writeUTF(enemyPlayerId + ";" + message);
+
+		} catch (IOException ex) { ex.printStackTrace(); }
+	}
+
 	public void disconnect() {
 		try {
 			dis.close();
@@ -266,4 +287,7 @@ public abstract class Client {
 		}
 	}
 
+	protected DataInputStream getChatis(){
+		return this.chatis;
+	}
 }

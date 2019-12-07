@@ -23,15 +23,13 @@ public class ChatJPanel extends JPanel {
     chatJTextArea.setBackground(Color.RED);
     chatJTextArea.setEnabled(false);
     chatJTextArea.setDisabledTextColor(Color.BLACK);
-    chatJTextArea.setLineWrap(true);
-    chatJTextArea.setWrapStyleWord(true);
 
     jScrollPane = new JScrollPane(chatJTextArea);
     jScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
     this.add(jScrollPane);
 
     this.messageJTextField = new JTextField();
-    this.messageJTextField.setSize(220, 30);
+    this.messageJTextField.setSize(220, 50);
     this.add(messageJTextField);
     this.setSize(220,200);
   }
@@ -48,6 +46,6 @@ public class ChatJPanel extends JPanel {
     super.setSize(width, height);
     this.sendMessageJButton.setLocation(2, this.getHeight()-sendMessageJButton.getHeight());
     this.messageJTextField.setLocation(0, sendMessageJButton.getY()-messageJTextField.getHeight());
-    this.jScrollPane.setBounds(0,0,this.getWidth()-5,this.getHeight()-sendMessageJButton.getHeight()-messageJTextField.getHeight());
+    this.jScrollPane.setBounds(0,0,this.getWidth()-7,this.getHeight()-sendMessageJButton.getHeight()-messageJTextField.getHeight());
   }
 }
