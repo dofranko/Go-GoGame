@@ -97,6 +97,10 @@ class ChatThread extends Thread {
 				String received = dis.readUTF();
 				String recipient = received.split(";")[0];
 				String message = received.split(";")[1];
+				if(message.equals("!dc")) {
+					new DataOutputStream(chatOutputs.get(recipient)).writeUTF("!dc");
+					break;
+				}
 				DataOutputStream recipientsStream = chatOutputs.get(recipient);
 				if (recipientsStream != null)
 					recipientsStream.writeUTF(message);
@@ -153,7 +157,6 @@ class ClientHandler extends Thread {
 						System.out.println("Connection closed");
 						exit = true;
 						continue;
-
 					}
 					case "WhoseMove": {
 						toReturn = gameServer.whoseMove(this.playerID);

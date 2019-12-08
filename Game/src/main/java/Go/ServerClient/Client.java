@@ -174,13 +174,17 @@ public abstract class Client {
 				dos.writeUTF("GetEnemyId");
 				enemyPlayerId = dis.readUTF();
 			}
-			chatos.writeUTF(enemyPlayerId + ";" + message);
+			if(message.equals("!dc"))
+				chatos.writeUTF(myPlayerId+";"+"!dc");
+			else
+				chatos.writeUTF(enemyPlayerId + ";" + message);
 
 		} catch (IOException ex) { ex.printStackTrace(); }
 	}
 
 	public void disconnect() {
 		try {
+			chatos.writeUTF(myPlayerId+";"+"!dc");
 			dis.close();
 			dos.close();
 			socket.close();
