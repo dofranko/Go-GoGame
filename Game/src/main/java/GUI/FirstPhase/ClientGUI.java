@@ -53,7 +53,6 @@ public class ClientGUI extends Client {
       @Override
       public void windowClosing(WindowEvent e) {
         sendExit();
-        chatThread.stop();
         jFrame.dispose();
       }
     });
@@ -229,6 +228,9 @@ public class ClientGUI extends Client {
           try {
             message = getChatis().readUTF();
           } catch (IOException ex){ex.printStackTrace(); break;}
+          if(message.equals("!dc")) {
+            break;
+          }
           updateChatField("\nEnemy: " + message);
         }
       }
