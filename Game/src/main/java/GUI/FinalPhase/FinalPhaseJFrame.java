@@ -17,20 +17,26 @@ public class FinalPhaseJFrame extends JFrame {
   private ClientGUI parentGame;
   private String myColor;
   private Socket socket;
+  private Socket chatSocket;
   private DataOutputStream dos;
   private DataInputStream dis;
+  private DataOutputStream chatos;
+  private DataInputStream chatis;
   private Stage stage = Stage.DEADSTONES;
   private boolean isItmyTurn = true;
 
-  public FinalPhaseJFrame(int[][] actualStones, String color, ClientGUI parent, String points, Socket socket){
+  public FinalPhaseJFrame(int[][] actualStones, String color, ClientGUI parent, String points, Socket socket, Socket chatSocket){
     this.boardJPanel = new TerritoryAndDeadStonesJPanel(actualStones, color);
     this.myColor = color;
     this.myPoints = points;
     this.parentGame = parent;
     this.socket = socket;
+    this.chatSocket = chatSocket;
     try {
       this.dis = new DataInputStream(socket.getInputStream());
       this.dos = new DataOutputStream(socket.getOutputStream());
+      this.chatos = new DataOutputStream(chatSocket.getOutputStream());
+      this.chatis = new DataInputStream(chatSocket.getInputStream());
     }
     catch (IOException ex){ex.printStackTrace();}
     this.stage = Stage.DEADSTONES;
@@ -41,7 +47,7 @@ public class FinalPhaseJFrame extends JFrame {
     acceptJButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        acceptEnemyMove();
+        acceptStage();
       }
     });
 
@@ -81,12 +87,10 @@ public class FinalPhaseJFrame extends JFrame {
 
   private void resumeGame(){
 
-    this.parentGame.resumeGame(this.socket);
-    try {
-      this.socket.close();
-      this.dis.close();
-      this.dos.close();
-    }catch(IOException ex){ex.printStackTrace();}
+    this.parentGame.resumeGame(this.socket, this.chatSocket);
+    this.socket = null;
+    this.dos = null;
+    this.dis = null;
     this.dispose();
   }
 
@@ -117,6 +121,7 @@ public class FinalPhaseJFrame extends JFrame {
     int[][] stones = convertStonesToIntFromString(stonesInString);
     this.boardJPanel.setStones(stones);
   }
+
   private int[][] convertStonesToIntFromString(String stonesInString) {
     int[][] stones;
     String[] columns = stonesInString.split(";");
@@ -135,10 +140,10 @@ public class FinalPhaseJFrame extends JFrame {
     return stones;
   }
 
-  private void acceptEnemyMove(){
+  private void acceptStage(){
     String received="";
     try {
-      dos.writeUTF("AcceptEnemyMove");
+      dos.writeUTF("Accept");
       received = dis.readUTF();
     } catch (IOException e) {
       e.printStackTrace();
