@@ -21,7 +21,7 @@ public abstract class Client {
 	private final String myPlayerId;
 	private String enemyPlayerId = "";
 	private boolean isItMyTurn = false;
-	private String color;
+	private String myColor;
 	private String myPoints = "0";
 	private boolean didIPass = false;
 	Thread waitingForTurnThread = createWaitingForTurnThread();
@@ -61,11 +61,11 @@ public abstract class Client {
 			// odczytanie koloru gracza
 			received = dis.readUTF();
 			System.out.println("Mój color: " + received);
-			color = received;
-			if (color.equals("Black"))
+			myColor = received;
+			if (myColor.equals("Black"))
 				isItMyTurn = true;
 			// sendAndReceiveInformation("WhoseMove");
-			else if (color.equals("ServerOverload"))
+			else if (myColor.equals("Empty"))
 				disconnect();
 
 		} catch (Exception e) {
@@ -100,21 +100,50 @@ public abstract class Client {
 		System.out.println("Connection closed");
 	}
 
-	public void sendWhoseMove() throws IOException { // tutaj dopasuj sobie komunikaty zwracane przez TheGame
+	public String sendWhoseMove() throws IOException { // tutaj dopasuj sobie komunikaty zwracane przez TheGame
 		dos.writeUTF("WhoseMove");
 		received = dis.readUTF();
+		String toReturn = received;
+		String colorMove = toReturn.split(";")[0];
 		System.out.println(received);
-		String color = received.split(";")[0];
-		if (color.equals(this.color) || color.equals("EnemyWantsToContinue")) {
+
+		if (colorMove.equals(this.myColor)) { //tura tego gracza
 			isItMyTurn = true;
+			didIPass = false;
+			if (toReturn.length() > colorMove.length() + 5 && colorMove.equals(myColor)) {
+				updateGameBoard(toReturn.substring(colorMove.length() + 1));
+				updateStatusLabel("YrMove");
+			}
 		}
-		if (color.equals("EnemyWantsToConitnue")) {
-			updateStatusLabel("EnemyWantsToContinue");
-		}
-		if (color.equals("EnemyWantsToPass")) {
-			updateStatusLabel("EnemyWantsToPass");
+		//przeciwnik spasował
+		switch (colorMove){
+			case "BlackPassed":
+			case "WhitePassed":
+				if(!didIPass){
+					isItMyTurn = true;
+					updateStatusLabel("EnemyPassed");
+				}
+				else
+					updateStatusLabel("YouPassed");
+				break;
+			case "BothPassed":
+				updateStatusLabel("BothPassed");
+				break;
+			case "Empty":
+				updateStatusLabel("EnemyGaveUp");
+				break;
+			case "BlackWins":
+			case "WhiteWins":
+				if(colorMove.contains(this.myColor)) {
+					updateStatusLabel("YouWin");
+					isItMyTurn = false;
+				}
+				else
+					updateStatusLabel("YouLose");
+				break;
 		}
 
+		return toReturn;
 	}
 
 	public void sendMakeMove(String move) {
@@ -139,7 +168,7 @@ public abstract class Client {
 				updateGameBoard(arrayOfStonesToUpdate);
 				// stworzenie i urchomienie wątku czekającego na turę gracza
 				waitingForTurnThread = createWaitingForTurnThread();
-				startWaitingThread();
+				startWaitingForTurnThread();
 			} else if (received.equals("NotYrMove")) {
 				this.isItMyTurn = false;
 				updateStatusLabel("NotYrMove");
@@ -151,13 +180,18 @@ public abstract class Client {
 	}
 
 	public void sendPass() {
-		didIPass = true;
-		try {
-			dos.writeUTF("Pass");
-		} catch (IOException e) {
-			e.printStackTrace();
+		if(isItMyTurn) {
+			try {
+				dos.writeUTF("Pass");
+				didIPass = true;
+				isItMyTurn = false;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			startWaitingForTurnThread();
 		}
-		startWaitingThread();
+		else
+			updateStatusLabel("NotYrMove");
 	}
 
 	public void sendGiveUp() {
@@ -195,11 +229,11 @@ public abstract class Client {
 
 	public abstract void updateGameBoard(String stonesInString);
 
-	public String getColor() {
-		return this.color;
+	public String getMyColor() {
+		return this.myColor;
 	}
 
-	protected void startWaitingThread() {
+	protected void startWaitingForTurnThread() {
 		if (!waitingForTurnThread.isAlive()) {
 			waitingForTurnThread = createWaitingForTurnThread();
 			waitingForTurnThread.start();
@@ -227,7 +261,7 @@ public abstract class Client {
 	private Thread createWaitingForTurnThread() {
 		return new Thread() {
 			public void run() {
-				String colorMove = getColor();
+				String decision = getMyColor();
 				String whoseMove = "";
 				do {
 					try {
@@ -237,9 +271,8 @@ public abstract class Client {
 					}
 
 					try {
-						sendWhoseMove();
-						whoseMove = received;
-						colorMove = whoseMove.split(";")[0];
+						whoseMove = sendWhoseMove();
+						decision = whoseMove.split(";")[0];
 					} catch (IOException e) {
 						e.printStackTrace();
 						disconnect();
@@ -247,21 +280,18 @@ public abstract class Client {
 					}
 					System.out.println(whoseMove);
 					System.out.println("Watki:" + Thread.activeCount());
-					// updateGameBoard(whoseMove.substring(colorMove.length() + 1));
-					if (colorMove.equals("BothPassed")) {
-						updateStatusLabel("BothPassed");
-						break;
-					}
-					if (colorMove.equals("EnemyWantsToPass") && didIPass == false) {
-						updateStatusLabel("EnemyWantsToPass");
-						break;
-					}
 
-				} while (!colorMove.equals(color));
-				if (whoseMove.length() > colorMove.length() + 5) {
-					updateGameBoard(whoseMove.substring(colorMove.length() + 1));
-					updateStatusLabel("YrMove");
-				}
+
+					if (decision.equals("BothPassed"))
+						break;
+					//przeciwnik pasuje
+					if ((decision.equals("BlackPassed") || decision.equals("WhitePassed")) && didIPass == false)
+						break;
+					//przeciwnik się poddał
+					if(decision.equals("WhiteWins") || decision.equals("BlackWins"))
+						break;
+
+				} while (!isItMyTurn);
 
 			}
 		};
@@ -271,7 +301,13 @@ public abstract class Client {
 
 	protected abstract void updatePointsLabel();
 
-	protected abstract void startFinalPhase();
+	protected void startFinalPhase(){
+		this.socket = null;
+		this.dis = null;
+		this.dos = null;
+		this.chatos = null;
+		this.chatis = null;
+	}
 
 	public String getMyPoints() {
 		return myPoints;
@@ -281,11 +317,14 @@ public abstract class Client {
 		return this.socket;
 	}
 
-	protected void connect(Socket socket) {
+	protected void connect(Socket socket, Socket chatSocket) {
 		this.socket = socket;
+		this.chatSocket = chatSocket;
 		try {
 			this.dos = new DataOutputStream(socket.getOutputStream());
 			this.dis = new DataInputStream(socket.getInputStream());
+			this.chatos = new DataOutputStream(chatSocket.getOutputStream());
+			this.chatis = new DataInputStream(chatSocket.getInputStream());
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}

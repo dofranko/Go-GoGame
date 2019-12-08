@@ -55,7 +55,7 @@ public class Server {
 					else if (resultSet[1].equals("Black"))
 						color = Markers.BLACK;
 				} else
-					System.out.println("jakiś błąd"); // tu będzie własny exception
+					color = Markers.EMPTY;
 
 				System.out.println("A new client is connected : " + socket);
 				System.out.println("port: " + socket.getPort());
@@ -79,6 +79,7 @@ public class Server {
 		}
 	}
 }
+
 class ChatThread extends Thread {
 	private Socket socket;
 	private DataInputStream dis;
@@ -111,6 +112,7 @@ class ChatThread extends Thread {
 		}
 	}
 }
+
 // ClientHandler class
 class ClientHandler extends Thread {
 
@@ -140,6 +142,8 @@ class ClientHandler extends Thread {
 			// port jest IdGracza
 			dos.writeUTF(playerID);
 			dos.writeUTF(color);
+			if(color.equals("Empty"))
+				throw new IOException();
 		} catch (IOException ex) {
 		}
 		while (!exit) {
