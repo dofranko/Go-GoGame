@@ -13,6 +13,14 @@ public class TheGameTest {
 		//game.setBoard(19);
 		assertEquals("Succes;Black", game.addPlayer("playerOne"));
 		assertEquals("Succes;White", game.addPlayer("playerTwo"));
+		assertEquals("Succes;Black", game.addPlayer("playerThree"));
+		assertEquals("Succes;White", game.addPlayer("playerFour"));
+		int boardID = game.getBoardsID().get("playerOne");
+		assertEquals(0, boardID);
+		boardID = game.getBoardsID().get("playerTwo");
+		assertEquals(0, boardID);
+		boardID = game.getBoardsID().get("playerThree");
+		assertEquals(1, boardID);
 		
 		
 		
@@ -38,5 +46,6 @@ public class TheGameTest {
 		assertEquals("IllegalMove", game.makeMove(command).split(";")[0]); //illegal move
 		
 	}
+	
 
 }
