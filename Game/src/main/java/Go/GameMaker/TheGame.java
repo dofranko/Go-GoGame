@@ -111,6 +111,10 @@ public class TheGame {
 
 		return whoseMove[boardID].asString() + ";" + boards[boardID].boardToString();
 	}
+	public String mapRefresh(String clientID) {
+		int boardID = boardsID.get(clientID);
+		return boards[boardID].boardToString(); // tu bedzie wysyłac plansze z odwpowidnimi znacznikami
+	}
 
 	public String addPlayer(String clientID) {
 
@@ -177,7 +181,37 @@ public class TheGame {
 		players.remove(enemyID);
 
 	}
+	
+	public void pickDeadStones(String move) {
+		String[] splittedCommand = move.split(","); // parsing
+		String clientID = splittedCommand[0];
+		int x = Integer.parseInt(splittedCommand[1]);
+		int y = Integer.parseInt(splittedCommand[2]);
+		Markers playerColor = colors.get(clientID);
+		int boardID = boardsID.get(clientID);
+		boards[boardID].markDeadStones(x, y, playerColor.getEnemy().asChar()); //voting on enemy color
+		
+		
+	}
+	public void countPoints(String clientID) {
+		int boardID = boardsID.get(clientID);
+		int playerID = players.get(clientID);
+		Markers playerColor = colors.get(clientID);
+		int enemyPlayerID = players.get(getEnemyID(clientID));
+		countPoints(playerID, enemyPlayerID, boardID, playerColor);
+				
+	}
 
+	public void pickTerritory(String move) {
+		String[] splittedCommand = move.split(","); // parsing
+		String clientID = splittedCommand[0];
+		int x = Integer.parseInt(splittedCommand[1]);
+		int y = Integer.parseInt(splittedCommand[2]);
+		Markers playerColor = colors.get(clientID);
+		int boardID = boardsID.get(clientID);
+		boards[boardID].claimTerritory(x, y, playerColor.asChar());
+	}
+	
 	public String getEnemyID(String clientID) {
 		String enemyID;
 		if (playerPairs.containsKey(clientID)) {
@@ -192,6 +226,17 @@ public class TheGame {
 			enemyID = "NoSuchPlayer";
 		return enemyID;
 
+	}
+	private void countPoints(int playerID, int enemyPlayerID, int boardID, Markers playerColor) {
+		if(playerColor.equals(Markers.WHITE)) { 
+			points[playerID] += boards[boardID].getDeadStoneAndTerritoryPoints(Markers.WHITE.asChar());
+			points[enemyPlayerID] += boards[boardID].getDeadStoneAndTerritoryPoints(Markers.BLACK.asChar()); 
+		}
+		else {
+			points[playerID] += boards[boardID].getDeadStoneAndTerritoryPoints(Markers.BLACK.asChar()); 
+			points[enemyPlayerID] +=  boards[boardID].getDeadStoneAndTerritoryPoints(Markers.WHITE.asChar());
+		}
+		boards[boardID].sweepDeadStones();
 	}
 
 	private <T, E> T getKeyByValue(Map<T, E> map, E value) { // odzyskiwanie klucza z wartości
@@ -218,11 +263,18 @@ public class TheGame {
 		return points;
 	}
 
-	public String pickDeadStones(String move) {
-		return "0";
+
+	public Map<String, Markers> getColors() {
+		return colors;
 	}
 
-	public String pickTerritory(String move) {
-		return "1";
+	public Map<String, String> getPlayerPairs() {
+		return playerPairs;
 	}
+
+	public Map<String, Integer> getBoardsID() {
+		return boardsID;
+	}
+
+	
 }

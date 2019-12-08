@@ -179,13 +179,13 @@ class ClientHandler extends Thread {
 					}
 					case "PickDeadStones": {
 						received = dis.readUTF();
-						toReturn = gameServer.pickDeadStones(this.playerID + "," + received);
-						break;
+						gameServer.pickDeadStones(this.playerID + "," + received);
+						continue;
 					}
 					case "PickTerritory": {
 						received = dis.readUTF();
-						toReturn = gameServer.pickTerritory(this.playerID + "," + received);
-						break;
+						gameServer.pickTerritory(this.playerID + "," + received);
+						continue;
 					}
 					case "GetEnemyId": {
 						toReturn = gameServer.getEnemyID(this.playerID);
