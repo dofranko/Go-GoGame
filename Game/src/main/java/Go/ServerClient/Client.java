@@ -92,8 +92,9 @@ public abstract class Client {
 
 	public void sendExit() {
 		try {
+			received = "Exit";
 			dos.writeUTF("Exit");
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		disconnect();
@@ -210,6 +211,8 @@ public abstract class Client {
 			}
 			if(message.equals("!dc"))
 				chatos.writeUTF(myPlayerId+";"+"!dc");
+			else if (message.equals("!dctemporary"))
+				chatos.writeUTF(myPlayerId+";"+"!dctemporary");
 			else
 				chatos.writeUTF(enemyPlayerId + ";" + message);
 
@@ -219,11 +222,11 @@ public abstract class Client {
 
 	public void disconnect() {
 		try {
-			chatos.writeUTF(myPlayerId+";"+"!dc");
 			dis.close();
 			dos.close();
 			socket.close();
-		} catch (IOException e) {
+			chatos.writeUTF(myPlayerId+";"+"!dc");
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

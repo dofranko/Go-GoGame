@@ -26,7 +26,7 @@ public class ClientGUI extends Client {
     if(!getMyColor().equals("Empty"))
       initialize();
     else
-      jFrame.dispose();
+      jFrame.dispatchEvent(new WindowEvent(jFrame, WindowEvent.WINDOW_CLOSING));
   }
   private void initialize(){
     jFrame.setLayout(null);
@@ -233,36 +233,40 @@ public class ClientGUI extends Client {
 
   @Override
   protected void startFinalPhase() {
-    super.startFinalPhase();
     JOptionPane.showMessageDialog(jFrame, "Oboje spasowaliście. Zaraz rozpocznie się etap końcowy");
     this.jFrame.setVisible(false);
+    this.sendChatMessage("!dctemporary");
     JFrame finalJFrame = new FinalPhaseJFrame(gameBoardJPanel.getStones(), this.getMyColor(),
             this, this.getMyPoints(), this.getSocket(), this.getChatSocket());
     finalJFrame.setVisible(true);
-
+    super.startFinalPhase();
   }
 
-  public void resumeGame(Socket socket, Socket chatSocket){
-    super.connect(socket, chatSocket);
+  public void resumeGame(Socket socket, Socket chatSocket, String status){
+    if(status.equals("!dc")) {
+      jFrame.dispatchEvent(new WindowEvent(jFrame, WindowEvent.WINDOW_CLOSING));
+    }
+    else {
+      super.connect(socket, chatSocket);
+      this.jFrame.setVisible(true);
+      updateStatusLabel("ResumeGame");
+      startChatThread();
+    }
 
-    this.jFrame.setVisible(true);
-    updateStatusLabel("ResumeGame");
   }
 
   private void startChatThread(){
     chatThread = new Thread() {
       @Override
       public void run() {
-        while(true){
+        while(!received.equals("Exit")){
           String message = "";
           try {
             message = getChatis().readUTF();
           } catch (IOException ex){ex.printStackTrace(); break;}
-
           if(message.equals("!dc")) {
             break;
           }
-
           updateChatField("\nEnemy: " + message);
         }
       }
@@ -272,6 +276,10 @@ public class ClientGUI extends Client {
 
   private void updateChatField(String message){
     this.chatJPanel.appendMessage(message);
+  }
+
+  public JFrame getjFrame(){
+    return this.jFrame;
   }
 }
 

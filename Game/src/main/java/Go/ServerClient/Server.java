@@ -14,7 +14,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import static Go.ServerClient.Server.chatOutputs;
 
@@ -43,7 +42,7 @@ public class Server {
 				socket = serverSocket.accept();
 				chatSocket = chatServerSocket.accept();
 				chatOutputs.put(socket.getPort()+"", new DataOutputStream(chatSocket.getOutputStream()));
-				Thread chat = new ChatThread(chatSocket);
+				Thread chat = new ServerChatThread(chatSocket);
 				chat.start();
 
 				String result = gameServer.addPlayer(socket.getPort() + "");
@@ -80,11 +79,11 @@ public class Server {
 	}
 }
 
-class ChatThread extends Thread {
+class ServerChatThread extends Thread {
 	private Socket socket;
 	private DataInputStream dis;
 
-	public ChatThread(Socket socket){
+	public ServerChatThread(Socket socket){
 		this.socket = socket;
 		try {
 			this.dis = new DataInputStream(socket.getInputStream());
@@ -101,6 +100,10 @@ class ChatThread extends Thread {
 				if(message.equals("!dc")) {
 					new DataOutputStream(chatOutputs.get(recipient)).writeUTF("!dc");
 					break;
+				}
+				else if(message.equals("!dctemporary")) {
+					new DataOutputStream(chatOutputs.get(recipient)).writeUTF("!dc");
+					continue;
 				}
 
 				DataOutputStream recipientsStream = chatOutputs.get(recipient);
@@ -197,7 +200,11 @@ class ClientHandler extends Thread {
 					}
 					case "GetEnemyId": {
 						toReturn = gameServer.getEnemyID(this.playerID);
+						break;
 					}
+					case "MapRefresh":
+						toReturn = gameServer.mapRefresh(this.playerID);
+						break;
 				}
 
 				dos.writeUTF(toReturn);

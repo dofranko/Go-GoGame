@@ -3,6 +3,7 @@ package GUI.FinalPhase;
 import GUI.FirstPhase.ClientGUI;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -10,9 +11,9 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class FinalPhaseJFrame extends JFrame {
-  public enum Stage{DEADSTONES, TERRITORY}
+  public enum Stage{DEADSTONES, TERRITORY, THEEND}
 
-  private TerritoryAndDeadStonesJPanel boardJPanel;
+  private FinalStageJPanel boardJPanel;
   private String myPoints;
   private ClientGUI parentGame;
   private String myColor;
@@ -23,10 +24,12 @@ public class FinalPhaseJFrame extends JFrame {
   private DataOutputStream chatos;
   private DataInputStream chatis;
   private Stage stage = Stage.DEADSTONES;
-  private boolean isItmyTurn = true;
+  private boolean isItMyTurn = true;
 
-  public FinalPhaseJFrame(int[][] actualStones, String color, ClientGUI parent, String points, Socket socket, Socket chatSocket){
-    this.boardJPanel = new TerritoryAndDeadStonesJPanel(actualStones, color);
+  public FinalPhaseJFrame(int[][] actualStones, String color, final ClientGUI parent, String points, Socket socket, Socket chatSocket){
+    this.boardJPanel = new FinalStageJPanel(actualStones, color);
+    //this.boardJPanel.setSize(900,800);
+    this.add(boardJPanel);
     this.myColor = color;
     this.myPoints = points;
     this.parentGame = parent;
@@ -40,9 +43,22 @@ public class FinalPhaseJFrame extends JFrame {
     }
     catch (IOException ex){ex.printStackTrace();}
     this.stage = Stage.DEADSTONES;
-    this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-
+    this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    this.addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowClosing(WindowEvent e) {
+        stage = Stage.THEEND;
+        try {
+          chatos.writeUTF("!dc");
+        } catch (Exception ex) {
+          ex.printStackTrace();
+        }
+        resumeGame("!dc");
+      }
+    });
+    //this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+    this.setSize(new Dimension(this.getInsets().left + this.getInsets().right + boardJPanel.getWidth(),
+            this.getInsets().top + this.getInsets().bottom + boardJPanel.getHeight()));
     JButton acceptJButton = new JButton("Ackeptuj wybór");
     acceptJButton.addActionListener(new ActionListener() {
       @Override
@@ -83,14 +99,19 @@ public class FinalPhaseJFrame extends JFrame {
       public void mouseExited(MouseEvent e) {
       }
     });
+    this.boardJPanel.repaint();
+    this.pack();
+    startRefreshingMapThread();
   }
 
-  private void resumeGame(){
-
-    this.parentGame.resumeGame(this.socket, this.chatSocket);
+  private void resumeGame(String status){
+    this.parentGame.resumeGame(this.socket, this.chatSocket, status);
     this.socket = null;
+    this.chatSocket = null;
     this.dos = null;
     this.dis = null;
+    this.chatos = null;
+    this.chatis = null;
     this.dispose();
   }
 
@@ -98,24 +119,19 @@ public class FinalPhaseJFrame extends JFrame {
     String received ="";
     if(stage.equals(Stage.DEADSTONES)){
       try {
-        dos.writeUTF("PickDeadStone");
+        dos.writeUTF("PickDeadStones");
         dos.writeUTF(move);
-        received = dis.readUTF();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      } catch (IOException e) { e.printStackTrace(); }
     }
     else if(stage.equals(Stage.TERRITORY)){
       try {
         dos.writeUTF("PickTerritory");
         dos.writeUTF(move);
-        received = dis.readUTF();
       } catch (IOException e) {
         e.printStackTrace();
       }
     }
-    received = received.substring(received.split(";")[0].length()+1);
-    updateGameBoard(received);
+    System.out.println(received);
   }
   public void updateGameBoard(String stonesInString){
     int[][] stones = convertStonesToIntFromString(stonesInString);
@@ -144,13 +160,31 @@ public class FinalPhaseJFrame extends JFrame {
     String received="";
     try {
       dos.writeUTF("Accept");
-      received = dis.readUTF();
     } catch (IOException e) {
       e.printStackTrace();
     }
-    if(received.equals("Accepted")){
+  }
 
-    }
+  private void startRefreshingMapThread(){
+    Thread refresh = new Thread(){
+      @Override
+      public void run() {
+        String stones;
+        while(!stage.equals(Stage.THEEND)){
+          try{
+            sleep(1000);
+            dos.writeUTF("MapRefresh");
+            stones = dis.readUTF();
+          }
+          catch (InterruptedException ex){ex.printStackTrace(); break;}
+          catch (IOException ex) {ex.printStackTrace(); break;}
+          catch (Exception ex) {ex.printStackTrace(); break;}
+          System.out.println("Hi:"+stones);
+          updateGameBoard(stones);
+        }
+      }
+    };
+    refresh.start();
   }
 }
 

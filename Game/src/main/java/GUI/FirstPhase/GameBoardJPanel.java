@@ -78,12 +78,17 @@ public class GameBoardJPanel extends JPanel {
   protected void updateGameBoard() {
     for (int i = 0; i < 19; i++) {
       for (int j = 0; j < 19; j++) {
-        if (stones[i][j] == 1)
-          stonesJLabels[i][j].setIcon(new ImageIcon("files/white-stone.png"));
-        else if (stones[i][j] == 2)
-          stonesJLabels[i][j].setIcon(new ImageIcon("files/black-stone.png"));
-        else
-          stonesJLabels[i][j].setIcon(new ImageIcon("files/no-stone.png"));
+        switch (stones[i][j]) {
+          case 1:
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/white-stone.png"));
+            break;
+          case 2:
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/black-stone.png"));
+            break;
+          default:
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/no-stone.png"));
+            break;
+        }
       }
     }
     this.repaint();

@@ -1,0 +1,51 @@
+package GUI.FinalPhase;
+
+import GUI.FirstPhase.GameBoardJPanel;
+
+import javax.swing.*;
+
+
+public class FinalStageJPanel extends GameBoardJPanel {
+ // final private int[][] stonesAtTheEndOFMatch;
+
+  public FinalStageJPanel(int[][] stones, String color){
+    super(color);
+    this.setStones(stones);
+    //this.stonesAtTheEndOFMatch = stones;
+    this.stones = stones;
+  }
+
+
+  @Override
+  protected void updateGameBoard() {
+    super.updateGameBoard();
+    for (int i = 0; i < 19; i++) {
+      for (int j = 0; j < 19; j++) {
+        switch (stones[i][j]){
+          case 1:
+          case 2:
+            break;
+          case 3:
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/white-dead-pick.png"));
+            break;
+          case 4:
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/black-dead-pick.png"));
+            break;
+          case 5:
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/white-territory-pick.png"));
+            break;
+          case 6:
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/black-territory-pick.png"));
+            break;
+          case 7:
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/white-territory-done.png"));
+            break;
+          case 8:
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/black-territory-done.png"));
+            break;
+        }
+      }
+    }
+    this.repaint();
+  }
+}
