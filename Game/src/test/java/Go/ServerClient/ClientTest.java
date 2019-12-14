@@ -1,5 +1,6 @@
 package Go.ServerClient;
 
+import Go.ServerClient.Client.Client;
 import org.junit.*;
 
 import java.io.IOException;

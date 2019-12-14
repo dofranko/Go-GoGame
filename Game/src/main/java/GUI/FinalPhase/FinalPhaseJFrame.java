@@ -1,5 +1,6 @@
 package GUI.FinalPhase;
 
+import GUI.ChatJPanel;
 import GUI.FirstPhase.ClientGUI;
 
 import javax.swing.*;
@@ -11,27 +12,36 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class FinalPhaseJFrame extends JFrame {
+  /**
+   * Etap rozgrywki. Wybieranie martwych kamieni - wybieranie terytorium - koniec
+   */
   public enum Stage{DEADSTONES, TERRITORY, THEEND}
 
   private FinalStageJPanel boardJPanel;
+  private ChatJPanel chatJPanel;
+
   private String myPoints;
-  private ClientGUI parentGame;
   private String myColor;
+
+  private ClientGUI parentGame;
+
   private Socket socket;
-  private Socket chatSocket;
   private DataOutputStream dos;
   private DataInputStream dis;
+
+  private Socket chatSocket;
   private DataOutputStream chatos;
   private DataInputStream chatis;
-  private Stage stage = Stage.DEADSTONES;
-  private boolean isItMyTurn = true;
 
-  public FinalPhaseJFrame(int[][] actualStones, String color, final ClientGUI parent, String points, Socket socket, Socket chatSocket){
+  private Stage stage = Stage.DEADSTONES;
+
+  public FinalPhaseJFrame(int[][] actualStones, String color, final ClientGUI parent,  Socket socket, Socket chatSocket,
+                          ChatJPanel chatJPanel){
     this.boardJPanel = new FinalStageJPanel(actualStones, color);
     //this.boardJPanel.setSize(900,800);
     this.add(boardJPanel);
+    this.chatJPanel = chatJPanel;
     this.myColor = color;
-    this.myPoints = points;
     this.parentGame = parent;
     this.socket = socket;
     this.chatSocket = chatSocket;
@@ -53,7 +63,7 @@ public class FinalPhaseJFrame extends JFrame {
         } catch (Exception ex) {
           ex.printStackTrace();
         }
-        resumeGame("!dc");
+        disconnect("!dc");
       }
     });
     //this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
@@ -104,8 +114,14 @@ public class FinalPhaseJFrame extends JFrame {
     startRefreshingMapThread();
   }
 
-  private void resumeGame(String status){
-    this.parentGame.resumeGame(this.socket, this.chatSocket, status);
+  /**
+   * rozłączenie tego okna
+   * @param status
+   */
+  private void disconnect(String status){
+    if(status.equals("!dc"))
+      this.parentGame.finishGame();
+
     this.socket = null;
     this.chatSocket = null;
     this.dos = null;
@@ -115,6 +131,18 @@ public class FinalPhaseJFrame extends JFrame {
     this.dispose();
   }
 
+  /**
+   * wznowienie gry
+   */
+  private void resumeGame(){
+    this.parentGame.resumeGame(this.socket);
+    disconnect("");
+  }
+
+  /**
+   * wysłanie wybrangeo pola do swerwera
+   * @param move
+   */
   private void sendPickStones(String move){
     String received ="";
     if(stage.equals(Stage.DEADSTONES)){
@@ -133,11 +161,21 @@ public class FinalPhaseJFrame extends JFrame {
     }
     System.out.println(received);
   }
+
+  /**
+   * aktualizacja planszy gry
+   * @param stonesInString
+   */
   public void updateGameBoard(String stonesInString){
     int[][] stones = convertStonesToIntFromString(stonesInString);
     this.boardJPanel.setStones(stones);
   }
 
+  /**
+   * Zamiana String w tablice int[][] kamieni
+   * @param stonesInString kamienie w Stringu
+   * @return tablica int[][] kamieni
+   */
   private int[][] convertStonesToIntFromString(String stonesInString) {
     int[][] stones;
     String[] columns = stonesInString.split(";");
@@ -156,15 +194,20 @@ public class FinalPhaseJFrame extends JFrame {
     return stones;
   }
 
+  /**
+   * Akceptacja przez gracza aktualnego stanu
+   */
   private void acceptStage(){
-    String received="";
     try {
-      dos.writeUTF("Accept");
+      dos.writeUTF("AcceptStage");
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
 
+  /**
+   * Wątek pobierający informacje o planszy i odświeżający ją. (@see waitingForTurnThread)
+   */
   private void startRefreshingMapThread(){
     Thread refresh = new Thread(){
       @Override
@@ -180,7 +223,12 @@ public class FinalPhaseJFrame extends JFrame {
           catch (IOException ex) {ex.printStackTrace(); break;}
           catch (Exception ex) {ex.printStackTrace(); break;}
           System.out.println("Hi:"+stones);
-          updateGameBoard(stones);
+          if(!stones.split(";")[0].equals("WhiteAccepted") && !stones.split(";")[0].equals("BlackAccepted"))
+            updateGameBoard(stones);
+          else{
+            stones = stones.substring(stones.split(";")[0].length()+1);
+            updateGameBoard(stones);
+          }
         }
       }
     };

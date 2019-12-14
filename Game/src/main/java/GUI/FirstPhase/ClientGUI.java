@@ -2,7 +2,7 @@ package GUI.FirstPhase;
 
 import GUI.ChatJPanel;
 import GUI.FinalPhase.FinalPhaseJFrame;
-import Go.ServerClient.Client;
+import Go.ServerClient.Client.Client;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,18 +10,21 @@ import java.awt.event.*;
 import java.io.IOException;
 import java.net.Socket;
 
+/**
+ * Głowne okno gry. Wygląd
+ */
 public class ClientGUI extends Client {
 
-  //private JLabel[][] pionki;
+
   private GameBoardJPanel gameBoardJPanel;
   private JLabel pointsJLabel;
   private JLabel statusJLabel;
   private ChatJPanel chatJPanel;
-  private Thread chatThread;
+
+  private boolean isGameActive = true;
   final private JFrame jFrame;
 
   public ClientGUI(){
-
     jFrame = new JFrame();
     if(!getMyColor().equals("Empty"))
       initialize();
@@ -37,6 +40,7 @@ public class ClientGUI extends Client {
     gameBoardJPanel.setLocation(30,30);
     this.gameBoardJPanel = gameBoardJPanel;
     mainJPanel.add(gameBoardJPanel);
+
     //jFrame właściwości
     jFrame.add(mainJPanel);
     jFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -48,9 +52,33 @@ public class ClientGUI extends Client {
       }
     });
 
-
     addJButtons(mainJPanel);
     createJLabels(mainJPanel);
+
+    addMoustListenerForGameBoard();
+
+    gameBoardJPanel.repaint();
+    jFrame.repaint();
+    jFrame.pack();
+    //insets = rozmiary dla ramki wokól frame
+    jFrame.setSize(new Dimension(jFrame.getInsets().left + jFrame.getInsets().right + mainJPanel.getWidth(),
+            jFrame.getInsets().top + jFrame.getInsets().bottom + mainJPanel.getHeight()));
+    jFrame.setVisible(true);
+    jFrame.setResizable(false);
+
+
+    startWaitingForTurnThread();
+
+
+  }
+  private GameBoardJPanel createGameBoard(){
+    return new GameBoardJPanel(getMyColor());
+  }
+
+  /**
+   * Dodanie listenera na myszkę, który przechwytuje punkt pola (x,y) i podaje go do metody sendMakeMove
+   */
+  private void addMoustListenerForGameBoard(){
 
     gameBoardJPanel.addMouseListener(new MouseListener() {
       @Override
@@ -69,7 +97,8 @@ public class ClientGUI extends Client {
           else
             posY++;
         }
-        sendMakeMove(posX+","+posY);
+        if(isGameActive)
+          sendMakeMove(posX+","+posY);
       }
       @Override
       public void mousePressed(MouseEvent e) {
@@ -84,23 +113,6 @@ public class ClientGUI extends Client {
       public void mouseExited(MouseEvent e) {
       }
     });
-
-    gameBoardJPanel.repaint();
-    jFrame.repaint();
-    jFrame.pack();
-    //insets = rozmiary dla ramki wokól frame
-    jFrame.setSize(new Dimension(jFrame.getInsets().left + jFrame.getInsets().right + mainJPanel.getWidth(),
-            jFrame.getInsets().top + jFrame.getInsets().bottom + mainJPanel.getHeight()));
-    jFrame.setVisible(true);
-    jFrame.setResizable(false);
-
-
-    startWaitingForTurnThread();
-
-    startChatThread();
-  }
-  private GameBoardJPanel createGameBoard(){
-    return new GameBoardJPanel(getMyColor());
   }
   private JPanel createMainBoard() {
     JPanel mainJPanel = new JPanel();
@@ -131,16 +143,18 @@ public class ClientGUI extends Client {
     giveUpJButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        sendGiveUp();
+        if(isGameActive)
+          sendGiveUp();
       }
     });
 
     JButton passJButton = new JButton("Spasuj");
-    passJButton.setBounds(660,400,100,30);
+    passJButton.setBounds(660,430,100,30);
     passJButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        sendPass();
+        if(isGameActive)
+          sendPass();
       }
     });
 
@@ -149,28 +163,26 @@ public class ClientGUI extends Client {
   }
 
   private void createChatJPanel(){
-    this.chatJPanel = new ChatJPanel();
+    this.chatJPanel = new ChatJPanel(getChatSocket(), this, getMyPlayerId());
     this.chatJPanel.setLocation(650,5);
-    this.chatJPanel.getSendMessageJButton().addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        String message = chatJPanel.getMessage();
-        if(!message.equals("")) {
-          sendChatMessage(message);
-          updateChatField("\nMe: " + message);
-        }
-      }
-    });
     this.chatJPanel.setSize(220,400);
     this.jFrame.add(chatJPanel);
   }
 
+  /**
+   * Aktualizacja planszy gry
+   * @param stonesInString
+   */
   @Override
   public void updateGameBoard(String stonesInString){
       int[][] stones = convertStonesToIntFromString(stonesInString);
       gameBoardJPanel.setStones(stones);
   }
 
+  /**
+   * Aktualizacja paska statusu
+   * @param info status
+   */
   @Override
   protected void updateStatusLabel(String info) {
     switch (info) {
@@ -213,10 +225,12 @@ public class ClientGUI extends Client {
         this.statusJLabel.setForeground(new Color(255, 199, 35));
         break;
       case "YouWin":
+        isGameActive = false;
         this.statusJLabel.setText("Wygrałeś!");
         this.statusJLabel.setForeground(new Color(218, 255, 22));
         break;
       case "YouLose":
+        isGameActive = false;
         this.statusJLabel.setText("Przegrałeś. :'(");
         this.statusJLabel.setForeground(new Color(34, 0, 2));
         break;
@@ -231,55 +245,43 @@ public class ClientGUI extends Client {
     this.pointsJLabel.setText("Liczba jeńców: " + getMyPoints());
   }
 
+  /**
+   * Stworzenie nowego okna do zliczania punktów w ostatniej fazie i rozłączenie z socketami i streamami
+   */
   @Override
   protected void startFinalPhase() {
     JOptionPane.showMessageDialog(jFrame, "Oboje spasowaliście. Zaraz rozpocznie się etap końcowy");
     this.jFrame.setVisible(false);
-    this.sendChatMessage("!dctemporary");
     JFrame finalJFrame = new FinalPhaseJFrame(gameBoardJPanel.getStones(), this.getMyColor(),
-            this, this.getMyPoints(), this.getSocket(), this.getChatSocket());
+            this, this.getSocket(), this.getChatSocket(), this.chatJPanel);
     finalJFrame.setVisible(true);
     super.startFinalPhase();
   }
 
-  public void resumeGame(Socket socket, Socket chatSocket, String status){
-    if(status.equals("!dc")) {
-      jFrame.dispatchEvent(new WindowEvent(jFrame, WindowEvent.WINDOW_CLOSING));
-    }
-    else {
-      super.connect(socket, chatSocket);
-      this.jFrame.setVisible(true);
-      updateStatusLabel("ResumeGame");
-      startChatThread();
-    }
+  /**
+   * W przypadku wznowienia gry - przywrócenie starych wartości
+   * @param socket
+   *
+   *
+   */
+  public void resumeGame(Socket socket) {
+    super.connect(socket);
+    this.jFrame.setVisible(true);
+    updateStatusLabel("ResumeGame");
 
   }
 
-  private void startChatThread(){
-    chatThread = new Thread() {
-      @Override
-      public void run() {
-        while(!received.equals("Exit")){
-          String message = "";
-          try {
-            message = getChatis().readUTF();
-          } catch (IOException ex){ex.printStackTrace(); break;}
-          if(message.equals("!dc")) {
-            break;
-          }
-          updateChatField("\nEnemy: " + message);
-        }
-      }
-    };
-    chatThread.start();
+  /**
+   * W przypadku, gdy gracz rozłączy się z grą w nowym oknie
+   */
+  public void finishGame(){
+    jFrame.dispatchEvent(new WindowEvent(jFrame, WindowEvent.WINDOW_CLOSING));
   }
 
-  private void updateChatField(String message){
-    this.chatJPanel.appendMessage(message);
-  }
 
-  public JFrame getjFrame(){
+
+  /*public JFrame getjFrame(){
     return this.jFrame;
-  }
+  }*/
 }
 

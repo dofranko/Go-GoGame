@@ -1,5 +1,6 @@
 package Go.ServerClient;
 
+import Go.ServerClient.Server.Server;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

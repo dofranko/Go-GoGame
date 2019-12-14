@@ -11,17 +11,19 @@ public class FinalStageJPanel extends GameBoardJPanel {
   public FinalStageJPanel(int[][] stones, String color){
     super(color);
     this.setStones(stones);
-    //this.stonesAtTheEndOFMatch = stones;
     this.stones = stones;
   }
 
-
+  /**
+   * Aktualizacja planszy
+   */
   @Override
   protected void updateGameBoard() {
     super.updateGameBoard();
     for (int i = 0; i < 19; i++) {
       for (int j = 0; j < 19; j++) {
         switch (stones[i][j]){
+          case 0:
           case 1:
           case 2:
             break;

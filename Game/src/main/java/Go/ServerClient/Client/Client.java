@@ -1,7 +1,5 @@
-package Go.ServerClient;
+package Go.ServerClient.Client;
 
-// Java implementation for a client
-// Save file as Client.java
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -9,24 +7,29 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
-// Client class
+/**
+ * Klasa clienta. Logika clienta.
+ */
 public abstract class Client {
+
+	private Socket socket;
 	private DataInputStream dis;
 	private DataOutputStream dos;
-	private Socket socket;
+
 	private Socket chatSocket;
-	private DataOutputStream chatos;
-	private DataInputStream chatis;
-	protected String received = "";
-	private final String myPlayerId;
-	private String enemyPlayerId = "";
-	private boolean isItMyTurn = false;
+
+	private String myPlayerId;
+
 	private String myColor;
 	private String myPoints = "0";
-	private boolean didIPass = false;
-	Thread waitingForTurnThread = createWaitingForTurnThread();
+	protected String received = "";
 
-	// private Thread waitForMove = createWaitingForTurnThread();
+	private boolean isItMyTurn = false;
+	private boolean didIPass = false;
+	/**
+	 * Wątek, który wyczekuje ruchu przeciwnika odpytując serwer o aktualizację danych.
+	 */
+	private Thread waitingForTurnThread = createWaitingForTurnThread();
 
 	public Client() {
 		String playerIdToSet = "";
@@ -34,44 +37,39 @@ public abstract class Client {
 			// Ip lokalne hosta
 			InetAddress ip = InetAddress.getByName("localhost");
 
-			/*
-			 * InetAddress inetAddress = InetAddress.getLocalHost();
-			 * inetAddress.getHostAddress()); inetAddress.getHostName());
-			 */ // crossdevice
+			//Zamiast ip mozna podac ip sieci lokalnej do gry między urządzeniami
 
-			// połączenie się na porcie: 8523
+			/**
+			 * Połączenia z socketami
+			 */
 			socket = new Socket(ip, 8523);
+			dis = new DataInputStream(socket.getInputStream());
+			dos = new DataOutputStream(socket.getOutputStream());
+
 			chatSocket = new Socket(ip, 8524);
-			chatos = new DataOutputStream(chatSocket.getOutputStream());
-			chatis = new DataInputStream(chatSocket.getInputStream());
-			// pobranie DataInputStream i DataOutputSteam do komunikacji z serwerem(socketem)
-			dis = new DataInputStream(socket.getInputStream());
-			dos = new DataOutputStream(socket.getOutputStream());
 
-			// pobranie DataInputStream i DataOutputSteam do komunikacji z
-			// serwerem(socketem)
-			dis = new DataInputStream(socket.getInputStream());
-			dos = new DataOutputStream(socket.getOutputStream());
 
-			// odczytanie swojego id gracza ( = port socketa)
+			/**
+			 * Odczytanie id gracza od serwera
+			 */
 			received = dis.readUTF();
 			System.out.println("Moje id: " + received);
 			playerIdToSet = received;
 
-			// odczytanie koloru gracza
+			/**
+			 * Odczytanie koloru gracza od serwera
+			 */
 			received = dis.readUTF();
 			System.out.println("Mój color: " + received);
 			myColor = received;
 			if (myColor.equals("Black"))
 				isItMyTurn = true;
-			// sendAndReceiveInformation("WhoseMove");
 			else if (myColor.equals("Empty"))
 				disconnect();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		// nie mozna przypisać w try catch
+		} catch (Exception e) { e.printStackTrace(); }
+		/**
+		 * Przypisanie id gracza
+		 */
 		myPlayerId = playerIdToSet;
 	}
 
@@ -79,21 +77,34 @@ public abstract class Client {
 		return myPlayerId;
 	}
 
-	/*
+	/* Stary setter.
 	 * public void setReceived(String received){ this.received = received; }
+	 */
+
+	/**
+	 *
+	 * @return zwraca ostatnią otrzymaną wiadomość
 	 */
 	public String getReceived() {
 		return received;
 	}
 
+	/**
+	 *
+	 * @return zwraca czy jest to ruch tego gracza
+	 */
 	public boolean getIsItMyTurn() {
 		return isItMyTurn;
 	}
 
+	/**
+	 * Metoda rozłączająca klienta z serwerem i kończąca pracę
+	 */
 	public void sendExit() {
 		try {
 			received = "Exit";
 			dos.writeUTF("Exit");
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -101,6 +112,11 @@ public abstract class Client {
 		System.out.println("Connection closed");
 	}
 
+	/**
+	 * Metoda odpowiadająca za odpytanie serwera czyj ruch oraz stan planszy
+	 * @return odpowiedź serwera
+	 * @throws IOException
+	 */
 	public String sendWhoseMove() throws IOException { // tutaj dopasuj sobie komunikaty zwracane przez TheGame
 		dos.writeUTF("WhoseMove");
 		received = dis.readUTF();
@@ -108,7 +124,10 @@ public abstract class Client {
 		String colorMove = toReturn.split(";")[0];
 		System.out.println(received);
 
-		if (colorMove.equals(this.myColor)) { //tura tego gracza
+		/**
+		 * Jeśli właśnie następuje tura tego gracza.
+		 */
+		if (colorMove.equals(this.myColor)) {
 			isItMyTurn = true;
 			didIPass = false;
 			if (toReturn.length() > colorMove.length() + 5 && colorMove.equals(myColor)) {
@@ -116,7 +135,9 @@ public abstract class Client {
 				updateStatusLabel("YrMove");
 			}
 		}
-		//przeciwnik spasował
+		/**
+		 * Gdy ktoś spasował
+		 */
 		switch (colorMove){
 			case "BlackPassed":
 			case "WhitePassed":
@@ -143,10 +164,13 @@ public abstract class Client {
 					updateStatusLabel("YouLose");
 				break;
 		}
-
 		return toReturn;
 	}
 
+	/**
+	 * Gracz wysyła swój ruch
+	 * @param move (x,y) punkt ruchu
+	 */
 	public void sendMakeMove(String move) {
 		if (isItMyTurn) {
 			try {
@@ -156,18 +180,19 @@ public abstract class Client {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
-			System.out.println(received);
-			// warunki rozdzieli się potem na labele
+			System.out.println(received); //Tylko do debugowania TODO
 			if (!received.equals("NotYrMove") && !received.equals("IllegalMove")) {
 				isItMyTurn = false;
 				updateStatusLabel("MoveMade");
-				// pierwsze kilka znakó to punkty gracza
+
+				/**
+				 * Pierwsze kilka znaków to punkty gracza
+				 */
 				this.myPoints = received.split(";")[0];
 				updatePointsLabel();
 				String arrayOfStonesToUpdate = received.substring(myPoints.length() + 1);
 				updateGameBoard(arrayOfStonesToUpdate);
-				// stworzenie i urchomienie wątku czekającego na turę gracza
+
 				waitingForTurnThread = createWaitingForTurnThread();
 				startWaitingForTurnThread();
 			} else if (received.equals("NotYrMove")) {
@@ -180,6 +205,9 @@ public abstract class Client {
 			updateStatusLabel("NotYrMove");
 	}
 
+	/**
+	 * Gracz wysyła, że pasuje
+	 */
 	public void sendPass() {
 		if(isItMyTurn) {
 			try {
@@ -195,6 +223,9 @@ public abstract class Client {
 			updateStatusLabel("NotYrMove");
 	}
 
+	/**
+	 * Gracz wysyła, że się poddaje
+	 */
 	public void sendGiveUp() {
 		try {
 			dos.writeUTF("GiveUp");
@@ -203,40 +234,35 @@ public abstract class Client {
 		}
 	}
 
-	public void sendChatMessage(String message) {
-		try {
-			if (enemyPlayerId.isEmpty()) {
-				dos.writeUTF("GetEnemyId");
-				enemyPlayerId = dis.readUTF();
-			}
-			if(message.equals("!dc"))
-				chatos.writeUTF(myPlayerId+";"+"!dc");
-			else if (message.equals("!dctemporary"))
-				chatos.writeUTF(myPlayerId+";"+"!dctemporary");
-			else
-				chatos.writeUTF(enemyPlayerId + ";" + message);
-
-
-		} catch (IOException ex) { ex.printStackTrace(); }
-	}
-
+	/**
+	 * Metoda rozłączająca clienta i chat
+	 */
 	public void disconnect() {
 		try {
 			dis.close();
 			dos.close();
 			socket.close();
-			chatos.writeUTF(myPlayerId+";"+"!dc");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { e.printStackTrace(); }
+		try {new DataOutputStream(chatSocket.getOutputStream()).writeUTF(myPlayerId+";"+"!dc");} catch(Exception e){e.printStackTrace();}
 	}
 
+	/**
+	 * Metoda do odświeżenia planszy
+	 * @param stonesInString
+	 */
 	public abstract void updateGameBoard(String stonesInString);
 
+	/**
+	 *
+	 * @return kolor gracza
+	 */
 	public String getMyColor() {
 		return this.myColor;
 	}
 
+	/**
+	 * Włączenie wątku odpytującego serwera o aktualizację danych
+	 */
 	protected void startWaitingForTurnThread() {
 		if (!waitingForTurnThread.isAlive()) {
 			waitingForTurnThread = createWaitingForTurnThread();
@@ -244,6 +270,11 @@ public abstract class Client {
 		}
 	}
 
+	/**
+	 * Metoda konwertująca String na tablicę int kamieni
+	 * @param stonesInString
+	 * @return tablicę int[][] kamieni
+	 */
 	protected int[][] convertStonesToIntFromString(String stonesInString) {
 		int[][] stones;
 		String[] columns = stonesInString.split(";");
@@ -262,19 +293,20 @@ public abstract class Client {
 		return stones;
 	}
 
+	/**
+	 * Stworzenie wątku odpytującego serwer o aktualizację danych
+	 * @return
+	 */
 	private Thread createWaitingForTurnThread() {
 		return new Thread() {
 			public void run() {
-				String decision = getMyColor();
-				String whoseMove = "";
+				String decision;
+				String whoseMove;
 				do {
+					try { sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
 					try {
-						sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-
-					try {
+						if(socket.isClosed())
+							throw new IOException();
 						whoseMove = sendWhoseMove();
 						decision = whoseMove.split(";")[0];
 					} catch (IOException e) {
@@ -283,7 +315,7 @@ public abstract class Client {
 						break;
 					}
 					System.out.println(whoseMove);
-					System.out.println("Watki:" + Thread.activeCount());
+					System.out.println("Watki:" + Thread.activeCount());//Debugowanie TODO
 
 
 					if (decision.equals("BothPassed"))
@@ -305,12 +337,14 @@ public abstract class Client {
 
 	protected abstract void updatePointsLabel();
 
+	/**
+	 * Rozłączenie się z socketami i streamami, żeby nie przeszkadzać w trakcie ostatniego etapu
+	 * w nowym oknie
+	 */
 	protected void startFinalPhase(){
 		this.socket = null;
 		this.dis = null;
 		this.dos = null;
-		this.chatos = null;
-		this.chatis = null;
 	}
 
 	public String getMyPoints() {
@@ -321,14 +355,16 @@ public abstract class Client {
 		return this.socket;
 	}
 
-	protected void connect(Socket socket, Socket chatSocket) {
+	/**
+	 * Ponowne połączenie się z socketami w przypadku wznowienia rozgrywki
+	 * @param socket
+	 *
+	 */
+	protected void connect(Socket socket) {
 		this.socket = socket;
-		this.chatSocket = chatSocket;
 		try {
 			this.dos = new DataOutputStream(socket.getOutputStream());
 			this.dis = new DataInputStream(socket.getInputStream());
-			this.chatos = new DataOutputStream(chatSocket.getOutputStream());
-			this.chatis = new DataInputStream(chatSocket.getInputStream());
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
@@ -336,7 +372,12 @@ public abstract class Client {
 	protected Socket getChatSocket(){
 		return this.chatSocket;
 	}
-	protected DataInputStream getChatis(){
-		return this.chatis;
+	public String getEnemyPlayerId(){
+		String enemyId = "";
+		try {
+			dos.writeUTF("GetEnemyId");
+			 enemyId = dis.readUTF();
+		}catch (IOException ex){ex.printStackTrace();}
+		return enemyId;
 	}
 }
