@@ -5,7 +5,9 @@ import Go.GameMaker.Markers;
 import javax.swing.*;
 import java.awt.*;
 
-
+/**
+ * Panel planszy gry
+ */
 public class GameBoardJPanel extends JPanel {
 
   protected int[][] stones;
@@ -20,6 +22,9 @@ public class GameBoardJPanel extends JPanel {
     this.setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));
     //kolejność następnych komponentow jest wazna
     stonesJLabels = new JLabel[19][19];
+    /**
+     * Ustawienie jLabeli kamieni (biały, czarny, brak)
+     */
     for (int i = 0; i < 19; i++) {
       for (int j = 0; j < 19; j++) {
         JLabel stone = new JLabel();
@@ -29,7 +34,9 @@ public class GameBoardJPanel extends JPanel {
         stonesJLabels[i][j] = stone;
       }
     }
-    //kropki orientacyjne na planszy
+    /**
+     * Kropki orientacyjne na planszy
+     */
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
         JLabel dot = new JLabel();
@@ -38,7 +45,9 @@ public class GameBoardJPanel extends JPanel {
         this.add(dot);
       }
     }
-    //kwadraty planszy
+    /**
+     * Kwadraty pola planszy
+     */
     for (int i = 0; i < 18; i++) {
       for (int j = 0; j < 18; j++) {
         JLabel field = new JLabel();
@@ -47,6 +56,9 @@ public class GameBoardJPanel extends JPanel {
         this.add(field);
       }
     }
+    /**
+     * Ustawienie kursora
+     */
     if(color.equals("Black")) {
       this.setCursor(Toolkit.getDefaultToolkit().createCustomCursor(
               new ImageIcon("files/cursor-black.cur").getImage(),
@@ -75,20 +87,32 @@ public class GameBoardJPanel extends JPanel {
    public void setStonesJLabels(JLabel[][] stonesJLabels){
      this.stonesJLabels = stonesJLabels;
    }*/
+
+  /**
+   * Aktualizacja planszy
+   */
   protected void updateGameBoard() {
     for (int i = 0; i < 19; i++) {
       for (int j = 0; j < 19; j++) {
-        if (stones[i][j] == 1)
-          stonesJLabels[i][j].setIcon(new ImageIcon("files/white-stone.png"));
-        else if (stones[i][j] == 2)
-          stonesJLabels[i][j].setIcon(new ImageIcon("files/black-stone.png"));
-        else
-          stonesJLabels[i][j].setIcon(new ImageIcon("files/no-stone.png"));
+        switch (stones[i][j]) {
+          case 1:
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/white-stone.png"));
+            break;
+          case 2:
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/black-stone.png"));
+            break;
+          default:
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/no-stone.png"));
+            break;
+        }
       }
     }
     this.repaint();
   }
 
+  /**
+   * Wypełnienie podstawowej planszy zerami
+   */
   private void createStartingStones() {
     this.stones = new int[19][19];
     for (int i = 0; i < 19; i++) {

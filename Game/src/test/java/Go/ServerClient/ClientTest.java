@@ -1,5 +1,6 @@
 package Go.ServerClient;
 
+import Go.ServerClient.Client.Client;
 import org.junit.*;
 
 import java.io.IOException;
@@ -22,7 +23,6 @@ public class ClientTest {
 
   @Test
   public void whoseMove(){
-    System.out.println("tu jesem");
     try {
       client.sendWhoseMove();
     } catch (IOException e) {

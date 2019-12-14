@@ -162,6 +162,10 @@ public class TheGame {
 
 	}
 
+	//TODO Trzeba coś zrobić, bo jest problem. Gdy gracz, którego ruch NIE jest wyjdzie z gry
+	//to gracz, którego JEST tura dostaje freeza, gdy zrobi ruch, bo makeMove() nic mu nie odpowie
+	//i okienko się zawiesza czekając na odpowiedź. Jakieś propozycje?
+
 	public void exit(String clientID) { // czyszczenie map i tablic
 		String enemyID = playerPairs.get(clientID);
 		int boardID = boardsID.get(clientID);

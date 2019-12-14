@@ -1,8 +1,10 @@
 package GUI.FinalPhase;
 
+import GUI.ChatJPanel;
 import GUI.FirstPhase.ClientGUI;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -10,38 +12,64 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class FinalPhaseJFrame extends JFrame {
-  public enum Stage{DEADSTONES, TERRITORY}
+  /**
+   * Etap rozgrywki. Wybieranie martwych kamieni - wybieranie terytorium - koniec
+   */
+  public enum Stage{DEADSTONES, TERRITORY, THEEND}
 
-  private TerritoryAndDeadStonesJPanel boardJPanel;
+  private FinalStageJPanel boardJPanel;
+  private ChatJPanel chatJPanel;
+
   private String myPoints;
-  private ClientGUI parentGame;
   private String myColor;
+
+  private ClientGUI parentGame;
+
   private Socket socket;
   private DataOutputStream dos;
   private DataInputStream dis;
-  private Stage stage = Stage.DEADSTONES;
-  private boolean isItmyTurn = true;
 
-  public FinalPhaseJFrame(int[][] actualStones, String color, ClientGUI parent, String points, Socket socket){
-    this.boardJPanel = new TerritoryAndDeadStonesJPanel(actualStones, color);
+  private Socket chatSocket;
+  private DataOutputStream chatos;
+  private DataInputStream chatis;
+
+  private Stage stage = Stage.DEADSTONES;
+
+  public FinalPhaseJFrame(int[][] actualStones, String color, final ClientGUI parent, Socket socket, Socket chatSocket,
+                          final ChatJPanel chatJPanel){
+    this.boardJPanel = new FinalStageJPanel(actualStones, color);
+    //this.boardJPanel.setSize(900,800);
+    this.add(boardJPanel);
+    this.chatJPanel = chatJPanel;
     this.myColor = color;
-    this.myPoints = points;
     this.parentGame = parent;
     this.socket = socket;
+    this.chatSocket = chatSocket;
     try {
       this.dis = new DataInputStream(socket.getInputStream());
       this.dos = new DataOutputStream(socket.getOutputStream());
+      this.chatos = new DataOutputStream(chatSocket.getOutputStream());
+      this.chatis = new DataInputStream(chatSocket.getInputStream());
     }
     catch (IOException ex){ex.printStackTrace();}
     this.stage = Stage.DEADSTONES;
-    this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-
+    this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    this.addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowClosing(WindowEvent e) {
+        stage = Stage.THEEND;
+        chatJPanel.sendChatMessage("!dc");
+        disconnect("!dc");
+      }
+    });
+    //this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+    this.setSize(new Dimension(this.getInsets().left + this.getInsets().right + boardJPanel.getWidth(),
+            this.getInsets().top + this.getInsets().bottom + boardJPanel.getHeight()));
     JButton acceptJButton = new JButton("Ackeptuj wybór");
     acceptJButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        acceptEnemyMove();
+        acceptStage();
       }
     });
 
@@ -77,46 +105,75 @@ public class FinalPhaseJFrame extends JFrame {
       public void mouseExited(MouseEvent e) {
       }
     });
+    this.boardJPanel.repaint();
+    this.pack();
+    startRefreshingMapThread();
   }
 
-  private void resumeGame(){
+  /**
+   * rozłączenie tego okna
+   * @param status
+   */
+  private void disconnect(String status){
+    if(status.equals("!dc")) {
+      this.parentGame.resumeGame(this.socket);
+      this.parentGame.finishGame();
+    }
 
-    this.parentGame.resumeGame(this.socket);
-    try {
-      this.socket.close();
-      this.dis.close();
-      this.dos.close();
-    }catch(IOException ex){ex.printStackTrace();}
+    this.socket = null;
+    this.chatSocket = null;
+    this.dos = null;
+    this.dis = null;
+    this.chatos = null;
+    this.chatis = null;
     this.dispose();
   }
 
+  /**
+   * wznowienie gry
+   */
+  private void resumeGame(){
+    this.parentGame.resumeGame(this.socket);
+    disconnect("");
+  }
+
+  /**
+   * wysłanie wybrangeo pola do swerwera
+   * @param move
+   */
   private void sendPickStones(String move){
     String received ="";
     if(stage.equals(Stage.DEADSTONES)){
       try {
-        dos.writeUTF("PickDeadStone");
+        dos.writeUTF("PickDeadStones");
         dos.writeUTF(move);
-        received = dis.readUTF();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      } catch (IOException e) { e.printStackTrace(); }
     }
     else if(stage.equals(Stage.TERRITORY)){
       try {
         dos.writeUTF("PickTerritory");
         dos.writeUTF(move);
-        received = dis.readUTF();
       } catch (IOException e) {
         e.printStackTrace();
       }
     }
-    received = received.substring(received.split(";")[0].length()+1);
-    updateGameBoard(received);
+    System.out.println(received);
   }
+
+  /**
+   * aktualizacja planszy gry
+   * @param stonesInString
+   */
   public void updateGameBoard(String stonesInString){
     int[][] stones = convertStonesToIntFromString(stonesInString);
     this.boardJPanel.setStones(stones);
   }
+
+  /**
+   * Zamiana String w tablice int[][] kamieni
+   * @param stonesInString kamienie w Stringu
+   * @return tablica int[][] kamieni
+   */
   private int[][] convertStonesToIntFromString(String stonesInString) {
     int[][] stones;
     String[] columns = stonesInString.split(";");
@@ -135,17 +192,45 @@ public class FinalPhaseJFrame extends JFrame {
     return stones;
   }
 
-  private void acceptEnemyMove(){
-    String received="";
+  /**
+   * Akceptacja przez gracza aktualnego stanu
+   */
+  private void acceptStage(){
     try {
-      dos.writeUTF("AcceptEnemyMove");
-      received = dis.readUTF();
+      dos.writeUTF("AcceptStage");
     } catch (IOException e) {
       e.printStackTrace();
     }
-    if(received.equals("Accepted")){
+  }
 
-    }
+  /**
+   * Wątek pobierający informacje o planszy i odświeżający ją. (@see waitingForTurnThread)
+   */
+  private void startRefreshingMapThread(){
+    Thread refresh = new Thread(){
+      @Override
+      public void run() {
+        String stones;
+        while(!stage.equals(Stage.THEEND)){
+          try{
+            sleep(1000);
+            dos.writeUTF("MapRefresh");
+            stones = dis.readUTF();
+          }
+          catch (InterruptedException ex){ex.printStackTrace(); break;}
+          catch (IOException ex) {ex.printStackTrace(); break;}
+          catch (Exception ex) {ex.printStackTrace(); break;}
+          System.out.println("Hi:"+stones);
+          if(!stones.split(";")[0].equals("WhiteAccepted") && !stones.split(";")[0].equals("BlackAccepted"))
+            updateGameBoard(stones);
+          else{
+            stones = stones.substring(stones.split(";")[0].length()+1);
+            updateGameBoard(stones);
+          }
+        }
+      }
+    };
+    refresh.start();
   }
 }
 
