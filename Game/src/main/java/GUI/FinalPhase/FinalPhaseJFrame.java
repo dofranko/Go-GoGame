@@ -10,6 +10,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.text.ParseException;
 
 public class FinalPhaseJFrame extends JFrame {
   /**
@@ -221,10 +222,13 @@ public class FinalPhaseJFrame extends JFrame {
           catch (IOException ex) {ex.printStackTrace(); break;}
           catch (Exception ex) {ex.printStackTrace(); break;}
           System.out.println("Hi:"+stones);
-          if(!stones.split(";")[0].equals("WhiteAccepted") && !stones.split(";")[0].equals("BlackAccepted"))
+          String status;
+          try{
+            int trying = Integer.parseInt(stones.split(";")[0]);
             updateGameBoard(stones);
-          else{
-            stones = stones.substring(stones.split(";")[0].length()+1);
+          }catch(Exception ex) {
+            status =  stones.split(";")[0];
+            stones = stones.substring(status.length() + 1);
             updateGameBoard(stones);
           }
         }
