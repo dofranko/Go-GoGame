@@ -72,7 +72,10 @@ class ClientHandler extends Thread {
 					}
 					//Klient pyta grę, o stan gry (czyj ruch oraz wygląd planszy)
 					case "WhoseMove": {
-						toReturn = gameServer.getGameState(this.playerID);
+						try {
+							toReturn = gameServer.getGameState(this.playerID);
+						}
+						catch (Exception ex){}
 						break;
 					}
 					//Szukanie nowej gry przez gracza
@@ -94,7 +97,10 @@ class ClientHandler extends Thread {
 					case "MakeMove": {
 						received = dis.readUTF();
 						// tutaj jeśli jest ruch gracza
-						toReturn = gameServer.makeMove(this.playerID + "," + received);
+						try {
+							toReturn = gameServer.makeMove(this.playerID + "," + received);
+						}
+						catch (Exception ex){}
 						break;
 					}
 					//Gracz chce otrzymać id przeciwnika
@@ -129,7 +135,7 @@ class ClientHandler extends Thread {
 					}
 					//Gracz odświeża mapę w końcowej fazie
 					case "MapRefresh":
-						toReturn = gameServer.getGameState(this.playerID);
+						toReturn = gameServer.getGameState(this.playerID); // ta sama metoda so przy whoseMove
 						break;
 				}
 				//Odesłanie odpowiedzi do gracza

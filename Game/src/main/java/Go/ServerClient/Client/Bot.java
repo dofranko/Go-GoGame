@@ -2,6 +2,7 @@ package Go.ServerClient.Client;
 
 import GUI.ChatJPanel;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -11,6 +12,7 @@ public class Bot extends Client{
   private Thread waitingToMoveThread;
   private boolean isItEnd = false;
   private ChatJPanel chatJPanel;
+  private int myLastPoints = 0;
   private List<String> bestMoves = new LinkedList<>();
 
 
@@ -20,6 +22,9 @@ public class Bot extends Client{
     this.chatJPanel = new ChatJPanel(getChatSocket(), this, getMyPlayerId());
   }
 
+  /**
+   * Wątek, który sprawdza cały czas, czy jego ruch i jesli tak to robi ruch.
+   */
   private void createAndRunWaitingToMoveThread(){
     waitingToMoveThread = new Thread(){
       @Override
@@ -33,19 +38,41 @@ public class Bot extends Client{
           }
           if(received.split(";")[0].contains("Wins")) {
             isItEnd = true;
+            System.out.println("Koniec gry. Kończymy na dzisiaj.");
+            disconnect();
             break;
+          }
+          else if(received.split(";")[0].equals("BothPassed")){
+            //TODO tutaj potem się aktywuje nową klasę finalną bota
+            //Ktora po prostu ackeptuje wszystko
+            //Ew monza dodac nowy watek, który wszystko ackeptuje
+            startFinalPhase();
+            break;
+          }
+          else if(received.split(";")[0].contains("Passed")) {
+            sendPass();
+            continue;
           }
           if(getIsItMyTurn()){
             String myMove = decideTheBestMove();
-            sendMakeMove(myMove);
+            if(!myMove.equals("error"))
+              sendMakeMove(myMove);
             System.out.println("moj ruch: " + myMove);
             chatJPanel.sendChatMessage("Ha, Nie pokonasz mnie, LOOSEER: " + myMove);
+          }
+          if(received.equals("NotYrMove")) {
+            try { sendWhoseMove(); } catch (IOException e) { break; }
           }
         }
       }
     };
     waitingToMoveThread.start();
   }
+
+  /**
+   * metoda sprawdzająca najlepszy możliwy ruch
+   * @return
+   */
   private String decideTheBestMove(){
     bestMoves = new LinkedList<>();
     int actualHighScore =0;
@@ -76,9 +103,18 @@ public class Bot extends Client{
       }
     }
     //TODO tu random z tablicy bestMoves
+    if(bestMoves.size()==0)
+      return "error";
     return bestMoves.get(new Random().nextInt(bestMoves.size()));
   }
 
+  /**
+   * Metoda pomocna do decydowania ruchu. Przyznaje punkty w zależności od liczby przyjaciół
+   * @param myColorNumber mój kolor w postaci liczby
+   * @param i wiersz sprawdzanego pola
+   * @param j kolumna sprawdzanego pola
+   * @return liczba punktów
+   */
   private int countFriendsPoints(int myColorNumber, int i, int j) {
     int friendsNear = 0;
     int scoreForMove = 0;
@@ -115,13 +151,20 @@ public class Bot extends Client{
     return scoreForMove;
   }
 
+  /**
+   * Metoda pomocna do sprawdzania najlepszego ruchu. Przyznaje punkty w zależnośći od przeciwników
+   * @param myColorNumber mój kolor w postaci liczby
+   * @param i wiersz sprawdzanego pola
+   * @param j kolumna sprawdzanego pola
+   * @return liczba punktów
+   */
   private int countEnemiesPoints(int myColorNumber, int i, int j){
     int enemiesNear =0;
     int enemiesNumber = 0;
     if(myColorNumber == 1)
       enemiesNumber = 2;
     else
-      enemiesNear = 1 ;
+      enemiesNumber = 1 ;
     int scoreForMove=0;
     for(int k=-1; k <= 1; k++) {
       if(i+k <0 || i+k >= stones[0].length)
@@ -157,7 +200,7 @@ public class Bot extends Client{
 
   private int countKills(int myColorNumber, int i, int j){
     int points =0;
-    //TODO metoda zliczajaca ilosc zbic. Kazde zbicie to 10 pkt
+    //TODO metoda zliczajaca ilosc zbic. Kazde zbicie to 10 pkt.
 
     return  points;
   }
@@ -175,6 +218,8 @@ public class Bot extends Client{
 
   @Override
   protected void updatePointsLabel() {
-
+    if (myLastPoints < Integer.parseInt(getMyPoints()))
+      this.chatJPanel.sendChatMessage("Ha! Mam już " + getMyPoints() + " punktów!");
+    myLastPoints = Integer.parseInt(getMyPoints());
   }
 }

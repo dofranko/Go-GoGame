@@ -46,9 +46,7 @@ public class ClientGUI extends Client {
     jFrame.addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
-        try{
-        sendExit();}
-        catch(Exception ex){}
+        sendExit();
         jFrame.dispose();
       }
     });

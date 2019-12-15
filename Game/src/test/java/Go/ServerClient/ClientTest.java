@@ -23,7 +23,6 @@ public class ClientTest {
 
   @Test
   public void whoseMove(){
-    System.out.println("tu jesem");
     try {
       client.sendWhoseMove();
     } catch (IOException e) {
