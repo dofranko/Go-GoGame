@@ -1,8 +1,12 @@
 package Go.GameMaker;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 //Na razie obsługuje jeden mecz, ale bedzie opcja wielu
 public class TheGame {
@@ -11,7 +15,10 @@ public class TheGame {
 	private static volatile TheGame instance;
 
 	// tablica plansz
-	private Map<String, Board> boards;
+	private Board[] boards;
+
+	// licznik plansz
+	private int boardCounter;
 
 	// licznik graczy
 	private int playerCounter;
@@ -25,20 +32,33 @@ public class TheGame {
 	// mapa parująca graczy ze sobą
 	private Map<String, String> playerPairs;
 
-	// tablica punktacji poszczegolnych graczy
-	private Map<String, Integer> points;
+	// mapa parująca graczy z ID planszy
+	private Map<String, Integer> boardsID;
 
-	
+	// tablica punktacji poszczegolnych graczy
+	private int[] points;
+
+	// tablica kontrolujaca czyj jest ruch w kazdej planszy
+	private Markers[] whoseMove;
+
+	// tablica kontrolujaca czy w danej grze ktos spasowal
+	private boolean[] playerAlreadySkipped;
+
 	private TheGame() { // inicializacja
 		players = new HashMap<String, Integer>();
 		colors = new HashMap<String, Markers>();
 		playerPairs = new HashMap<String, String>();
-		boards = new HashMap<String, Board>();
-		points = new HashMap<String, Integer>();
+		boardsID = new HashMap<String, Integer>();
+		boards = new Board[5];
+		points = new int[10];
 		playerCounter = 0;
+		boardCounter = 0;
+		whoseMove = new Markers[5];
+		playerAlreadySkipped = new boolean[5];
+
 	}
 
-	public static TheGame getInstance() { // double checker metoda statyczna na zwracanie singletona
+	public synchronized static TheGame getInstance() { // double checker metoda statyczna na zwracanie singletona
 		TheGame result = instance;
 		if (result == null) {
 			synchronized (LOCK) {
@@ -49,33 +69,9 @@ public class TheGame {
 		}
 		return result;
 	}
-	
-	public String addPlayer(String clientID) {
 
-		switch (playerCounter % 2) { // co drugiego gracza tworzy nową rozgrywkę
-		case 0: {
-			colors.put(clientID, Markers.BLACK); // gracz który pierwszy się połączył jest czarny
-			break;
-
-		}
-		case 1: { // dobieranie graczy w pary i budowa planszy
-			Board b = new Board(19);
-			b.setGameState(Markers.BLACK);
-			colors.put(clientID, Markers.WHITE);
-			boards.put(clientID, b);
-
-			String enemyPlayerID = getKeyByValue(players, playerCounter - 1); // id poprzedniego clienta
-			boards.put(enemyPlayerID, b);
-			playerPairs.put(enemyPlayerID, clientID); // dobieranie ich w pary
-			break;
-		}
-
-		}
-		players.put(clientID, playerCounter);
-		points.put(clientID, 0);
-		playerCounter++;
-		return "Succes;" + colors.get(clientID).asString();
-
+	public void setBoard(int id, int size) {
+		boards[id] = new Board(size);
 	}
 
 	public String makeMove(String move) {
@@ -84,23 +80,25 @@ public class TheGame {
 		String clientID = splittedCommand[0];
 		int x = Integer.parseInt(splittedCommand[1]);
 		int y = Integer.parseInt(splittedCommand[2]);
+		int playerID = players.get(clientID);
 		Markers playerColor = colors.get(clientID);
-		Board board = boards.get(clientID);
+		int boardID = boardsID.get(clientID);
 
-		if (board.getGameState().equals(Markers.WHITEPASSED) && playerColor.equals(Markers.BLACK)) // kontynuacja gry pomimo pasowania
-			board.setGameState(Markers.BLACK);
-		else if (board.getGameState().equals(Markers.BLACKPASSED) && playerColor.equals(Markers.WHITE))
-			board.setGameState(Markers.WHITE);
+		if (playerAlreadySkipped[boardID]) { // przeciwnik kontynnuje gre pomimio pasu
+			if (whoseMove[boardID].equals(Markers.WHITEPASSED) && playerColor.equals(Markers.BLACK))
+				whoseMove[boardID] = Markers.BLACK;
+			else if (whoseMove[boardID].equals(Markers.BLACKPASSED) && playerColor.equals(Markers.WHITE))
+				whoseMove[boardID] = Markers.WHITE;
+		}
 
-		if (board.getGameState().equals(playerColor)) {
+		if (whoseMove[boardID].equals(playerColor)) {
+			playerAlreadySkipped[boardID] = false;
 
-			int pointsScored = board.insert(x, y, playerColor.asChar());
+			int pointsScored = boards[boardID].insert(x, y, playerColor.asChar());
 			if (pointsScored >= 0) {
-				int totalPoints = points.get(clientID) + pointsScored;
-				points.replace(clientID, totalPoints);
-				
-				board.setGameState(playerColor.getEnemy());
-				return Integer.toString(totalPoints) + ";" + board.boardToString();
+				points[playerID] += pointsScored;
+				whoseMove[boardID] = playerColor.getEnemy();
+				return Integer.toString(points[playerID]) + ";" + boards[boardID].boardToString();
 			} else
 				return "IllegalMove";
 		} else
@@ -108,106 +106,76 @@ public class TheGame {
 
 	}
 
-	public String getGameState(String clientID) {
-		Board b = boards.get(clientID);
-		return b.getGameState().asString() + ";" + b.boardToString();
+	public String whoseMove(String clientID) {
+		int boardID = boardsID.get(clientID);
+
+		return whoseMove[boardID].asString() + ";" + boards[boardID].boardToString();
+	}
+	public String mapRefresh(String clientID) {
+		int boardID = boardsID.get(clientID);
+		return boards[boardID].boardToString(); // tu bedzie wysyłac plansze z odwpowidnimi znacznikami
 	}
 
-	
+	public String addPlayer(String clientID) {
+
+		if (playerCounter > 9) // max 5 plansz czyli 10 graczy
+			return "ServerOverload";
+
+		switch (playerCounter % 2) { // co drugiego gracza tworzy nową rozgrywkę
+		case 0: {
+			colors.put(clientID, Markers.BLACK); // gracz który pierwszy się połączył jest czarny
+			break;
+
+		}
+		case 1: { // dobieranie graczy w pary i budowa planszy
+			colors.put(clientID, Markers.WHITE);
+			boards[boardCounter] = new Board(19);
+
+			String enemyPlayerID = getKeyByValue(players, playerCounter - 1); // id poprzedniego clienta
+			playerPairs.put(enemyPlayerID, clientID); // dobieranie ich w pary
+			boardsID.put(clientID, boardCounter); // przypisanie ID planszy do graczy
+			boardsID.put(enemyPlayerID, boardCounter);
+			whoseMove[boardCounter] = Markers.BLACK;
+			boardCounter++;
+			break;
+		}
+
+		}
+		players.put(clientID, playerCounter);
+		points[playerCounter] = 0;
+		playerCounter++;
+		return "Succes;" + colors.get(clientID).asString();
+
+	}
 
 	public void skip(String clientID) {
-		Board board = boards.get(clientID);
-		Markers playerColor = colors.get(clientID);
-		if (!board.getGameState().equals(Markers.WHITEPASSED) && !board.getGameState().equals(Markers.BLACKPASSED)) {
-			
+		int boardID = boardsID.get(clientID);
+		if (!playerAlreadySkipped[boardID]) {
+			playerAlreadySkipped[boardID] = true;
+			Markers playerColor = colors.get(clientID);
 			if (playerColor.equals(Markers.WHITE))
-				board.setGameState(Markers.WHITEPASSED);
+				whoseMove[boardID] = Markers.WHITEPASSED;
 			else
-				board.setGameState(Markers.BLACKPASSED);
+				whoseMove[boardID] = Markers.BLACKPASSED;
 		} else
-			board.setGameState(Markers.BOTHPASSED);
+			whoseMove[boardID] = Markers.BOTHPASSED;
 
 	}
 
-	public void accept(String clientID) {
-		Board b = boards.get(clientID);
-		if(b.isGameResultAccepted()) 
-			applyChangesAndCount(clientID);
-					
-		else			 
-			b.setGameResultAccepted(true);
-			
-	}
-	public void pickDeadStones(String move) {
-		String[] splittedCommand = move.split(","); // parsing
-		String clientID = splittedCommand[0];
-		int x = Integer.parseInt(splittedCommand[1]);
-		int y = Integer.parseInt(splittedCommand[2]);
-		Markers playerColor = colors.get(clientID);
-		Board board = boards.get(clientID);
-		board.markDeadStones(x, y, playerColor.getEnemy().asChar()); // voting on enemy color
+	//TODO Trzeba coś zrobić, bo jest problem. Gdy gracz, którego ruch NIE jest wyjdzie z gry
+	//to gracz, którego JEST tura dostaje freeza, gdy zrobi ruch, bo makeMove() nic mu nie odpowie
+	//i okienko się zawiesza czekając na odpowiedź. Jakieś propozycje?
 
-	}
-	
-	public void pickTerritory(String move) {
-		String[] splittedCommand = move.split(","); 
-		String clientID = splittedCommand[0];
-		int x = Integer.parseInt(splittedCommand[1]);
-		int y = Integer.parseInt(splittedCommand[2]);
-		Markers playerColor = colors.get(clientID);
-		Board board = boards.get(clientID);
-		board.claimTerritory(x, y, playerColor.asChar());
-	}
-
-	private void applyChangesAndCount(String clientID) {
-		Markers playerColor = colors.get(clientID);
-		String enemyID = getEnemyID(clientID);
-		Board board = boards.get(clientID);
-		if (playerColor.equals(Markers.WHITE)) {
-			int totalAllyPoints = board.getDeadStoneAndTerritoryPoints(Markers.WHITE.asChar()) + points.get(clientID);
-			points.replace(clientID, totalAllyPoints);
-			int totalEnemyPoints = board.getDeadStoneAndTerritoryPoints(Markers.BLACK.asChar()) + points.get(enemyID);
-			points.replace(enemyID, totalEnemyPoints);
-			
-		} else {
-			int totalAllyPoints = board.getDeadStoneAndTerritoryPoints(Markers.BLACK.asChar()) + points.get(clientID);
-			points.replace(clientID, totalAllyPoints);
-			int totalEnemyPoints = board.getDeadStoneAndTerritoryPoints(Markers.WHITE.asChar()) + points.get(enemyID);
-			points.replace(enemyID, totalEnemyPoints);
-			
-		}
-		board.confirmChanges();
-	}
-
-	public void cancelVote(String clientID) {
-		boards.get(clientID).restoreBoard();
-	}
-
-	public String getEnemyID(String clientID) {
-		String enemyID;
-		if (playerPairs.containsKey(clientID)) {
-			enemyID = playerPairs.get(clientID);
-
-		} else if (playerPairs.containsValue(clientID)) {
-			enemyID = getKeyByValue(playerPairs, clientID);
-
-		} else
-			enemyID = "NoSuchPlayer";
-		return enemyID;
-
-	}
-
-		
 	public void exit(String clientID) { // czyszczenie map i tablic
 		String enemyID = playerPairs.get(clientID);
-		Board board = boards.get(clientID);
+		int boardID = boardsID.get(clientID);
 		players.remove(clientID);
 		players.remove(enemyID);
 		if (colors.get(clientID).equals(Markers.BLACK)) {
-			board.setGameState(Markers.WHITEWIN);
+			whoseMove[boardID] = Markers.WHITEWIN;
 			playerPairs.remove(clientID);
 		} else {
-			board.setGameState(Markers.BLACKWIN);
+			whoseMove[boardID] = Markers.BLACKWIN;
 			playerPairs.remove(enemyID);
 		}
 
@@ -216,6 +184,63 @@ public class TheGame {
 		players.remove(clientID);
 		players.remove(enemyID);
 
+	}
+	
+	public void pickDeadStones(String move) {
+		String[] splittedCommand = move.split(","); // parsing
+		String clientID = splittedCommand[0];
+		int x = Integer.parseInt(splittedCommand[1]);
+		int y = Integer.parseInt(splittedCommand[2]);
+		Markers playerColor = colors.get(clientID);
+		int boardID = boardsID.get(clientID);
+		boards[boardID].markDeadStones(x, y, playerColor.getEnemy().asChar()); //voting on enemy color
+		
+		
+	}
+	public void countPoints(String clientID) {
+		int boardID = boardsID.get(clientID);
+		int playerID = players.get(clientID);
+		Markers playerColor = colors.get(clientID);
+		int enemyPlayerID = players.get(getEnemyID(clientID));
+		countPoints(playerID, enemyPlayerID, boardID, playerColor);
+				
+	}
+
+	public void pickTerritory(String move) {
+		String[] splittedCommand = move.split(","); // parsing
+		String clientID = splittedCommand[0];
+		int x = Integer.parseInt(splittedCommand[1]);
+		int y = Integer.parseInt(splittedCommand[2]);
+		Markers playerColor = colors.get(clientID);
+		int boardID = boardsID.get(clientID);
+		boards[boardID].claimTerritory(x, y, playerColor.asChar());
+	}
+	
+	public String getEnemyID(String clientID) {
+		String enemyID;
+		if (playerPairs.containsKey(clientID)) {
+			 enemyID = playerPairs.get(clientID);
+			
+		}
+		else if(playerPairs.containsValue(clientID)) {
+			enemyID = getKeyByValue(playerPairs, clientID);
+			
+		}
+		else
+			enemyID = "NoSuchPlayer";
+		return enemyID;
+
+	}
+	private void countPoints(int playerID, int enemyPlayerID, int boardID, Markers playerColor) {
+		if(playerColor.equals(Markers.WHITE)) { 
+			points[playerID] += boards[boardID].getDeadStoneAndTerritoryPoints(Markers.WHITE.asChar());
+			points[enemyPlayerID] += boards[boardID].getDeadStoneAndTerritoryPoints(Markers.BLACK.asChar()); 
+		}
+		else {
+			points[playerID] += boards[boardID].getDeadStoneAndTerritoryPoints(Markers.BLACK.asChar()); 
+			points[enemyPlayerID] +=  boards[boardID].getDeadStoneAndTerritoryPoints(Markers.WHITE.asChar());
+		}
+		boards[boardID].sweepDeadStones();
 	}
 
 	private <T, E> T getKeyByValue(Map<T, E> map, E value) { // odzyskiwanie klucza z wartości
@@ -229,17 +254,19 @@ public class TheGame {
 		return null;
 	}
 
-	public Board getBoard(String clientID) {
-		return boards.get(clientID);
+	public Board getBoard(int id) {
+		return boards[id];
 	}
 
 	public Map<String, Integer> getPlayers() {
 		return players;
 	}
 
-	public int getPoints(String clientID) {
-		return points.get(clientID);
+	
+	public int[] getPoints() {
+		return points;
 	}
+
 
 	public Map<String, Markers> getColors() {
 		return colors;
@@ -247,6 +274,10 @@ public class TheGame {
 
 	public Map<String, String> getPlayerPairs() {
 		return playerPairs;
+	}
+
+	public Map<String, Integer> getBoardsID() {
+		return boardsID;
 	}
 
 	

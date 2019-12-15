@@ -13,8 +13,6 @@ public class Board {
 	private Set<Stone> stonesVotedDead;
 	private Stone koCandidate;
 	private int[] deadStoneAndTerritoryPoints;
-	private Markers gameState;
-	private boolean isGameResultAccepted;
 
 	public Board(int size) {
 		this.size = size;
@@ -29,7 +27,6 @@ public class Board {
 		deadStoneAndTerritoryPoints = new int[2];
 		deadStoneAndTerritoryPoints[0] = 0;
 		deadStoneAndTerritoryPoints[1] = 0;
-		isGameResultAccepted = false;
 	}
 
 	public int insert(int x, int y, char allyColor) {
@@ -46,7 +43,7 @@ public class Board {
 
 	}
 
-	// sprawdza czy ruch jest legalny
+	// sprzawdza czy ruch jest legalny
 	private int possibleInsert(Stone stone) {
 
 		List<Stone> killList = prepareKillList(stone); // kamienie, które zostałyby zabite tym ruchem
@@ -152,8 +149,8 @@ public class Board {
 	}
 
 	// łączy rekurencyjnie pionki będącę w grupie
-	private List<Stone> findChain(int posX, int posY, char color, char[][] copyBoard) {
-		List<Stone> chain = new ArrayList<Stone>();
+	private Set<Stone> findChain(int posX, int posY, char color, char[][] copyBoard) {
+		Set<Stone> chain = new HashSet<Stone>();
 		if (posX >= 0 && posY >= 0 && posX < size && posY < size && copyBoard[posX][posY] == color) {
 			copyBoard[posX][posY] = Markers.DONE.asChar();
 			for (Stone s : listOfStones) {
@@ -203,11 +200,12 @@ public class Board {
 	}
 
 	public void claimTerritory(int x, int y, char color) {
+		//char[][] copyBoard = copyBoard();
 		
 		if(color == Markers.WHITE.asChar())
-			deadStoneAndTerritoryPoints[0] += claimRecursive(x, y, Markers.WHITEVOTE.asChar());
+			deadStoneAndTerritoryPoints[0] += claimRecursive(x, y, Markers.WHITETERRITORY.asChar());
 		else
-			deadStoneAndTerritoryPoints[1] += claimRecursive(x, y, Markers.BLACKVOTE.asChar());
+			deadStoneAndTerritoryPoints[1] += claimRecursive(x, y, Markers.BLACKTERRITORY.asChar());
 	}
 
 	private int claimRecursive(int posX, int posY, char color) {
@@ -231,30 +229,19 @@ public class Board {
 				board[i][j] = Markers.EMPTY.asChar(); // empty board
 			}
 		}
-		stonesVotedDead.clear();
 		for (Stone s : listOfStones) {
 			board[s.getX()][s.getY()] = s.getColorAlly();
 		}
 		deadStoneAndTerritoryPoints[0] = 0;
 		deadStoneAndTerritoryPoints[1] = 0;
-		isGameResultAccepted = false;
 	}
 
-	public void confirmChanges() {
+	public void sweepDeadStones() {
 		List<Stone> list = new ArrayList<Stone>();
 		list.addAll(stonesVotedDead);
 		kill(list);
 		deadStoneAndTerritoryPoints[0] = 0;
 		deadStoneAndTerritoryPoints[1] = 0;
-		isGameResultAccepted = false;
-		for(int i =0; i < size; i++)
-			for(int j = 0; j < size; j++) {
-				if(board[i][j] == Markers.WHITEVOTE.asChar()) 
-					board[i][j] = Markers.WHITETERRITORY.asChar();
-				else if(board[i][j] == Markers.BLACKVOTE.asChar())
-					board[i][j] = Markers.BLACKTERRITORY.asChar();	
-			}
-		
 	}
 
 	// pozostałe metody są self explanatory
@@ -291,7 +278,18 @@ public class Board {
 		String string = "";
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
-				string += (String.valueOf(board[i][j]) + ",");
+				String mark = "";
+				if (board[i][j] == Markers.EMPTY.asChar())
+					mark = "0";
+				else if (board[i][j] == Markers.WHITE.asChar())
+					mark = "1";
+				else if (board[i][j] == Markers.BLACK.asChar())
+					mark = "2";
+				else if (board[i][j] == Markers.WHITEDEAD.asChar())
+					mark = "";
+				else if (board[i][j] == Markers.BLACKDEAD.asChar())
+					mark = "";
+				string += (mark + ",");
 			}
 			string += ";";
 
@@ -305,21 +303,6 @@ public class Board {
 			return deadStoneAndTerritoryPoints[0];
 		else
 			return deadStoneAndTerritoryPoints[1];
-	}
-
-	public Markers getGameState() {
-		return gameState;
-	}
-
-	public void setGameState(Markers gameState) {
-		this.gameState = gameState;
-	}
-
-	public boolean isGameResultAccepted() {
-		return isGameResultAccepted;
-	}
-	public void setGameResultAccepted(boolean bool) {
-		this.isGameResultAccepted = bool;
 	}
 
 	public char[][] getBoard() {
