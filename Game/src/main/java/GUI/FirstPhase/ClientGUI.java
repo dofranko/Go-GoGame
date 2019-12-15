@@ -1,13 +1,12 @@
 package GUI.FirstPhase;
 
 import GUI.ChatJPanel;
-import GUI.FinalPhase.FinalPhaseJFrame;
+import GUI.FinalPhase.FinalPhaseGUI;
 import Go.ServerClient.Client.Client;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
 import java.net.Socket;
 
 /**
@@ -255,7 +254,7 @@ public class ClientGUI extends Client {
     this.chatJPanel.sendChatMessage("Czas na zliczanie punktów ;-)");
     JOptionPane.showMessageDialog(jFrame, "Oboje spasowaliście. Zaraz rozpocznie się etap końcowy");
     this.jFrame.setVisible(false);
-    JFrame finalJFrame = new FinalPhaseJFrame(gameBoardJPanel.getStones(), this.getMyColor(),
+    JFrame finalJFrame = new FinalPhaseGUI(gameBoardJPanel.getStones(), this.getMyColor(),
             this, this.getSocket(), this.getChatSocket(), this.chatJPanel);
     finalJFrame.setVisible(true);
     super.startFinalPhase();

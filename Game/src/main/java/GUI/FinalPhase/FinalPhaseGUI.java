@@ -7,19 +7,15 @@ import Go.ServerClient.Client.ClientFinalPhase;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.Socket;
-import java.text.ParseException;
 
-public class FinalPhaseJFrame extends ClientFinalPhase {
+public class FinalPhaseGUI extends ClientFinalPhase {
   /**
    * Etap rozgrywki. Wybieranie martwych kamieni - wybieranie terytorium - koniec
    */
   public enum Stage{DEADSTONES, TERRITORY, THEEND}
 
-  private FinalStageJPanel boardJPanel;
+  private FinalBoardJPanel boardJPanel;
   private ChatJPanel chatJPanel;
 
   protected ClientGUI parentGame;
@@ -27,10 +23,10 @@ public class FinalPhaseJFrame extends ClientFinalPhase {
 
 
 
-  public FinalPhaseJFrame(int[][] actualStones, String color, final ClientGUI parent,  Socket socket, Socket chatSocket,
-                          ChatJPanel chatJPanel){
+  public FinalPhaseGUI(int[][] actualStones, String color, final ClientGUI parent, Socket socket, Socket chatSocket,
+                       ChatJPanel chatJPanel){
     super(color,  socket, chatSocket);
-    this.boardJPanel = new FinalStageJPanel(actualStones, color);
+    this.boardJPanel = new FinalBoardJPanel(actualStones, color);
     //this.boardJPanel.setSize(900,800);
     JPanel mainJPanel = new JPanel();
     mainJPanel.setLayout(null);
@@ -68,11 +64,7 @@ public class FinalPhaseJFrame extends ClientFinalPhase {
       @Override
       public void windowClosing(WindowEvent e) {
         stage = Stage.THEEND;
-        try {
-          chatos.writeUTF("!dc");
-        } catch (Exception ex) {
-          ex.printStackTrace();
-        }
+        chatJPanel.sendChatMessage("!dc");
         disconnect("!dc");
       }
     });

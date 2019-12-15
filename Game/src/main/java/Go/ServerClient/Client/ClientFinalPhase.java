@@ -1,8 +1,6 @@
 package Go.ServerClient.Client;
 
-import GUI.ChatJPanel;
-import GUI.FinalPhase.FinalPhaseJFrame;
-import GUI.FirstPhase.ClientGUI;
+import GUI.FinalPhase.FinalPhaseGUI;
 
 import javax.swing.*;
 import java.io.DataInputStream;
@@ -25,7 +23,7 @@ public abstract class ClientFinalPhase extends JFrame {
 
   //protected ClientGUI parentGame;
 
-  protected FinalPhaseJFrame.Stage stage = FinalPhaseJFrame.Stage.DEADSTONES;
+  protected FinalPhaseGUI.Stage stage = FinalPhaseGUI.Stage.DEADSTONES;
 
   public ClientFinalPhase(String color,  Socket socket, Socket chatSocket){
     this.myColor = color;
@@ -38,7 +36,7 @@ public abstract class ClientFinalPhase extends JFrame {
       this.chatis = new DataInputStream(chatSocket.getInputStream());
     }
     catch (IOException ex){ex.printStackTrace();}
-    this.stage = FinalPhaseJFrame.Stage.DEADSTONES;
+    this.stage = FinalPhaseGUI.Stage.DEADSTONES;
   }
 
 
@@ -70,13 +68,13 @@ public abstract class ClientFinalPhase extends JFrame {
    */
   protected void sendPickStones(String move){
     String received ="";
-    if(stage.equals(FinalPhaseJFrame.Stage.DEADSTONES)){
+    if(stage.equals(FinalPhaseGUI.Stage.DEADSTONES)){
       try {
         dos.writeUTF("PickDeadStones");
         dos.writeUTF(move);
       } catch (IOException e) { e.printStackTrace(); }
     }
-    else if(stage.equals(FinalPhaseJFrame.Stage.TERRITORY)){
+    else if(stage.equals(FinalPhaseGUI.Stage.TERRITORY)){
       try {
         dos.writeUTF("PickTerritory");
         dos.writeUTF(move);
@@ -142,7 +140,7 @@ public abstract class ClientFinalPhase extends JFrame {
       @Override
       public void run() {
         String stones;
-        while(!stage.equals(FinalPhaseJFrame.Stage.THEEND)){
+        while(!stage.equals(FinalPhaseGUI.Stage.THEEND)){
           try{
             sleep(1000);
             dos.writeUTF("MapRefresh");
