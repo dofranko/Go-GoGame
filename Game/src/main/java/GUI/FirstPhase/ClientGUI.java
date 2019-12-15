@@ -250,6 +250,7 @@ public class ClientGUI extends Client {
    */
   @Override
   protected void startFinalPhase() {
+    this.chatJPanel.sendChatMessage("Czas na zliczanie punktów ;-)");
     JOptionPane.showMessageDialog(jFrame, "Oboje spasowaliście. Zaraz rozpocznie się etap końcowy");
     this.jFrame.setVisible(false);
     JFrame finalJFrame = new FinalPhaseJFrame(gameBoardJPanel.getStones(), this.getMyColor(),

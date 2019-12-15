@@ -118,8 +118,13 @@ class ClientHandler extends Thread {
 					}
 					//Gracz zaakceptował aktualny wybór obu graczy
 					case "AcceptStage": {
-						received = dis.readUTF();
-						//TODO Zrobić to xD// gameServer.acceptStage(this.playerID); // lub cos
+						//received = dis.readUTF();
+						gameServer.acceptStage(this.playerID);
+						continue;
+					}
+					case "DeclineStage": { // Baby Shark TODO DO DO DO...
+											//TODO XDDDDD
+						gameServer.cancelVote(this.playerID);
 						continue;
 					}
 					//Gracz odświeża mapę w końcowej fazie
