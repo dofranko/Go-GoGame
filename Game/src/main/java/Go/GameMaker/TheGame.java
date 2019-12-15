@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-//Na razie obsługuje jeden mecz, ale bedzie opcja wielu
 public class TheGame {
 
 	private static final Object LOCK = new Object();
@@ -25,16 +24,12 @@ public class TheGame {
 	// mapa parująca graczy ze sobą
 	private Map<String, String> playerPairs;
 
-	// tablica punktacji poszczegolnych graczy
-	private Map<String, Integer> points;
-
-	
+		
 	private TheGame() { // inicializacja
 		players = new HashMap<String, Integer>();
 		colors = new HashMap<String, Markers>();
 		playerPairs = new HashMap<String, String>();
 		boards = new HashMap<String, Board>();
-		points = new HashMap<String, Integer>();
 		playerCounter = 0;
 	}
 
@@ -72,7 +67,6 @@ public class TheGame {
 
 		}
 		players.put(clientID, playerCounter);
-		points.put(clientID, 0);
 		playerCounter++;
 		return "Succes;" + colors.get(clientID).asString();
 
@@ -87,20 +81,17 @@ public class TheGame {
 		Markers playerColor = colors.get(clientID);
 		Board board = boards.get(clientID);
 
-		if (board.getGameState().equals(Markers.WHITEPASSED) && playerColor.equals(Markers.BLACK)) // kontynuacja gry pomimo pasowania
+		if (board.getGameState() == Markers.WHITEPASSED && playerColor == Markers.BLACK) // kontynuacja gry pomimo pasowania
 			board.setGameState(Markers.BLACK);
-		else if (board.getGameState().equals(Markers.BLACKPASSED) && playerColor.equals(Markers.WHITE))
+		else if (board.getGameState() == Markers.BLACKPASSED && playerColor == Markers.WHITE)
 			board.setGameState(Markers.WHITE);
 
-		if (board.getGameState().equals(playerColor)) {
+		if (board.getGameState() == playerColor) {
 
-			int pointsScored = board.insert(x, y, playerColor.asChar());
+			int pointsScored = board.insert(x, y, playerColor);
 			if (pointsScored >= 0) {
-				int totalPoints = points.get(clientID) + pointsScored;
-				points.replace(clientID, totalPoints);
-				
 				board.setGameState(playerColor.getEnemy());
-				return Integer.toString(totalPoints) + ";" + board.boardToString();
+				return Integer.toString(pointsScored) + ";" + board.boardToString();
 			} else
 				return "IllegalMove";
 		} else
@@ -118,9 +109,9 @@ public class TheGame {
 	public void skip(String clientID) {
 		Board board = boards.get(clientID);
 		Markers playerColor = colors.get(clientID);
-		if (!board.getGameState().equals(Markers.WHITEPASSED) && !board.getGameState().equals(Markers.BLACKPASSED)) {
+		if (board.getGameState() != Markers.WHITEPASSED && board.getGameState() != Markers.BLACKPASSED) {
 			
-			if (playerColor.equals(Markers.WHITE))
+			if (playerColor == Markers.WHITE)
 				board.setGameState(Markers.WHITEPASSED);
 			else
 				board.setGameState(Markers.BLACKPASSED);
@@ -132,7 +123,7 @@ public class TheGame {
 	public void acceptStage(String clientID) {
 		Board b = boards.get(clientID);
 		if(b.isGameResultAccepted()) 
-			applyChangesAndCount(clientID, b);
+			b.confirmChanges();
 		else			 
 			b.setGameResultAccepted(true);
 			
@@ -142,9 +133,8 @@ public class TheGame {
 		String clientID = splittedCommand[0];
 		int x = Integer.parseInt(splittedCommand[1]);
 		int y = Integer.parseInt(splittedCommand[2]);
-		Markers playerColor = colors.get(clientID);
 		Board board = boards.get(clientID);
-		board.markDeadStones(x, y, playerColor.getEnemy().asChar()); // voting on enemy color
+		board.markDeadStones(x, y); 
 
 	}
 	
@@ -158,26 +148,7 @@ public class TheGame {
 		board.claimTerritory(x, y, playerColor.asChar());
 	}
 
-	private void applyChangesAndCount(String clientID, Board board) {
-		Markers playerColor = colors.get(clientID);
-		String enemyID = getEnemyID(clientID);
-		//Board board = boards.get(clientID);
-		if (playerColor.equals(Markers.WHITE)) {
-			int totalAllyPoints = board.getDeadStoneAndTerritoryPoints(Markers.WHITE.asChar()) + points.get(clientID);
-			points.replace(clientID, totalAllyPoints);
-			int totalEnemyPoints = board.getDeadStoneAndTerritoryPoints(Markers.BLACK.asChar()) + points.get(enemyID);
-			points.replace(enemyID, totalEnemyPoints);
-			
-		} else {
-			int totalAllyPoints = board.getDeadStoneAndTerritoryPoints(Markers.BLACK.asChar()) + points.get(clientID);
-			points.replace(clientID, totalAllyPoints);
-			int totalEnemyPoints = board.getDeadStoneAndTerritoryPoints(Markers.WHITE.asChar()) + points.get(enemyID);
-			points.replace(enemyID, totalEnemyPoints);
-			
-		}
-		board.confirmChanges();
-	}
-
+	
 	public void cancelVote(String clientID) {
 		boards.get(clientID).restoreBoard();
 	}
@@ -197,24 +168,22 @@ public class TheGame {
 	}
 
 		
-	public void exit(String clientID) { // czyszczenie map i tablic
+	public void exit(String clientID) { // czyszczenie map 
 		String enemyID = playerPairs.get(clientID);
 		Board board = boards.get(clientID);
 		players.remove(clientID);
 		players.remove(enemyID);
 		if (colors.get(clientID).equals(Markers.BLACK)) {
 			board.setGameState(Markers.WHITEWIN);
-			playerPairs.remove(clientID);
+			//playerPairs.remove(clientID);
 		} else {
 			board.setGameState(Markers.BLACKWIN);
-			playerPairs.remove(enemyID);
+			//playerPairs.remove(enemyID);
 		}
 
 		colors.remove(clientID);
 		colors.remove(enemyID);
-		players.remove(clientID);
-		players.remove(enemyID);
-
+		
 	}
 
 	private <T, E> T getKeyByValue(Map<T, E> map, E value) { // odzyskiwanie klucza z wartości
@@ -237,7 +206,8 @@ public class TheGame {
 	}
 
 	public int getPoints(String clientID) {
-		return points.get(clientID);
+		Markers color = colors.get(clientID);
+		return boards.get(clientID).getDeadStoneAndTerritoryPoints(color);
 	}
 
 	public Map<String, Markers> getColors() {

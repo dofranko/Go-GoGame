@@ -32,7 +32,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
     mainJPanel.setLayout(null);
     mainJPanel.add(boardJPanel);
     this.add(mainJPanel);
-    JButton acceptStageJButton = new JButton("Ackeptuj");
+    JButton acceptStageJButton = new JButton("Akceptuj");
     acceptStageJButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
