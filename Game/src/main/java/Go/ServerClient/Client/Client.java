@@ -232,6 +232,7 @@ public abstract class Client {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		updateStatusLabel("YouLose");
 	}
 
 	/**
