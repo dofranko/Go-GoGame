@@ -243,7 +243,8 @@ public abstract class Client {
 			dos.close();
 			socket.close();
 		} catch (Exception e) { e.printStackTrace(); }
-		try {new DataOutputStream(chatSocket.getOutputStream()).writeUTF(myPlayerId+";"+"!dc");} catch(Exception e){e.printStackTrace();}
+		try {new DataOutputStream(chatSocket.getOutputStream()).writeUTF(myPlayerId+";"+"!dc");}
+		catch(Exception e){e.printStackTrace();}
 	}
 
 	/**

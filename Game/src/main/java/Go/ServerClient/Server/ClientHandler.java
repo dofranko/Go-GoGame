@@ -72,7 +72,7 @@ class ClientHandler extends Thread {
 					}
 					//Klient pyta grę, o stan gry (czyj ruch oraz wygląd planszy)
 					case "WhoseMove": {
-						toReturn = gameServer.whoseMove(this.playerID);
+						toReturn = gameServer.getGameState(this.playerID);
 						break;
 					}
 					//Szukanie nowej gry przez gracza
@@ -129,7 +129,7 @@ class ClientHandler extends Thread {
 					}
 					//Gracz odświeża mapę w końcowej fazie
 					case "MapRefresh":
-						toReturn = gameServer.mapRefresh(this.playerID);
+						toReturn = gameServer.getGameState(this.playerID);
 						break;
 				}
 				//Odesłanie odpowiedzi do gracza
