@@ -28,22 +28,22 @@ public class FinalStageJPanel extends GameBoardJPanel {
           case 2:
             break;
           case 3:
-            stonesJLabels[i][j].setIcon(new ImageIcon("files/white-dead-pick.png"));
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/white-dead-pick.gif"));
             break;
           case 4:
-            stonesJLabels[i][j].setIcon(new ImageIcon("files/black-dead-pick.png"));
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/black-dead-pick.gif"));
             break;
           case 5:
-            stonesJLabels[i][j].setIcon(new ImageIcon("files/white-territory-pick.png"));
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/white-territory-pick.gif"));
             break;
           case 6:
-            stonesJLabels[i][j].setIcon(new ImageIcon("files/black-territory-pick.png"));
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/black-territory-pick.gif"));
             break;
           case 7:
-            stonesJLabels[i][j].setIcon(new ImageIcon("files/white-territory-done.png"));
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/white-territory-done.gif"));
             break;
           case 8:
-            stonesJLabels[i][j].setIcon(new ImageIcon("files/black-territory-done.png"));
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/black-territory-done.gif"));
             break;
         }
       }
