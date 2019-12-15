@@ -5,10 +5,10 @@ import GUI.FirstPhase.GameBoardJPanel;
 import javax.swing.*;
 
 
-public class FinalStageJPanel extends GameBoardJPanel {
+public class FinalBoardJPanel extends GameBoardJPanel {
  // final private int[][] stonesAtTheEndOFMatch;
 
-  public FinalStageJPanel(int[][] stones, String color){
+  public FinalBoardJPanel(int[][] stones, String color){
     super(color);
     this.setStones(stones);
     this.stones = stones;

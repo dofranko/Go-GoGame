@@ -26,8 +26,6 @@ public abstract class Client {
 
 	private boolean isItMyTurn = false;
 	private boolean didIPass = false;
-
-	public boolean isGameActive = true;
 	/**
 	 * Wątek, który wyczekuje ruchu przeciwnika odpytując serwer o aktualizację danych.
 	 */
@@ -106,6 +104,7 @@ public abstract class Client {
 		try {
 			received = "Exit";
 			dos.writeUTF("Exit");
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -210,7 +209,7 @@ public abstract class Client {
 	 * Gracz wysyła, że pasuje
 	 */
 	public void sendPass() {
-		if(isItMyTurn && isGameActive) {
+		if(isItMyTurn) {
 			try {
 				dos.writeUTF("Pass");
 				didIPass = true;
@@ -228,9 +227,10 @@ public abstract class Client {
 	 * Gracz wysyła, że się poddaje
 	 */
 	public void sendGiveUp() {
-		if(isGameActive) {
+		if(isItMyTurn) {
 			try {
 				dos.writeUTF("GiveUp");
+				updateStatusLabel("YouLose");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -246,7 +246,8 @@ public abstract class Client {
 			dos.close();
 			socket.close();
 		} catch (Exception e) { e.printStackTrace(); }
-		try {new DataOutputStream(chatSocket.getOutputStream()).writeUTF(myPlayerId+";"+"!dc");} catch(Exception e){e.printStackTrace();}
+		try {new DataOutputStream(chatSocket.getOutputStream()).writeUTF(myPlayerId+";"+"!dc");}
+		catch(Exception e){e.printStackTrace();}
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package Go;
 
 import GUI.FirstPhase.ClientGUI;
+import Go.ServerClient.Client.Bot;
 
 /**
  * Hello world!
@@ -13,6 +14,7 @@ public class LaunchClients
        // System.out.println( "Hello World!" );
         ClientGUI gui = new ClientGUI();
         ClientGUI gui2 = new ClientGUI();
+        //Bot bot = new Bot(19);
        /* ClientGUI gui3 = new ClientGUI();
         ClientGUI gui4 = new ClientGUI();
         ClientGUI gui5 = new ClientGUI();
