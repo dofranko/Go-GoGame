@@ -123,6 +123,7 @@ class ClientHandler extends Thread {
 						continue;
 					}
 					case "DeclineStage": { // Baby Shark TODO DO DO DO...
+											//TODO XDDDDD
 						gameServer.cancelVote(this.playerID);
 						continue;
 					}

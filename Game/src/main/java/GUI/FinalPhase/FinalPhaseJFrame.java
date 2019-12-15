@@ -21,6 +21,7 @@ public class FinalPhaseJFrame extends JFrame {
   private FinalStageJPanel boardJPanel;
   private ChatJPanel chatJPanel;
 
+
   private String myPoints;
   private String myColor;
 
@@ -40,8 +41,36 @@ public class FinalPhaseJFrame extends JFrame {
                           final ChatJPanel chatJPanel){
     this.boardJPanel = new FinalStageJPanel(actualStones, color);
     //this.boardJPanel.setSize(900,800);
-    this.add(boardJPanel);
+    JPanel mainJPanel = new JPanel();
+    mainJPanel.setLayout(null);
+    mainJPanel.add(boardJPanel);
+    this.add(mainJPanel);
+    JButton acceptStageJButton = new JButton("Ackeptuj");
+    acceptStageJButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        acceptStage();
+      }
+    });
+    acceptStageJButton.setBounds(this.boardJPanel.getX() + this.boardJPanel.getWidth() + 20,
+            450, 200,30);
+    mainJPanel.add(acceptStageJButton);
+
+    JButton declineStageJButton = new JButton("Odrzuć");
+    declineStageJButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        declineStage();
+      }
+    });
+    declineStageJButton.setBounds(acceptStageJButton.getX(),
+            acceptStageJButton.getY() + acceptStageJButton.getHeight() + 30,
+            acceptStageJButton.getWidth(),acceptStageJButton.getHeight());
+    mainJPanel.add(declineStageJButton);
     this.chatJPanel = chatJPanel;
+    this.chatJPanel.setLocation(650, 5);
+    this.chatJPanel.setSize(220,400);
+    mainJPanel.add(this.chatJPanel);
     this.myColor = color;
     this.parentGame = parent;
     this.socket = socket;
@@ -64,7 +93,7 @@ public class FinalPhaseJFrame extends JFrame {
       }
     });
     //this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-    this.setSize(new Dimension(this.getInsets().left + this.getInsets().right + boardJPanel.getWidth(),
+    this.setSize(new Dimension(this.getInsets().left + this.getInsets().right + boardJPanel.getWidth() ,
             this.getInsets().top + this.getInsets().bottom + boardJPanel.getHeight()));
     JButton acceptJButton = new JButton("Ackeptuj wybór");
     acceptJButton.addActionListener(new ActionListener() {
@@ -107,7 +136,9 @@ public class FinalPhaseJFrame extends JFrame {
       }
     });
     this.boardJPanel.repaint();
-    this.pack();
+    this.setSize(909,657);
+    this.setResizable(false);
+    this.chatJPanel.setSize(220,400);
     startRefreshingMapThread();
   }
 
@@ -199,6 +230,13 @@ public class FinalPhaseJFrame extends JFrame {
   private void acceptStage(){
     try {
       dos.writeUTF("AcceptStage");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+  private void declineStage(){
+    try {
+      dos.writeUTF("DeclineStage");
     } catch (IOException e) {
       e.printStackTrace();
     }
