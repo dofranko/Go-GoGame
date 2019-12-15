@@ -72,7 +72,7 @@ class ClientHandler extends Thread {
 					}
 					//Klient pyta grę, o stan gry (czyj ruch oraz wygląd planszy)
 					case "WhoseMove": {
-						toReturn = gameServer.whoseMove(this.playerID);
+						toReturn = gameServer.getGameState(this.playerID);
 						break;
 					}
 					//Szukanie nowej gry przez gracza
@@ -118,13 +118,17 @@ class ClientHandler extends Thread {
 					}
 					//Gracz zaakceptował aktualny wybór obu graczy
 					case "AcceptStage": {
-						received = dis.readUTF();
-						//TODO Zrobić to xD// gameServer.acceptStage(this.playerID); // lub cos
+						//received = dis.readUTF();
+						gameServer.acceptStage(this.playerID);
+						continue;
+					}
+					case "DeclineStage": { // Baby Shark TODO DO DO DO...
+						gameServer.cancelVote(this.playerID);
 						continue;
 					}
 					//Gracz odświeża mapę w końcowej fazie
 					case "MapRefresh":
-						toReturn = gameServer.mapRefresh(this.playerID);
+						toReturn = gameServer.getGameState(this.playerID); // ta sama metoda so przy whoseMove
 						break;
 				}
 				//Odesłanie odpowiedzi do gracza

@@ -129,11 +129,10 @@ public class TheGame {
 
 	}
 
-	public void accept(String clientID) {
+	public void acceptStage(String clientID) {
 		Board b = boards.get(clientID);
 		if(b.isGameResultAccepted()) 
-			applyChangesAndCount(clientID);
-					
+			applyChangesAndCount(clientID, b);
 		else			 
 			b.setGameResultAccepted(true);
 			
@@ -159,10 +158,10 @@ public class TheGame {
 		board.claimTerritory(x, y, playerColor.asChar());
 	}
 
-	private void applyChangesAndCount(String clientID) {
+	private void applyChangesAndCount(String clientID, Board board) {
 		Markers playerColor = colors.get(clientID);
 		String enemyID = getEnemyID(clientID);
-		Board board = boards.get(clientID);
+		//Board board = boards.get(clientID);
 		if (playerColor.equals(Markers.WHITE)) {
 			int totalAllyPoints = board.getDeadStoneAndTerritoryPoints(Markers.WHITE.asChar()) + points.get(clientID);
 			points.replace(clientID, totalAllyPoints);
