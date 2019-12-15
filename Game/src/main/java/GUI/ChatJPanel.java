@@ -143,7 +143,12 @@ public class ChatJPanel extends JPanel {
         chatdos.writeUTF(myPlayerId+";"+"!dctemporary");
       else
         chatdos.writeUTF(enemyPlayerId + ";" + message);
-      updateChatArea("\nMe: " + message);
+      if(!enemyPlayerId.equals("NoSuchPlayer"))
+       updateChatArea("\nMe: " + message);
+      else{
+        updateChatArea("\nPrzeciwnik wciąż nie dołączył");
+        enemyPlayerId = "";
+      }
 
     } catch (IOException ex) { ex.printStackTrace(); }
   }

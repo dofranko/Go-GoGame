@@ -181,7 +181,7 @@ public abstract class Client {
 				e.printStackTrace();
 			}
 			System.out.println(received); //Tylko do debugowania TODO
-			if (!received.equals("NotYrMove") && !received.equals("IllegalMove")) {
+			if (!received.equals("NotYrMove") && !received.equals("IllegalMove")&& !received.equals("UnknownCommand") ) {
 				isItMyTurn = false;
 				updateStatusLabel("MoveMade");
 
@@ -304,20 +304,20 @@ public abstract class Client {
 	private Thread createWaitingForTurnThread() {
 		return new Thread() {
 			public void run() {
-				String decision;
-				String whoseMove;
+				String decision="";
+				String whoseMove="";
 				do {
 					try { sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
 					try {
 						if(socket.isClosed())
-							throw new IOException();
+							throw new UnsupportedOperationException();
 						whoseMove = sendWhoseMove();
 						decision = whoseMove.split(";")[0];
 					} catch (IOException e) {
 						e.printStackTrace();
 						disconnect();
 						break;
-					}
+					} catch (UnsupportedOperationException ex){break;}
 					System.out.println(whoseMove);
 					System.out.println("Watki:" + Thread.activeCount());//Debugowanie TODO
 
