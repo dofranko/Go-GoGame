@@ -134,12 +134,18 @@ class ClientHandler extends Thread {
 						continue;
 					}
 					//Gracz odświeża mapę w końcowej fazie
-					case "MapRefresh":
+					case "MapRefresh": {
 						toReturn = gameServer.getGameState(this.playerID); // ta sama metoda so przy whoseMove
 						break;
-					case "GetPoints": 
+					}
+					case "GetPoints": {
 						toReturn = gameServer.getPoints(this.playerID);
 						break;
+					}
+					case "WhoAccepted": {
+						toReturn = gameServer.getPlayerWhoAccpeted(this.playerID);
+						break;
+					}
 				}
 				//Odesłanie odpowiedzi do gracza
 				dos.writeUTF(toReturn);

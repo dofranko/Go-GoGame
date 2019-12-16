@@ -16,6 +16,7 @@ public class Board {
 	private Stone koCandidate;
 	private Map<Markers, Integer> totalPointsMap;
 	private Markers gameState;
+	private Markers playerWhoAccepted;
 	private boolean isGameResultAccepted;
 
 	public Board(int size) {
@@ -44,7 +45,7 @@ public class Board {
 				listOfStones.add(s);
 				int totalPoints = totalPointsMap.get(playerColor) + pointsScored;
 				totalPointsMap.replace(playerColor, totalPoints);
-				gameState = playerColor.getEnemy();
+				gameState = playerColor.asEnemy();
 				return totalPoints;
 			}
 		}
@@ -215,12 +216,9 @@ public class Board {
 
 	}
 
-	public void claimTerritory(int x, int y, char color) {
+	public void claimTerritory(int x, int y, Markers playerColor) {
 
-		if (color == Markers.WHITE.asChar())
-			claimRecursive(x, y, Markers.WHITEVOTE.asChar());
-		else
-			claimRecursive(x, y, Markers.BLACKVOTE.asChar());
+		claimRecursive(x, y, playerColor.asClaimTerritory().asChar());
 	}
 
 	private void claimRecursive(int posX, int posY, char color) {
@@ -261,14 +259,15 @@ public class Board {
 					whiteBonusPoints++;
 			}
 			kill(list);
+			
 		}
-		if (gameState == Markers.TERRITORY) {
+		else if (gameState == Markers.TERRITORY) {
 			for (int i = 0; i < size; i++)
 				for (int j = 0; j < size; j++) {
-					if (board[i][j] == Markers.WHITEVOTE.asChar()) {
+					if (board[i][j] == Markers.WHITECLAIM.asChar()) {
 						board[i][j] = Markers.WHITETERRITORY.asChar();
 						whiteBonusPoints++;
-					} else if (board[i][j] == Markers.BLACKVOTE.asChar()) {
+					} else if (board[i][j] == Markers.BLACKCLAIM.asChar()) {
 						board[i][j] = Markers.BLACKTERRITORY.asChar();
 						blackBonusPoints++;
 					}
@@ -338,12 +337,16 @@ public class Board {
 		this.gameState = gameState;
 	}
 
-	public boolean isGameResultAccepted() {
-		return isGameResultAccepted;
+	public Markers getPlayerWhoAccepted() {
+		return playerWhoAccepted; 
 	}
 
-	public void setGameResultAccepted(boolean bool) {
-		this.isGameResultAccepted = bool;
+	public void setGameResultAccepted(Markers playerAccepted) {
+		this.isGameResultAccepted = true;
+		this.playerWhoAccepted = playerAccepted;
+	}
+	public boolean isGameResultAccepted() {
+		return isGameResultAccepted;
 	}
 
 	public char[][] getBoard() {

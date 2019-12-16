@@ -81,11 +81,9 @@ public class TheGame {
 		Board board = boards.get(clientID);
 
 		// kontynuacja gry pomimo pasowania
-		if (board.getGameState() == Markers.WHITEPASSED && playerColor == Markers.BLACK) 
-			board.setGameState(Markers.BLACK);
-		else if (board.getGameState() == Markers.BLACKPASSED && playerColor == Markers.WHITE)
-			board.setGameState(Markers.WHITE);
-
+		if (board.getGameState() == playerColor.asEnemyPassed()) 
+			board.setGameState(playerColor);
+		
 		if (board.getGameState() == playerColor) {
 			int pointsScored = board.insert(x, y, playerColor);
 			if (pointsScored >= 0) {
@@ -101,16 +99,17 @@ public class TheGame {
 		Board b = boards.get(clientID);
 		return b.getGameState().asString() + ";" + b.boardToString();
 	}
-
+	public String getPlayerWhoAccpeted(String clientID) {
+		Board b = boards.get(clientID);
+		return b.getPlayerWhoAccepted().asAccepted().asString();
+	}
+	
 	public void skip(String clientID) {
 		Board board = boards.get(clientID);
 		Markers playerColor = colors.get(clientID);
-		if (board.getGameState() != Markers.WHITEPASSED && board.getGameState() != Markers.BLACKPASSED) {
-
-			if (playerColor == Markers.WHITE)
-				board.setGameState(Markers.WHITEPASSED);
-			else
-				board.setGameState(Markers.BLACKPASSED);
+		if (board.getGameState() != playerColor.asEnemyPassed()) {
+			board.setGameState(playerColor.asPassed());
+			
 		} else
 			board.setGameState(Markers.BOTHPASSED);
 
@@ -118,11 +117,12 @@ public class TheGame {
 
 	public void acceptStage(String clientID) {
 		Board b = boards.get(clientID);
-		if (b.isGameResultAccepted())
+		Markers playerColor = colors.get(clientID);
+		if (b.getPlayerWhoAccepted() == playerColor.asEnemy())
 			b.confirmChanges();
-		else
-			b.setGameResultAccepted(true);
-
+		else 
+			b.setGameResultAccepted(playerColor);
+			
 	}
 
 	public void pickDeadStones(String move) {
@@ -144,7 +144,7 @@ public class TheGame {
 		Markers playerColor = colors.get(clientID);
 		Board board = boards.get(clientID);
 		if (!board.isGameResultAccepted())
-			board.claimTerritory(x, y, playerColor.asChar());
+			board.claimTerritory(x, y, playerColor);
 	}
 
 	public void cancelVote(String clientID) {
@@ -167,7 +167,8 @@ public class TheGame {
 
 	public void exit(String clientID) { // czyszczenie map
 		Board board = boards.get(clientID);
-		if(board.getGameState() != Markers.BLACKWIN && board.getGameState() != Markers.WHITEWIN) {
+		Markers playerColor = colors.get(clientID);
+		if(board.getGameState() != playerColor.asWinner()) {
 			System.out.println("Giving up by " + colors.get(clientID).asString());
 			giveUp(clientID);
 		}
@@ -179,11 +180,9 @@ public class TheGame {
 	}
 	public void giveUp(String clientID) {
 		Board board = boards.get(clientID);
-		if (colors.get(clientID) == Markers.BLACK) {
-			board.setGameState(Markers.WHITEWIN);
-		} else {
-			board.setGameState(Markers.BLACKWIN);
-		}
+		Markers playerColor = colors.get(clientID);
+		board.setGameState(playerColor.asWinner());
+		
 	}
 
 	private <T, E> T getKeyByValue(Map<T, E> map, E value) { // odzyskiwanie klucza z wartości

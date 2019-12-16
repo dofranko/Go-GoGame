@@ -60,7 +60,7 @@ public class BoardTest {
 	@Test
 	public void testKill() {
 		Board b = new Board(9);
-		b.insert(5, 5, Markers.BLACK.getEnemy()); //checking getEnemy method
+		b.insert(5, 5, Markers.BLACK.asEnemy()); //checking getEnemy method
 		b.insert(5, 6, Markers.WHITE);
 		b.insert(5, 7, Markers.WHITE);
 		b.insert(4, 5, Markers.WHITE);
