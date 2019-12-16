@@ -195,6 +195,7 @@ public abstract class Client {
 			} else if (received.equals("NotYrMove")) {
 				this.isItMyTurn = false;
 				updateStatusLabel("NotYrMove");
+				startWaitingForTurnThread();
 				System.out.println(received);
 			} else if (received.equals("IllegalMove"))
 				updateStatusLabel("IllegalMove");
@@ -224,13 +225,11 @@ public abstract class Client {
 	 * Gracz wysyła, że się poddaje
 	 */
 	public void sendGiveUp() {
-		if(isItMyTurn) {
-			try {
-				dos.writeUTF("GiveUp");
-				updateStatusLabel("YouLose");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		try {
+			dos.writeUTF("GiveUp");
+			startWaitingForTurnThread();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 

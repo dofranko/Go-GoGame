@@ -12,8 +12,9 @@ import java.net.Socket;
 public abstract class ClientFinalPhase extends JFrame {
   public enum Stage{DEADSTONES, TERRITORY, THEEND}
 
-  protected String myPoints;
   protected String myColor;
+
+  protected boolean isAccepted = false;
 
   protected Socket socket;
   protected DataOutputStream dos;
@@ -25,7 +26,7 @@ public abstract class ClientFinalPhase extends JFrame {
 
   //protected ClientGUI parentGame;
 
-  protected Stage stage = Stage.DEADSTONES;
+  protected Stage stage;
 
   public ClientFinalPhase(String color,  Socket socket, Socket chatSocket){
     this.myColor = color;
@@ -79,9 +80,7 @@ public abstract class ClientFinalPhase extends JFrame {
       try {
         dos.writeUTF("PickTerritory");
         dos.writeUTF(move);
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      } catch (IOException e) { e.printStackTrace(); }
     }
     System.out.println(received);
   }
@@ -94,11 +93,11 @@ public abstract class ClientFinalPhase extends JFrame {
 
   protected abstract void updatePointsLabel(int points);
 
-  /**
+  /*
    * Zamiana String w tablice int[][] kamieni
    * @param stonesInString kamienie w Stringu
    * @return tablica int[][] kamieni
-   */
+
   protected int[][] convertStonesToIntFromString(String stonesInString) {
     int[][] stones;
     String[] columns = stonesInString.split(";");
@@ -116,23 +115,17 @@ public abstract class ClientFinalPhase extends JFrame {
     }
     return stones;
   }
-
+  */
   /**
    * Akceptacja przez gracza aktualnego stanu
    */
   protected void acceptStage(){
-    try {
-      dos.writeUTF("AcceptStage");
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    try { dos.writeUTF("AcceptStage");}
+    catch (IOException e) { e.printStackTrace(); }
   }
   protected void declineStage(){
-    try {
-      dos.writeUTF("DeclineStage");
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    try { dos.writeUTF("DeclineStage"); }
+    catch (IOException e) { e.printStackTrace(); }
   }
   protected int getPoints() {
     int points =0;
@@ -147,47 +140,72 @@ public abstract class ClientFinalPhase extends JFrame {
    * Wątek pobierający informacje o planszy i odświeżający ją. (@see waitingForTurnThread)
    */
   protected void startRefreshingMapThread(){
-    Thread refresh = new Thread(){
-      @Override
-      public void run() {
-        updatePointsLabel(getPoints());
-        String stones;
-        while(!stage.equals(Stage.THEEND)){
-          try{
-            sleep(1000);
-            dos.writeUTF("MapRefresh");
-            stones = dis.readUTF();
+    Thread refresh = new Thread(() -> {
+      updatePointsLabel(getPoints());
+      String stones;
+      String whoAccepted;
+      String status;
+      while(!stage.equals(Stage.THEEND)){
+        try{
+          Thread.sleep(1000);
+          dos.writeUTF("MapRefresh");
+          stones = dis.readUTF();
+          dos.writeUTF("WhoAccepted");
+          whoAccepted = dis.readUTF();
+        }
+        catch (InterruptedException ex){ex.printStackTrace(); break;}
+        catch (IOException ex) {ex.printStackTrace(); break;}
+        catch (Exception ex) {ex.printStackTrace(); break;}
+        System.out.println("Hi:"+stones);
+        try{
+          Integer.parseInt(stones.split(";")[0]);
+          updateGameBoard(stones);
+        }catch(Exception ex) {
+          status =  stones.split(";")[0];
+          stones = stones.substring(status.length() + 1);
+          switch (stage) {
+            case DEADSTONES:
+              if(status.equals("PickingTerritory")) {
+                stage = Stage.TERRITORY;
+                updatePointsLabel(getPoints());
+              }
+              break;
+            case TERRITORY:
+              if(status.equals("End")) {
+                stage = Stage.THEEND;
+                updatePointsLabel(getPoints());
+              }
+              break;
           }
-          catch (InterruptedException ex){ex.printStackTrace(); break;}
-          catch (IOException ex) {ex.printStackTrace(); break;}
-          catch (Exception ex) {ex.printStackTrace(); break;}
-          System.out.println("Hi:"+stones);
-          String status;
-          try{
-            int trying = Integer.parseInt(stones.split(";")[0]);
-            updateGameBoard(stones);
-          }catch(Exception ex) {
-            status =  stones.split(";")[0];
-            stones = stones.substring(status.length() + 1);
-            switch (stage) {
-              case DEADSTONES:
-                if(status.equals("PickingTerritory")) {
-                  stage = Stage.TERRITORY;
-                  updatePointsLabel(getPoints());
-                }
-                break;
-              case TERRITORY:
-                if(status.equals("End")) {
-                  stage = Stage.THEEND;
-                  updatePointsLabel(getPoints());
-                }
-                break;
-            }
-            updateGameBoard(stones);
-          }
+          updateGameBoard(stones);
+        }
+        if(whoAccepted.contains("Accepted") && !whoAccepted.contains(myColor)) {
+          JOptionPane.showMessageDialog(this, "Przeciwnik zaakceptował!");
+          isAccepted = true;
+        }
+        else if(isAccepted && whoAccepted.equals("Empty")){
+          JOptionPane.showMessageDialog(this, "Przeciwnik odrzucił wybór!");
+          isAccepted = false;
         }
       }
-    };
+    });
     refresh.start();
+  }
+  protected int[][] convertStonesToIntFromString(String stonesInString) {
+    int[][] stones;
+    String[] columns = stonesInString.split(";");
+    stones = new int[columns.length][columns.length];
+    int i = 0;
+    int j = 0;
+    for (String column : columns) {
+      String[] fields = column.split(",");
+      for (String field : fields) {
+        stones[i][j] = Integer.parseInt(field);
+        j++;
+      }
+      j = 0;
+      i++;
+    }
+    return stones;
   }
 }
