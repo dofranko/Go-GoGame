@@ -18,6 +18,7 @@ public class Bot extends Client{
 
 
   public Bot(int size){
+    super(size);
     stones = new int[size][size];
     createAndRunWaitingToMoveThread();
     this.chatJPanel = new ChatJPanel(getChatSocket(), this, getMyPlayerId());

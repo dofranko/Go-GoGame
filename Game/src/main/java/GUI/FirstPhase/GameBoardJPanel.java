@@ -35,9 +35,9 @@ public class GameBoardJPanel extends JPanel {
       }
     }
     /**
-     * Kropki orientacyjne na planszy
+     * Kropki orientacyjne na planszy 19x19
      */
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3 && size == 19; i++) {
       for (int j = 0; j < 3; j++) {
         JLabel dot = new JLabel();
         dot.setBounds(16 + 91 + i * 32 * 6, 16 + 91 + j * 32 * 6, 11, 11);
