@@ -46,6 +46,7 @@ public class ClientGUI extends Client {
     jFrame.addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
+        chatJPanel.sendChatMessage("Wychodzę z gry!");
         sendExit();
         jFrame.dispose();
       }
@@ -142,8 +143,10 @@ public class ClientGUI extends Client {
     giveUpJButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if(isGameActive)
+        if(isGameActive) {
           sendGiveUp();
+          chatJPanel.sendChatMessage("Poddaję się!");
+        }
       }
     });
 
@@ -152,8 +155,10 @@ public class ClientGUI extends Client {
     passJButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if(isGameActive)
+        if(isGameActive) {
           sendPass();
+          chatJPanel.sendChatMessage("Pasuję!");
+        }
       }
     });
 

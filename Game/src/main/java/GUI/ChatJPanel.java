@@ -152,4 +152,8 @@ public class ChatJPanel extends JPanel {
 
     } catch (IOException ex) { ex.printStackTrace(); }
   }
+
+  public String getChatJTextAreaText(){
+    return this.chatJTextArea.getText();
+  }
 }

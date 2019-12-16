@@ -1,7 +1,7 @@
 package Go.ServerClient.Client;
 
 import GUI.FinalPhase.FinalPhaseGUI;
-import GUI.FinalPhase.FinalPhaseGUI.Stage;
+
 
 import javax.swing.*;
 import java.io.DataInputStream;
@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 public abstract class ClientFinalPhase extends JFrame {
+  public enum Stage{DEADSTONES, TERRITORY, THEEND}
 
   protected String myPoints;
   protected String myColor;
@@ -24,7 +25,7 @@ public abstract class ClientFinalPhase extends JFrame {
 
   //protected ClientGUI parentGame;
 
-  protected FinalPhaseGUI.Stage stage = FinalPhaseGUI.Stage.DEADSTONES;
+  protected Stage stage = Stage.DEADSTONES;
 
   public ClientFinalPhase(String color,  Socket socket, Socket chatSocket){
     this.myColor = color;
@@ -39,7 +40,6 @@ public abstract class ClientFinalPhase extends JFrame {
     catch (IOException ex){ex.printStackTrace();}
     this.stage = FinalPhaseGUI.Stage.DEADSTONES;
   }
-
 
 
   /**
@@ -169,8 +169,6 @@ public abstract class ClientFinalPhase extends JFrame {
             	stage = Stage.TERRITORY;
             else if(status.equals("End")) 
             	stage = Stage.THEEND;
-            	
-            
             updateGameBoard(stones);
           }
         }

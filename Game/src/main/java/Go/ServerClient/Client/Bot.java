@@ -2,6 +2,7 @@ package Go.ServerClient.Client;
 
 import GUI.ChatJPanel;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,9 +44,6 @@ public class Bot extends Client{
             break;
           }
           else if(received.split(";")[0].equals("BothPassed")){
-            //TODO tutaj potem się aktywuje nową klasę finalną bota
-            //Ktora po prostu ackeptuje wszystko
-            //Ew monza dodac nowy watek, który wszystko ackeptuje
             startFinalPhase();
             break;
           }
@@ -55,10 +53,12 @@ public class Bot extends Client{
           }
           if(getIsItMyTurn()){
             String myMove = decideTheBestMove();
-            if(!myMove.equals("error"))
+            if(myMove.equals("Pass"))
+              sendPass();
+            else
               sendMakeMove(myMove);
             System.out.println("moj ruch: " + myMove);
-            chatJPanel.sendChatMessage("Ha, Nie pokonasz mnie, LOOSEER: " + myMove);
+            chatJPanel.sendChatMessage("Ha!:(" + myMove + ")");
           }
           if(received.equals("NotYrMove")) {
             try { sendWhoseMove(); } catch (IOException e) { break; }
@@ -102,9 +102,8 @@ public class Bot extends Client{
           bestMoves.add(i + "," + j);
       }
     }
-    //TODO tu random z tablicy bestMoves
     if(bestMoves.size()==0)
-      return "error";
+      return "Pass";
     return bestMoves.get(new Random().nextInt(bestMoves.size()));
   }
 
@@ -205,8 +204,43 @@ public class Bot extends Client{
     return  points;
   }
 
-
   @Override
+  protected void startFinalPhase() {
+    Thread thread = new Thread(){
+      @Override
+      public void run() {
+        int lengthOfChat = chatJPanel.getChatJTextAreaText().length();
+        while(!received.contains("Wins")){
+          try { sleep(100); } catch (InterruptedException e) { e.printStackTrace(); }
+          String chatText = chatJPanel.getChatJTextAreaText();
+          if(chatText.length() > lengthOfChat){
+            String lastLine = chatText.substring(lengthOfChat);
+            System.out.println(lastLine);
+            lengthOfChat = chatText.length();
+            if(lastLine.contains("Akceptuję!") && lastLine.contains("Enemy"))
+              acceptStage();
+            else if(lastLine.contains("!dc"))
+              break;
+          }
+
+        }
+      }
+    };
+    thread.run();
+  }
+  /**
+   * Akceptacja przez gracza aktualnego stanu
+   */
+  private void acceptStage(){
+    try {
+      new DataOutputStream(getSocket().getOutputStream()).writeUTF("AcceptStage");
+      chatJPanel.sendChatMessage("Akceptuję!");
+    }
+    catch (IOException e) { e.printStackTrace();}
+
+  }
+
+      @Override
   public void updateGameBoard(String stonesInString) {
     stones = convertStonesToIntFromString(stonesInString);
   }

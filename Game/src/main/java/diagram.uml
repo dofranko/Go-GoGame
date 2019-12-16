@@ -3,63 +3,149 @@
   <ID>JAVA</ID>
   <OriginalElement />
   <nodes>
-    <node x="50.16666666666663" y="0.0">Go.GameMaker.Stone</node>
-    <node x="369.0" y="282.0">GUI.ClientGUI</node>
-    <node x="459.0" y="77.0">GUI.GameBoardJPanel</node>
-    <node x="29.99999999999997" y="172.0">Go.GameMaker.Board</node>
-    <node x="14.999999999999986" y="344.0">Go.GameMaker.TheGame</node>
-    <node x="63.41666666666666" y="798.0">Go.ServerClient.Server</node>
-    <node x="0.0" y="604.0">Go.ServerClient.ClientHandler</node>
-    <node x="269.0" y="0.0">Go.ServerClient.Client</node>
+    <node x="748.8214285714287" y="670.0">Go.ServerClient.Server.ClientHandler</node>
+    <node x="212.0" y="672.0">GUI.FirstPhase.ClientGUI</node>
+    <node x="739.4166666666667" y="172.0">Go.GameMaker.Board</node>
+    <node x="229.99999999999994" y="898.0">GUI.FinalPhase.FinalPhaseGUI</node>
+    <node x="485.0" y="672.0">Go.ServerClient.Client.Bot</node>
+    <node x="103.90790816326535" y="435.0">GUI.FirstPhase.GameBoardJPanel</node>
+    <node x="785.5714285714287" y="992.0">Go.ServerClient.Server.ServerChatThread</node>
+    <node x="367.5" y="336.0">GUI.ChatJPanel</node>
+    <node x="799.0833333333334" y="0.0">Go.GameMaker.Stone</node>
+    <node x="736.0" y="886.0">Go.ServerClient.Server.Server</node>
+    <node x="236.49999999999994" y="1048.0">Go.ServerClient.Client.ClientFinalPhase</node>
+    <node x="759.9166666666667" y="432.0">Go.GameMaker.TheGame</node>
+    <node x="370.8011054421769" y="0.0">Go.ServerClient.Client.Client</node>
+    <node x="0.0" y="739.0">GUI.FinalPhase.FinalBoardJPanel</node>
   </nodes>
   <notes />
   <edges>
-    <edge source="GUI.ClientGUI" target="GUI.GameBoardJPanel">
-      <point x="96.39999999999998" y="-39.0" />
-      <point x="585.9" y="262.0" />
-      <point x="611.5" y="262.0" />
-      <point x="61.0" y="39.0" />
+    <edge source="GUI.FirstPhase.ClientGUI" target="GUI.FinalPhase.FinalPhaseGUI">
+      <point x="80.33333333333326" y="83.0" />
+      <point x="412.83333333333326" y="858.0" />
+      <point x="361.7857142857142" y="858.0" />
+      <point x="29.285714285714278" y="-50.0" />
     </edge>
-    <edge source="Go.ServerClient.Server" target="Go.ServerClient.ClientHandler">
-      <point x="-34.5" y="-28.0" />
-      <point x="97.91666666666666" y="773.0" />
-      <point x="85.0" y="773.0" />
-      <point x="0.0" y="72.0" />
+    <edge source="Go.ServerClient.Client.Bot" target="GUI.ChatJPanel">
+      <point x="-77.25" y="-83.0" />
+      <point x="510.75" y="652.0" />
+      <point x="519.75" y="652.0" />
+      <point x="50.75" y="138.0" />
     </edge>
-    <edge source="Go.GameMaker.Board" target="Go.GameMaker.Stone">
-      <point x="67.125" y="-61.0" />
-      <point x="186.62499999999997" y="147.0" />
-      <point x="170.91666666666663" y="147.0" />
-      <point x="51.75" y="61.0" />
+    <edge source="GUI.ChatJPanel" target="Go.ServerClient.Client.Client">
+      <point x="50.75" y="-138.0" />
+      <point x="519.75" y="316.0" />
+      <point x="489.8011054421769" y="316.0" />
+      <point x="17.0" y="138.0" />
+    </edge>
+    <edge source="Go.ServerClient.Client.ClientFinalPhase" target="GUI.FinalPhase.FinalPhaseGUI">
+      <point x="-64.0" y="-116.0" />
+      <point x="268.49999999999994" y="1023.0" />
+      <point x="264.16666666666663" y="1023.0" />
+      <point x="-68.33333333333331" y="50.0" />
+    </edge>
+    <edge source="Go.ServerClient.Client.Bot" target="Go.ServerClient.Client.Client">
+      <point x="77.25" y="-83.0" />
+      <point x="665.25" y="652.0" />
+      <point x="639.5626700680273" y="652.0" />
+      <point x="639.5626700680273" y="296.0" />
+      <point x="557.8011054421769" y="296.0" />
+      <point x="85.0" y="138.0" />
+    </edge>
+    <edge source="GUI.FinalPhase.FinalPhaseGUI" target="GUI.FinalPhase.FinalBoardJPanel">
+      <point x="-87.85714285714283" y="-50.0" />
+      <point x="244.6428571428571" y="878.0" />
+      <point x="48.0" y="878.0" />
+      <point x="-48.0" y="16.0" />
+    </edge>
+    <edge source="GUI.FinalPhase.FinalPhaseGUI" target="GUI.ChatJPanel">
+      <point x="87.85714285714295" y="-50.0" />
+      <point x="420.3571428571429" y="878.0" />
+      <point x="474.5" y="878.0" />
+      <point x="474.5" y="652.0" />
+      <point x="485.91666666666663" y="652.0" />
+      <point x="16.91666666666663" y="138.0" />
+    </edge>
+    <edge source="Go.ServerClient.Server.ClientHandler" target="Go.GameMaker.TheGame">
+      <point x="-42.5" y="-83.0" />
+      <point x="791.3214285714287" y="645.0" />
+      <point x="796.0833333333335" y="645.0" />
+      <point x="-72.33333333333326" y="94.0" />
+    </edge>
+    <edge source="GUI.FinalPhase.FinalPhaseGUI" target="Go.ServerClient.Client.ClientFinalPhase">
+      <point x="68.33333333333331" y="50.0" />
+      <point x="400.83333333333326" y="1023.0" />
+      <point x="396.49999999999994" y="1023.0" />
+      <point x="64.0" y="-116.0" />
     </edge>
     <edge source="Go.GameMaker.TheGame" target="Go.GameMaker.Board">
-      <point x="-69.66666666666669" y="-105.0" />
-      <point x="49.8333333333333" y="319.0" />
-      <point x="59.833333333333314" y="319.0" />
-      <point x="-59.666666666666664" y="61.0" />
+      <point x="0.0" y="-94.0" />
+      <point x="0.0" y="105.0" />
     </edge>
-    <edge source="Go.ServerClient.Server" target="Go.GameMaker.TheGame">
-      <point x="34.5" y="-28.0" />
-      <point x="166.91666666666666" y="773.0" />
-      <point x="180.5" y="773.0" />
-      <point x="180.5" y="579.0" />
-      <point x="189.16666666666669" y="579.0" />
-      <point x="69.66666666666669" y="105.0" />
+    <edge source="GUI.FirstPhase.ClientGUI" target="GUI.ChatJPanel">
+      <point x="68.85714285714289" y="-83.0" />
+      <point x="401.3571428571429" y="652.0" />
+      <point x="384.4166666666667" y="652.0" />
+      <point x="-84.58333333333334" y="138.0" />
     </edge>
-    <edge source="GUI.ClientGUI" target="Go.ServerClient.Client">
-      <point x="-48.19999999999999" y="-39.0" />
-      <point x="441.3" y="252.0" />
-      <point x="396.5" y="252.0" />
-      <point x="42.5" y="116.0" />
+    <edge source="GUI.FinalPhase.FinalBoardJPanel" target="GUI.FirstPhase.GameBoardJPanel">
+      <point x="48.0" y="-16.0" />
+      <point x="144.0" y="652.0" />
+      <point x="158.80790816326532" y="652.0" />
+      <point x="-36.60000000000002" y="39.0" />
     </edge>
-    <edge source="Go.ServerClient.ClientHandler" target="Go.GameMaker.TheGame">
-      <point x="-42.5" y="-72.0" />
-      <point x="42.5" y="579.0" />
-      <point x="49.833333333333314" y="579.0" />
-      <point x="-69.66666666666667" y="105.0" />
+    <edge source="GUI.FirstPhase.ClientGUI" target="Go.ServerClient.Client.Client">
+      <point x="34.428571428571445" y="-83.0" />
+      <point x="366.92857142857144" y="652.0" />
+      <point x="344.5416666666667" y="652.0" />
+      <point x="344.5416666666667" y="306.0" />
+      <point x="421.8011054421769" y="306.0" />
+      <point x="-51.0" y="138.0" />
+    </edge>
+    <edge source="Go.ServerClient.Server.Server" target="Go.ServerClient.Server.ClientHandler">
+      <point x="-73.5" y="-28.0" />
+      <point x="809.5" y="861.0" />
+      <point x="833.8214285714287" y="861.0" />
+      <point x="0.0" y="83.0" />
+    </edge>
+    <edge source="GUI.FirstPhase.ClientGUI" target="GUI.FirstPhase.GameBoardJPanel">
+      <point x="-103.28571428571422" y="-83.0" />
+      <point x="229.21428571428578" y="652.0" />
+      <point x="195.40790816326535" y="652.0" />
+      <point x="0.0" y="39.0" />
+    </edge>
+    <edge source="Go.ServerClient.Server.Server" target="Go.ServerClient.Server.ServerChatThread">
+      <point x="73.5" y="28.0" />
+      <point x="956.5" y="967.0" />
+      <point x="929.5714285714287" y="967.0" />
+      <point x="48.0" y="-39.0" />
+    </edge>
+    <edge source="Go.GameMaker.Board" target="Go.GameMaker.Stone">
+      <point x="96.75" y="-105.0" />
+      <point x="965.1666666666667" y="147.0" />
+      <point x="919.8333333333334" y="147.0" />
+      <point x="51.75" y="61.0" />
+    </edge>
+    <edge source="GUI.FinalPhase.FinalPhaseGUI" target="GUI.FirstPhase.ClientGUI">
+      <point x="5.6843418860808015E-14" y="-50.0" />
+      <point x="0.0" y="83.0" />
+    </edge>
+    <edge source="Go.ServerClient.Server.ServerChatThread" target="Go.ServerClient.Server.Server">
+      <point x="-48.0" y="-39.0" />
+      <point x="833.5714285714287" y="967.0" />
+      <point x="809.5" y="967.0" />
+      <point x="-73.5" y="28.0" />
+    </edge>
+    <edge source="Go.ServerClient.Server.Server" target="Go.GameMaker.TheGame">
+      <point x="73.5" y="-28.0" />
+      <point x="956.5" y="861.0" />
+      <point x="929.3214285714287" y="861.0" />
+      <point x="929.3214285714287" y="645.0" />
+      <point x="940.75" y="645.0" />
+      <point x="72.33333333333326" y="94.0" />
     </edge>
   </edges>
-  <settings layout="Hierarchic Group" zoom="1.0" x="390.0" y="267.0" />
+  <settings layout="Hierarchic Group" zoom="0.7000000000000001" x="711.5714285714286" y="707.0" />
   <SelectedNodes />
   <Categories>
     <Category>Fields</Category>

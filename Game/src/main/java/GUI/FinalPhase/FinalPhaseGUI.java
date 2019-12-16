@@ -13,7 +13,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
   /**
    * Etap rozgrywki. Wybieranie martwych kamieni - wybieranie terytorium - koniec
    */
-  public enum Stage{DEADSTONES, TERRITORY, THEEND}
+
 
   private FinalBoardJPanel boardJPanel;
   private ChatJPanel chatJPanel;
@@ -37,6 +37,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
       @Override
       public void actionPerformed(ActionEvent e) {
         acceptStage();
+        chatJPanel.sendChatMessage("Akceptuję!");
       }
     });
     acceptStageJButton.setBounds(this.boardJPanel.getX() + this.boardJPanel.getWidth() + 20,
@@ -48,6 +49,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
       @Override
       public void actionPerformed(ActionEvent e) {
         declineStage();
+        chatJPanel.sendChatMessage("Odrzucam!");
       }
     });
     declineStageJButton.setBounds(acceptStageJButton.getX(),
@@ -63,6 +65,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
     this.addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
+        chatJPanel.sendChatMessage("Wychodzę z gry!");
         stage = Stage.THEEND;
         chatJPanel.sendChatMessage("!dc");
         disconnect("!dc");
