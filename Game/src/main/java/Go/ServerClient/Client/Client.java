@@ -151,9 +151,6 @@ public abstract class Client {
 			case "BothPassed":
 				updateStatusLabel("BothPassed");
 				break;
-			case "Empty":
-				updateStatusLabel("EnemyGaveUp");
-				break;
 			case "BlackWins":
 			case "WhiteWins":
 				if(colorMove.contains(this.myColor)) {
@@ -242,6 +239,7 @@ public abstract class Client {
 	 */
 	public void disconnect() {
 		try {
+			dos.writeUTF("Exit");
 			dis.close();
 			dos.close();
 			socket.close();

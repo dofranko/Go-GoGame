@@ -1,6 +1,7 @@
 package Go.ServerClient.Client;
 
 import GUI.FinalPhase.FinalPhaseGUI;
+import GUI.FinalPhase.FinalPhaseGUI.Stage;
 
 import javax.swing.*;
 import java.io.DataInputStream;
@@ -131,6 +132,13 @@ public abstract class ClientFinalPhase extends JFrame {
       e.printStackTrace();
     }
   }
+  protected void getPoints() {
+	  try {
+	      dos.writeUTF("GetPoints");
+	    } catch (IOException e) {
+	      e.printStackTrace();
+	    }
+  }
 
   /**
    * Wątek pobierający informacje o planszy i odświeżający ją. (@see waitingForTurnThread)
@@ -157,6 +165,12 @@ public abstract class ClientFinalPhase extends JFrame {
           }catch(Exception ex) {
             status =  stones.split(";")[0];
             stones = stones.substring(status.length() + 1);
+            if(status.equals("PickingTerritory")) 
+            	stage = Stage.TERRITORY;
+            else if(status.equals("End")) 
+            	stage = Stage.THEEND;
+            	
+            
             updateGameBoard(stones);
           }
         }

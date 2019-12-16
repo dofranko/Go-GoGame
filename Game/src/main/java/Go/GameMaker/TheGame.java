@@ -24,7 +24,6 @@ public class TheGame {
 	// mapa parująca graczy ze sobą
 	private Map<String, String> playerPairs;
 
-		
 	private TheGame() { // inicializacja
 		players = new HashMap<String, Integer>();
 		colors = new HashMap<String, Markers>();
@@ -44,7 +43,7 @@ public class TheGame {
 		}
 		return result;
 	}
-	
+
 	public String addPlayer(String clientID) {
 
 		switch (playerCounter % 2) { // co drugiego gracza tworzy nową rozgrywkę
@@ -81,16 +80,15 @@ public class TheGame {
 		Markers playerColor = colors.get(clientID);
 		Board board = boards.get(clientID);
 
-		if (board.getGameState() == Markers.WHITEPASSED && playerColor == Markers.BLACK) // kontynuacja gry pomimo pasowania
+		// kontynuacja gry pomimo pasowania
+		if (board.getGameState() == Markers.WHITEPASSED && playerColor == Markers.BLACK) 
 			board.setGameState(Markers.BLACK);
 		else if (board.getGameState() == Markers.BLACKPASSED && playerColor == Markers.WHITE)
 			board.setGameState(Markers.WHITE);
 
 		if (board.getGameState() == playerColor) {
-
 			int pointsScored = board.insert(x, y, playerColor);
 			if (pointsScored >= 0) {
-				board.setGameState(playerColor.getEnemy());
 				return Integer.toString(pointsScored) + ";" + board.boardToString();
 			} else
 				return "IllegalMove";
@@ -104,13 +102,11 @@ public class TheGame {
 		return b.getGameState().asString() + ";" + b.boardToString();
 	}
 
-	
-
 	public void skip(String clientID) {
 		Board board = boards.get(clientID);
 		Markers playerColor = colors.get(clientID);
 		if (board.getGameState() != Markers.WHITEPASSED && board.getGameState() != Markers.BLACKPASSED) {
-			
+
 			if (playerColor == Markers.WHITE)
 				board.setGameState(Markers.WHITEPASSED);
 			else
@@ -122,33 +118,35 @@ public class TheGame {
 
 	public void acceptStage(String clientID) {
 		Board b = boards.get(clientID);
-		if(b.isGameResultAccepted()) 
+		if (b.isGameResultAccepted())
 			b.confirmChanges();
-		else			 
+		else
 			b.setGameResultAccepted(true);
-			
+
 	}
+
 	public void pickDeadStones(String move) {
 		String[] splittedCommand = move.split(","); // parsing
 		String clientID = splittedCommand[0];
 		int x = Integer.parseInt(splittedCommand[1]);
 		int y = Integer.parseInt(splittedCommand[2]);
 		Board board = boards.get(clientID);
-		board.markDeadStones(x, y); 
+		if (!board.isGameResultAccepted())
+			board.markDeadStones(x, y);
 
 	}
-	
+
 	public void pickTerritory(String move) {
-		String[] splittedCommand = move.split(","); 
+		String[] splittedCommand = move.split(",");
 		String clientID = splittedCommand[0];
 		int x = Integer.parseInt(splittedCommand[1]);
 		int y = Integer.parseInt(splittedCommand[2]);
 		Markers playerColor = colors.get(clientID);
 		Board board = boards.get(clientID);
-		board.claimTerritory(x, y, playerColor.asChar());
+		if (!board.isGameResultAccepted())
+			board.claimTerritory(x, y, playerColor.asChar());
 	}
 
-	
 	public void cancelVote(String clientID) {
 		boards.get(clientID).restoreBoard();
 	}
@@ -167,23 +165,25 @@ public class TheGame {
 
 	}
 
-		
-	public void exit(String clientID) { // czyszczenie map 
-		String enemyID = playerPairs.get(clientID);
+	public void exit(String clientID) { // czyszczenie map
 		Board board = boards.get(clientID);
+		if(board.getGameState() != Markers.BLACKWIN && board.getGameState() != Markers.WHITEWIN) {
+			System.out.println("Giving up by " + colors.get(clientID).asString());
+			giveUp(clientID);
+		}
 		players.remove(clientID);
-		players.remove(enemyID);
-		if (colors.get(clientID).equals(Markers.BLACK)) {
+		playerPairs.remove(clientID);
+		colors.remove(clientID);
+		boards.remove(clientID);
+		
+	}
+	public void giveUp(String clientID) {
+		Board board = boards.get(clientID);
+		if (colors.get(clientID) == Markers.BLACK) {
 			board.setGameState(Markers.WHITEWIN);
-			//playerPairs.remove(clientID);
 		} else {
 			board.setGameState(Markers.BLACKWIN);
-			//playerPairs.remove(enemyID);
 		}
-
-		colors.remove(clientID);
-		colors.remove(enemyID);
-		
 	}
 
 	private <T, E> T getKeyByValue(Map<T, E> map, E value) { // odzyskiwanie klucza z wartości
@@ -205,9 +205,9 @@ public class TheGame {
 		return players;
 	}
 
-	public int getPoints(String clientID) {
+	public String getPoints(String clientID) {
 		Markers color = colors.get(clientID);
-		return boards.get(clientID).getDeadStoneAndTerritoryPoints(color);
+		return String.valueOf(boards.get(clientID).getPoints(color));
 	}
 
 	public Map<String, Markers> getColors() {
@@ -218,5 +218,4 @@ public class TheGame {
 		return playerPairs;
 	}
 
-	
 }

@@ -256,6 +256,8 @@ public class ClientGUI extends Client {
             this, this.getSocket(), this.getChatSocket(), this.chatJPanel);
     finalJFrame.setVisible(true);
     super.startFinalPhase();
+    JOptionPane.showMessageDialog(finalJFrame, "Końcowa faza rozgrywki: Zaznacz wspólnie z przeciwnikiem, które kamienie uważacie za martwe.\n"
+    		+ "Jeśli czujesz się robiony w bambo przez przeciwnikia, to w każdej chwili możesz odrzucic propozycję i zacząc od nowa! ");
   }
 
   /**
@@ -275,7 +277,7 @@ public class ClientGUI extends Client {
    * W przypadku, gdy gracz rozłączy się z grą w nowym oknie
    */
   public void finishGame(){
-    jFrame.dispatchEvent(new WindowEvent(jFrame, WindowEvent.WINDOW_CLOSING));
+	  jFrame.dispatchEvent(new WindowEvent(jFrame, WindowEvent.WINDOW_CLOSING));
   }
 
 

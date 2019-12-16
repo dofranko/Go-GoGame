@@ -40,10 +40,10 @@ public class FinalBoardJPanel extends GameBoardJPanel {
             stonesJLabels[i][j].setIcon(new ImageIcon("files/black-territory-pick.gif"));
             break;
           case 7:
-            stonesJLabels[i][j].setIcon(new ImageIcon("files/white-territory-done.gif"));
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/white-territory-pick.png")); // zmienilem na territory-pick.png
             break;
           case 8:
-            stonesJLabels[i][j].setIcon(new ImageIcon("files/black-territory-done.gif"));
+            stonesJLabels[i][j].setIcon(new ImageIcon("files/black-territory-pick.png")); 
             break;
         }
       }

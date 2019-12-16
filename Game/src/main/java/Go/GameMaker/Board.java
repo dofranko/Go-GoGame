@@ -44,6 +44,7 @@ public class Board {
 				listOfStones.add(s);
 				int totalPoints = totalPointsMap.get(playerColor) + pointsScored;
 				totalPointsMap.replace(playerColor, totalPoints);
+				gameState = playerColor.getEnemy();
 				return totalPoints;
 			}
 		}
@@ -250,7 +251,17 @@ public class Board {
 	public void confirmChanges() {
 		int whiteBonusPoints = 0;
 		int blackBonusPoints = 0;
-		
+		if (gameState == Markers.BOTHPASSED) {
+			List<Stone> list = new ArrayList<Stone>();
+			list.addAll(stonesVotedDead);
+			for (Stone s : list) {
+				if (s.getColorAlly() == Markers.WHITE.asChar())
+					blackBonusPoints++;
+				else
+					whiteBonusPoints++;
+			}
+			kill(list);
+		}
 		if (gameState == Markers.TERRITORY) {
 			for (int i = 0; i < size; i++)
 				for (int j = 0; j < size; j++) {
@@ -263,22 +274,12 @@ public class Board {
 					}
 				}
 		}
-		if (gameState == Markers.BOTHPASSED) {
-			List<Stone> list = new ArrayList<Stone>();
-			list.addAll(stonesVotedDead);
-			for (Stone s : list) {
-				if (s.getColorAlly() == Markers.WHITE.asChar())
-					blackBonusPoints++;
-				else
-					whiteBonusPoints++;
-			}
-			kill(list);
-			gameState = Markers.TERRITORY;
-		}
 		int totalWhite = totalPointsMap.get(Markers.WHITE) + whiteBonusPoints;
 		int totalBlack = totalPointsMap.get(Markers.BLACK) + blackBonusPoints;
 		totalPointsMap.replace(Markers.WHITE, totalWhite);
 		totalPointsMap.replace(Markers.BLACK, totalBlack);
+		gameState = gameState.nextStage();
+		isGameResultAccepted = false;
 	}
 
 	// pozostałe metody są self explanatory
@@ -324,7 +325,7 @@ public class Board {
 
 	}
 
-	public int getDeadStoneAndTerritoryPoints(Markers color) {
+	public int getPoints(Markers color) {
 		return totalPointsMap.get(color);
 		
 	}

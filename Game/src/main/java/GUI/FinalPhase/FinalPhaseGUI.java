@@ -71,7 +71,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
     //this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
     this.setSize(new Dimension(this.getInsets().left + this.getInsets().right + boardJPanel.getWidth() ,
             this.getInsets().top + this.getInsets().bottom + boardJPanel.getHeight()));
-    JButton acceptJButton = new JButton("Ackeptuj wybór");
+    JButton acceptJButton = new JButton("Akceptuj wybór");
     acceptJButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {

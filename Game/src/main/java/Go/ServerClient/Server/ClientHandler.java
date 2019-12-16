@@ -48,7 +48,7 @@ class ClientHandler extends Thread {
 			dos.writeUTF(playerID);
 			dos.writeUTF(color);
 			if(color.equals("Empty"))
-				throw new IOException();
+			throw new IOException();
 		} catch (IOException ex) { ex.printStackTrace();}
 		while (!exit) {
 			try {
@@ -64,7 +64,7 @@ class ClientHandler extends Thread {
 					//Rozłączenie klienta
 					case "Exit": {
 						System.out.println("Client " + this.s + " sends exit. !DC");
-						gameServer.exit(playerID);
+						gameServer.exit(this.playerID);
 						this.s.close();
 						System.out.println("Connection closed");
 						exit = true;
@@ -85,7 +85,7 @@ class ClientHandler extends Thread {
 					}
 					//Gracz się poddaje
 					case "GiveUp": {
-						gameServer.exit(this.playerID);
+						gameServer.giveUp(this.playerID);
 						continue;
 					}
 					//Gracz pasuje
@@ -136,6 +136,9 @@ class ClientHandler extends Thread {
 					//Gracz odświeża mapę w końcowej fazie
 					case "MapRefresh":
 						toReturn = gameServer.getGameState(this.playerID); // ta sama metoda so przy whoseMove
+						break;
+					case "GetPoints": 
+						toReturn = gameServer.getPoints(this.playerID);
 						break;
 				}
 				//Odesłanie odpowiedzi do gracza
