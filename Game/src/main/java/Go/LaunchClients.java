@@ -12,7 +12,7 @@ public class LaunchClients
     public static void main( String[] args )
     {
        // System.out.println( "Hello World!" );
-       // Bot bot = new Bot(19);
+    	//Bot bot = new Bot(19);
         ClientGUI gui = new ClientGUI();
         ClientGUI gui2 = new ClientGUI();
         //Bot bot1 = new Bot(19);

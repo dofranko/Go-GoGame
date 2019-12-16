@@ -117,7 +117,7 @@ public abstract class Client {
 	 * @return odpowiedź serwera
 	 * @throws IOException
 	 */
-	public String sendWhoseMove() throws IOException { // tutaj dopasuj sobie komunikaty zwracane przez TheGame
+	public String sendWhoseMove() throws IOException { 
 		dos.writeUTF("WhoseMove");
 		received = dis.readUTF();
 		String toReturn = received;
