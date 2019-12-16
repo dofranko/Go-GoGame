@@ -17,7 +17,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
 
   private FinalBoardJPanel boardJPanel;
   private ChatJPanel chatJPanel;
-  private JLabel pointsJLabel;
+  private JLabel pointsJLabel; // TODO przenieśc pod przycisk odrzuc
   protected ClientGUI parentGame;
 
 

@@ -13,6 +13,8 @@ public abstract class ClientFinalPhase extends JFrame {
   public enum Stage{DEADSTONES, TERRITORY, THEEND}
 
   protected String myColor;
+  protected int myPoints;
+  protected int enemyPoints;
 
   protected boolean isAccepted = false;
 
@@ -128,12 +130,22 @@ public abstract class ClientFinalPhase extends JFrame {
     catch (IOException e) { e.printStackTrace(); }
   }
   protected int getPoints() {
-    int points =0;
+    //int points =0;
 	  try {
 	      dos.writeUTF("GetPoints");
-	      points = Integer.parseInt(dis.readUTF());
+	      String[] pointsString = dis.readUTF().split(";");
+	      if(pointsString[0].equals(myColor)) {
+	    	  myPoints = Integer.parseInt(pointsString[1]);
+	    	  enemyPoints = Integer.parseInt(pointsString[3]);
+	      }
+	      else {
+	    	  myPoints = Integer.parseInt(pointsString[3]);
+	    	  enemyPoints = Integer.parseInt(pointsString[1]);
+	      }
+	      
+	      //points = Integer.parseInt(dis.readUTF());
 	    } catch (IOException e) { e.printStackTrace(); }
-	  return points;
+	  return myPoints;
   }
 
   /**
@@ -163,11 +175,15 @@ public abstract class ClientFinalPhase extends JFrame {
         }catch(Exception ex) {
           status =  stones.split(";")[0];
           stones = stones.substring(status.length() + 1);
+          updateGameBoard(stones);
           switch (stage) {
             case DEADSTONES:
               if(status.equals("PickingTerritory")) {
                 stage = Stage.TERRITORY;
+                JOptionPane.showMessageDialog(this, "W ostatniej fazie rozgrywki zaznacz wszystkie pola otoczone całkowicie Twoimi kamieniami. \n"
+                		+ "Jak poprzednio możesz zaakceptowa wybór lub go odrzucic :>");
                 isAccepted = false;
+                //String pointsString = getPoints();
                 updatePointsLabel(getPoints());
               }
               break;
@@ -175,10 +191,20 @@ public abstract class ClientFinalPhase extends JFrame {
               if(status.equals("End")) {
                 stage = Stage.THEEND;
                 updatePointsLabel(getPoints());
+                if(myPoints > enemyPoints) {
+                	JOptionPane.showMessageDialog(this, "Zwycięstwo " + myColor +" ! :>\n"
+                			+ "Wygrywasz " + String.valueOf(myPoints)+" punktów do " + String.valueOf(enemyPoints));
+                }
+                else if(myPoints > enemyPoints) {
+                	JOptionPane.showMessageDialog(this, "Porażka " + myColor +"! :C\n" 
+                + "Masz ledwo "+String.valueOf(myPoints)+" punktów do " + String.valueOf(enemyPoints));
+                }
+                else {
+                	JOptionPane.showMessageDialog(this,"Remis! O.o");
+                }
               }
               break;
           }
-          updateGameBoard(stones);
         }
         if(whoAccepted.contains("Accepted") && !whoAccepted.contains(myColor) && !isAccepted) {
           JOptionPane.showMessageDialog(this, "Przeciwnik zaakceptował!");

@@ -202,8 +202,12 @@ public class TheGame {
 	}
 
 	public String getPoints(String clientID) {
-		Markers color = colors.get(clientID);
-		return String.valueOf(boards.get(clientID).getPoints(color));
+		String enemyID = getEnemyID(clientID);
+		Markers playerColor = colors.get(clientID);
+		Markers enemyColor = colors.get(enemyID);
+		int playerPoints = boards.get(clientID).getPoints(playerColor);
+		int enemyPoints = boards.get(enemyID).getPoints(enemyColor);
+		return playerColor.asString() + ";" + String.valueOf(playerPoints) + ";" + enemyColor.asString() + ";" + String.valueOf(enemyPoints);
 	}
 
 	public Map<String, Markers> getColors() {
