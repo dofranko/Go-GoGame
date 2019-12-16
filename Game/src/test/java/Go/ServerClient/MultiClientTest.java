@@ -11,9 +11,9 @@ public class MultiClientTest {
 
   @BeforeClass
   public static void createPlayers() throws InterruptedException {
-    player1 = new ClientExtendToTest();
+    player1 = new ClientExtendToTest(19);
     Thread.sleep(2000);
-    player2 = new ClientExtendToTest();
+    player2 = new ClientExtendToTest(19);
   }
   @AfterClass
   public static void closeClients(){

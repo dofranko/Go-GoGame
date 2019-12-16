@@ -167,6 +167,7 @@ public abstract class ClientFinalPhase extends JFrame {
             case DEADSTONES:
               if(status.equals("PickingTerritory")) {
                 stage = Stage.TERRITORY;
+                isAccepted = false;
                 updatePointsLabel(getPoints());
               }
               break;
@@ -179,7 +180,7 @@ public abstract class ClientFinalPhase extends JFrame {
           }
           updateGameBoard(stones);
         }
-        if(whoAccepted.contains("Accepted") && !whoAccepted.contains(myColor)) {
+        if(whoAccepted.contains("Accepted") && !whoAccepted.contains(myColor) && !isAccepted) {
           JOptionPane.showMessageDialog(this, "Przeciwnik zaakceptował!");
           isAccepted = true;
         }

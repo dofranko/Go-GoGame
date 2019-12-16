@@ -11,10 +11,10 @@ public class TheGameTest {
 	public void testAddPlayer() {
 		TheGame game = TheGame.getInstance();
 		//game.setBoard(19);
-		assertEquals("Succes;Black", game.addPlayer("playerOne"));
-		assertEquals("Succes;White", game.addPlayer("playerTwo"));
-		assertEquals("Succes;Black", game.addPlayer("playerThree"));
-		assertEquals("Succes;White", game.addPlayer("playerFour"));
+		assertEquals("Succes;Black", game.addPlayer("playerOne",19));
+		assertEquals("Succes;White", game.addPlayer("playerTwo",19));
+		assertEquals("Succes;Black", game.addPlayer("playerThree",19));
+		assertEquals("Succes;White", game.addPlayer("playerFour",19));
 				
 	}
 	

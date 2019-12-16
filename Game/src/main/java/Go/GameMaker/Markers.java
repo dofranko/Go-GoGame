@@ -56,7 +56,7 @@ public enum Markers {
 			return WHITEACCEPTED;
 		if (this == BLACK)
 			return BLACKACCEPTED;
-		return null;
+		return EMPTY;
 	}
 	public Markers asWinner() {
 		if (this == WHITE)

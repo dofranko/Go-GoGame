@@ -44,7 +44,7 @@ public class TheGame {
 		return result;
 	}
 
-	public String addPlayer(String clientID) {
+	public String addPlayer(String clientID, int size) {
 		switch (playerCounter % 2) { // co drugiego gracza tworzy nową rozgrywkę
 		case 0: {
 			colors.put(clientID, Markers.BLACK); // gracz który pierwszy się połączył jest czarny

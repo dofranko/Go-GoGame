@@ -80,7 +80,7 @@ class ClientHandler extends Thread {
 					}
 					//Szukanie nowej gry przez gracza
 					case "FindGame": {
-						toReturn = gameServer.addPlayer(this.playerID);
+						toReturn = gameServer.addPlayer(this.playerID, 19);
 						break;
 					}
 					//Gracz się poddaje

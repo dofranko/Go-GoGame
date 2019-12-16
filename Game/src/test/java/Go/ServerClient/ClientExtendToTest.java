@@ -5,7 +5,11 @@ import Go.ServerClient.Client.Client;
 
 public class ClientExtendToTest extends Client {
 
-  public GameBoardJPanel gameBoard = new GameBoardJPanel("Black");
+  public GameBoardJPanel gameBoard = new GameBoardJPanel("Black", 19);
+
+  public ClientExtendToTest(int size) {
+    super(size);
+  }
 
   @Override
   public void updateGameBoard(String stonesInString) {

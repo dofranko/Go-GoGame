@@ -12,7 +12,7 @@ public class ClientTest {
   //UWAGA! Żeby testować tę klasę trzeba najpierw odpalic DeployServerForTest
   @BeforeClass
   public static void prepareClient(){
-   client = new ClientExtendToTest();
+   client = new ClientExtendToTest(19);
    //To jest czarny gracz
   }
   @AfterClass
