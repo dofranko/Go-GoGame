@@ -143,7 +143,7 @@ class ClientHandler extends Thread {
 						break;
 					}
 					case "WhoAccepted": {
-						toReturn = gameServer.getPlayerWhoAccpeted(this.playerID);
+						toReturn = gameServer.getPlayerWhoAccepted(this.playerID);
 						break;
 					}
 				}

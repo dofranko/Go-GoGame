@@ -45,7 +45,6 @@ public class TheGame {
 	}
 
 	public String addPlayer(String clientID) {
-
 		switch (playerCounter % 2) { // co drugiego gracza tworzy nową rozgrywkę
 		case 0: {
 			colors.put(clientID, Markers.BLACK); // gracz który pierwszy się połączył jest czarny
@@ -81,9 +80,9 @@ public class TheGame {
 		Board board = boards.get(clientID);
 
 		// kontynuacja gry pomimo pasowania
-		if (board.getGameState() == playerColor.asEnemyPassed()) 
+		if (board.getGameState() == playerColor.asEnemy().asPassed())
 			board.setGameState(playerColor);
-		
+
 		if (board.getGameState() == playerColor) {
 			int pointsScored = board.insert(x, y, playerColor);
 			if (pointsScored >= 0) {
@@ -99,17 +98,18 @@ public class TheGame {
 		Board b = boards.get(clientID);
 		return b.getGameState().asString() + ";" + b.boardToString();
 	}
-	public String getPlayerWhoAccpeted(String clientID) {
+
+	public String getPlayerWhoAccepted(String clientID) {
 		Board b = boards.get(clientID);
 		return b.getPlayerWhoAccepted().asAccepted().asString();
 	}
-	
+
 	public void skip(String clientID) {
 		Board board = boards.get(clientID);
 		Markers playerColor = colors.get(clientID);
-		if (board.getGameState() != playerColor.asEnemyPassed()) {
+		if (board.getGameState() != playerColor.asEnemy().asPassed()) {
 			board.setGameState(playerColor.asPassed());
-			
+
 		} else
 			board.setGameState(Markers.BOTHPASSED);
 
@@ -120,9 +120,9 @@ public class TheGame {
 		Markers playerColor = colors.get(clientID);
 		if (b.getPlayerWhoAccepted() == playerColor.asEnemy())
 			b.confirmChanges();
-		else 
+		else
 			b.setGameResultAccepted(playerColor);
-			
+
 	}
 
 	public void pickDeadStones(String move) {
@@ -166,33 +166,30 @@ public class TheGame {
 	}
 
 	public void exit(String clientID) { // czyszczenie map
-		Board board = boards.get(clientID);
-		Markers playerColor = colors.get(clientID);
-		if(board.getGameState() != playerColor.asWinner()) {
-			System.out.println("Giving up by " + colors.get(clientID).asString());
-			giveUp(clientID);
-		}
+		//Board board = boards.get(clientID);
+		//Markers playerColor = colors.get(clientID);
+		giveUp(clientID);
 		players.remove(clientID);
 		playerPairs.remove(clientID);
 		colors.remove(clientID);
 		boards.remove(clientID);
-		
+
 	}
+
 	public void giveUp(String clientID) {
 		Board board = boards.get(clientID);
 		Markers playerColor = colors.get(clientID);
-		board.setGameState(playerColor.asWinner());
-		
+		if (board.getGameState() != playerColor.asWinner() && board.getGameState() != playerColor.asEnemy().asWinner())
+			board.setGameState(playerColor.asEnemy().asWinner());
+
 	}
 
 	private <T, E> T getKeyByValue(Map<T, E> map, E value) { // odzyskiwanie klucza z wartości
-
 		for (Entry<T, E> entry : map.entrySet()) {
 			if (value.equals(entry.getValue())) {
 				return entry.getKey();
 			}
 		}
-
 		return null;
 	}
 

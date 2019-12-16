@@ -32,6 +32,7 @@ public class Board {
 		totalPointsMap = new HashMap<Markers, Integer>();
 		totalPointsMap.put(Markers.BLACK, 0);
 		totalPointsMap.put(Markers.WHITE, 0);
+		playerWhoAccepted = Markers.EMPTY;
 		isGameResultAccepted = false;
 	}
 
@@ -244,6 +245,7 @@ public class Board {
 			board[s.getX()][s.getY()] = s.getColorAlly(); //odtworzenie planszy
 		}
 		isGameResultAccepted = false;
+		playerWhoAccepted = Markers.EMPTY;
 	}
 
 	public void confirmChanges() {
@@ -279,6 +281,7 @@ public class Board {
 		totalPointsMap.replace(Markers.BLACK, totalBlack);
 		gameState = gameState.nextStage();
 		isGameResultAccepted = false;
+		playerWhoAccepted = Markers.EMPTY;
 	}
 
 	// pozostałe metody są self explanatory

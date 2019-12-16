@@ -60,9 +60,9 @@ public enum Markers {
 	}
 	public Markers asWinner() {
 		if (this == WHITE)
-			return BLACKWIN;
-		if (this == BLACK)
 			return WHITEWIN;
+		if (this == BLACK)
+			return BLACKWIN;
 		return null;
 	}
 	public Markers asPassed() {
@@ -70,13 +70,6 @@ public enum Markers {
 			return WHITEPASSED;
 		if (this == BLACK)
 			return BLACKPASSED;
-		return null;
-	}
-	public Markers asEnemyPassed() {
-		if (this == WHITE)
-			return BLACKPASSED;
-		if (this == BLACK)
-			return WHITEPASSED;
 		return null;
 	}
 	public Markers nextStage() {
