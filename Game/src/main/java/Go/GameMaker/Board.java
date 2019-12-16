@@ -326,7 +326,6 @@ public class Board {
 
 	public int getPoints(Markers color) {
 		return totalPointsMap.get(color);
-		
 	}
 
 	public Markers getGameState() {

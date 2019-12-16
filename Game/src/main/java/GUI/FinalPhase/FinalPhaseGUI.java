@@ -17,7 +17,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
 
   private FinalBoardJPanel boardJPanel;
   private ChatJPanel chatJPanel;
-
+  private JLabel pointsJLabel;
   protected ClientGUI parentGame;
 
 
@@ -31,6 +31,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
     JPanel mainJPanel = new JPanel();
     mainJPanel.setLayout(null);
     mainJPanel.add(boardJPanel);
+    boardJPanel.setLocation(0,30);
     this.add(mainJPanel);
     JButton acceptStageJButton = new JButton("Akceptuj");
     acceptStageJButton.addActionListener(new ActionListener() {
@@ -43,6 +44,10 @@ public class FinalPhaseGUI extends ClientFinalPhase {
     acceptStageJButton.setBounds(this.boardJPanel.getX() + this.boardJPanel.getWidth() + 20,
             450, 200,30);
     mainJPanel.add(acceptStageJButton);
+
+    this.pointsJLabel = new JLabel("Punkty: ");
+    this.pointsJLabel.setBounds(5,5,500,30);
+    mainJPanel.add(pointsJLabel);
 
     JButton declineStageJButton = new JButton("Odrzuć");
     declineStageJButton.addActionListener(new ActionListener() {
@@ -72,8 +77,8 @@ public class FinalPhaseGUI extends ClientFinalPhase {
       }
     });
     //this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-    this.setSize(new Dimension(this.getInsets().left + this.getInsets().right + boardJPanel.getWidth() ,
-            this.getInsets().top + this.getInsets().bottom + boardJPanel.getHeight()));
+   // this.setSize(new Dimension(this.getInsets().left + this.getInsets().right + mainJPanel.getWidth() ,
+       //     this.getInsets().top + this.getInsets().bottom + mainJPanel.getHeight()+30));
     JButton acceptJButton = new JButton("Akceptuj wybór");
     acceptJButton.addActionListener(new ActionListener() {
       @Override
@@ -115,7 +120,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
       }
     });
     this.boardJPanel.repaint();
-    this.setSize(909,657);
+    this.setSize(900,700);
     this.setResizable(false);
     this.chatJPanel.setSize(220,400);
     startRefreshingMapThread();
@@ -125,6 +130,11 @@ public class FinalPhaseGUI extends ClientFinalPhase {
   protected void  updateGameBoard(String stonesInString){
     int[][] stones = convertStonesToIntFromString(stonesInString);
     this.boardJPanel.setStones(stones);
+  }
+
+  @Override
+  protected void updatePointsLabel(int points) {
+    this.pointsJLabel.setText("Punkty: " + points);
   }
 
   @Override

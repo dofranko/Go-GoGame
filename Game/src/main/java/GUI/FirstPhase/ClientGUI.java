@@ -232,11 +232,13 @@ public class ClientGUI extends Client {
         isGameActive = false;
         this.statusJLabel.setText("Wygrałeś!");
         this.statusJLabel.setForeground(new Color(218, 255, 22));
+        this.gameBoardJPanel.setVisible(false);
         break;
       case "YouLose":
         isGameActive = false;
         this.statusJLabel.setText("Przegrałeś. :'(");
         this.statusJLabel.setForeground(new Color(34, 0, 2));
+        this.gameBoardJPanel.setVisible(false);
         break;
       default:
         this.statusJLabel.setText("Jeśli to widzisz to zgłoś się do programisty ;-;");
@@ -287,8 +289,6 @@ public class ClientGUI extends Client {
 
 
 
-  /*public JFrame getjFrame(){
-    return this.jFrame;
-  }*/
+
 }
 

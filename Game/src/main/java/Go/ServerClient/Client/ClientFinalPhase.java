@@ -92,6 +92,8 @@ public abstract class ClientFinalPhase extends JFrame {
    */
   protected abstract void  updateGameBoard(String stonesInString);
 
+  protected abstract void updatePointsLabel(int points);
+
   /**
    * Zamiana String w tablice int[][] kamieni
    * @param stonesInString kamienie w Stringu
@@ -132,12 +134,13 @@ public abstract class ClientFinalPhase extends JFrame {
       e.printStackTrace();
     }
   }
-  protected void getPoints() {
+  protected int getPoints() {
+    int points =0;
 	  try {
 	      dos.writeUTF("GetPoints");
-	    } catch (IOException e) {
-	      e.printStackTrace();
-	    }
+	      points = Integer.parseInt(dis.readUTF());
+	    } catch (IOException e) { e.printStackTrace(); }
+	  return points;
   }
 
   /**
@@ -147,8 +150,9 @@ public abstract class ClientFinalPhase extends JFrame {
     Thread refresh = new Thread(){
       @Override
       public void run() {
+        updatePointsLabel(getPoints());
         String stones;
-        while(!stage.equals(FinalPhaseGUI.Stage.THEEND)){
+        while(!stage.equals(Stage.THEEND)){
           try{
             sleep(1000);
             dos.writeUTF("MapRefresh");
@@ -165,10 +169,20 @@ public abstract class ClientFinalPhase extends JFrame {
           }catch(Exception ex) {
             status =  stones.split(";")[0];
             stones = stones.substring(status.length() + 1);
-            if(status.equals("PickingTerritory")) 
-            	stage = Stage.TERRITORY;
-            else if(status.equals("End")) 
-            	stage = Stage.THEEND;
+            switch (stage) {
+              case DEADSTONES:
+                if(status.equals("PickingTerritory")) {
+                  stage = Stage.TERRITORY;
+                  updatePointsLabel(getPoints());
+                }
+                break;
+              case TERRITORY:
+                if(status.equals("End")) {
+                  stage = Stage.THEEND;
+                  updatePointsLabel(getPoints());
+                }
+                break;
+            }
             updateGameBoard(stones);
           }
         }
