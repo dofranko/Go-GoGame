@@ -25,7 +25,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
 
   public FinalPhaseGUI(int[][] actualStones, String color, final ClientGUI parent, Socket socket, Socket chatSocket,
                        ChatJPanel chatJPanel){
-    super(color,  socket, chatSocket);
+    super(actualStones[0].length, color,  socket, chatSocket);
     this.boardJPanel = new FinalBoardJPanel(actualStones, color);
     //this.boardJPanel.setSize(900,800);
     JPanel mainJPanel = new JPanel();

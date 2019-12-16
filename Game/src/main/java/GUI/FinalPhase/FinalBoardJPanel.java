@@ -9,7 +9,7 @@ public class FinalBoardJPanel extends GameBoardJPanel {
  // final private int[][] stonesAtTheEndOFMatch;
 
   public FinalBoardJPanel(int[][] stones, String color){
-    super(color);
+    super(color, stones[0].length);
     this.setStones(stones);
     this.stones = stones;
   }

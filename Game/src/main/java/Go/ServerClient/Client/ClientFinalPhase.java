@@ -28,7 +28,7 @@ public abstract class ClientFinalPhase extends JFrame {
 
   protected Stage stage;
 
-  public ClientFinalPhase(String color,  Socket socket, Socket chatSocket){
+  public ClientFinalPhase(int size, String color,  Socket socket, Socket chatSocket){
     this.myColor = color;
     this.socket = socket;
     this.chatSocket = chatSocket;

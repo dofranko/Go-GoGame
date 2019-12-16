@@ -13,7 +13,7 @@ public class GameBoardJPanel extends JPanel {
   protected int[][] stones;
   protected JLabel[][] stonesJLabels;
 
-  public GameBoardJPanel(String color) {
+  public GameBoardJPanel(String color, int size) {
     this.setLayout(null);
     this.setBounds(0, 0, 608, 608);
     this.setOpaque(true);
@@ -21,12 +21,12 @@ public class GameBoardJPanel extends JPanel {
     this.setMinimumSize(new Dimension(this.getWidth(), this.getHeight()));
     this.setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));
     //kolejność następnych komponentow jest wazna
-    stonesJLabels = new JLabel[19][19];
+    stonesJLabels = new JLabel[size][size];
     /**
      * Ustawienie jLabeli kamieni (biały, czarny, brak)
      */
-    for (int i = 0; i < 19; i++) {
-      for (int j = 0; j < 19; j++) {
+    for (int i = 0; i < size; i++) {
+      for (int j = 0; j < size; j++) {
         JLabel stone = new JLabel();
         stone.setBounds(32 * i, 32 * j, 32, 32);
         stone.setIcon(new ImageIcon("files/no-stone.png"));
@@ -48,8 +48,8 @@ public class GameBoardJPanel extends JPanel {
     /**
      * Kwadraty pola planszy
      */
-    for (int i = 0; i < 18; i++) {
-      for (int j = 0; j < 18; j++) {
+    for (int i = 0; i < size-1; i++) {
+      for (int j = 0; j < size-1; j++) {
         JLabel field = new JLabel();
         field.setBounds(16 + i * 32, 16 + j * 32, 32, 32);
         field.setIcon(new ImageIcon("files/go-board-field.png"));
@@ -69,7 +69,7 @@ public class GameBoardJPanel extends JPanel {
               new ImageIcon("files/cursor-white.cur").getImage(),
               new Point(16, 16), "Stone Cursor"));
     }
-    createStartingStones();
+    createStartingStones(size);
   }
 
   public int[][] getStones() {
@@ -92,8 +92,8 @@ public class GameBoardJPanel extends JPanel {
    * Aktualizacja planszy
    */
   protected void updateGameBoard() {
-    for (int i = 0; i < 19; i++) {
-      for (int j = 0; j < 19; j++) {
+    for (int i = 0; i < stones[0].length; i++) {
+      for (int j = 0; j < stones[0].length; j++) {
         switch (stones[i][j]) {
           case 1:
             stonesJLabels[i][j].setIcon(new ImageIcon("files/white-stone.png"));
@@ -113,10 +113,10 @@ public class GameBoardJPanel extends JPanel {
   /**
    * Wypełnienie podstawowej planszy zerami
    */
-  private void createStartingStones() {
-    this.stones = new int[19][19];
-    for (int i = 0; i < 19; i++) {
-      for (int j = 0; j < 19; j++) {
+  private void createStartingStones(int size) {
+    this.stones = new int[size][size];
+    for (int i = 0; i < size; i++) {
+      for (int j = 0; j < size; j++) {
         this.stones[i][j] = 0;
       }
     }

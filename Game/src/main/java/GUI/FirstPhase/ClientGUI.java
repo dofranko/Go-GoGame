@@ -23,7 +23,8 @@ public class ClientGUI extends Client {
   private boolean isGameActive = true;
   final private JFrame jFrame;
 
-  public ClientGUI(){
+  public ClientGUI(int size){
+    super(size);
     jFrame = new JFrame();
     if(!getMyColor().equals("Empty"))
       initialize();
@@ -72,7 +73,7 @@ public class ClientGUI extends Client {
 
   }
   private GameBoardJPanel createGameBoard(){
-    return new GameBoardJPanel(getMyColor());
+    return new GameBoardJPanel(getMyColor(), getBoardSize());
   }
 
   /**

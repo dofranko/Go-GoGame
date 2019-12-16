@@ -16,6 +16,8 @@ public abstract class Client {
 	private DataInputStream dis;
 	private DataOutputStream dos;
 
+	private int boardSize;
+
 	private Socket chatSocket;
 
 	private String myPlayerId;
@@ -31,7 +33,8 @@ public abstract class Client {
 	 */
 	private Thread waitingForTurnThread = createWaitingForTurnThread();
 
-	public Client() {
+	public Client(int size) {
+		this.boardSize = size;
 		String playerIdToSet = "";
 		try {
 			// Ip lokalne hosta
@@ -48,7 +51,10 @@ public abstract class Client {
 
 			chatSocket = new Socket(ip, 8524);
 
-
+			/**
+			 * Wysłanie rozmiaru planszy
+			 */
+			dos.writeUTF(boardSize + "");
 			/**
 			 * Odczytanie id gracza od serwera
 			 */
@@ -380,5 +386,8 @@ public abstract class Client {
 			 enemyId = dis.readUTF();
 		}catch (IOException ex){ex.printStackTrace();}
 		return enemyId;
+	}
+	public int getBoardSize(){
+		return this.boardSize;
 	}
 }

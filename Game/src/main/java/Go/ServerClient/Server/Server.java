@@ -57,9 +57,17 @@ public class Server {
 				chatOutputs.put(socket.getPort()+"", new DataOutputStream(chatSocket.getOutputStream()));
 				Thread chat = new ServerChatThread(chatSocket);
 				chat.start();
+				System.out.println("A new client is connected : " + socket);
+				System.out.println("port: " + socket.getPort());
+				// Pobranie input i output streamu
+				DataInputStream dis = new DataInputStream(socket.getInputStream());
+				DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 
+				System.out.println("Assigning new thread for client: " + socket.getPort());
+
+				int boardSize = Integer.parseInt(dis.readUTF());
 				//Dodanie nowego gracza i nadanie mu koloru
-				String result = gameServer.addPlayer(socket.getPort() + "");
+				String result = gameServer.addPlayer(socket.getPort() + "", boardSize);
 				String[] resultSet = result.split(";");
 				Markers color = Markers.EMPTY;
 				if (resultSet[0].equals("Succes")) {
@@ -70,13 +78,7 @@ public class Server {
 				} else
 					color = Markers.EMPTY;
 
-				System.out.println("A new client is connected : " + socket);
-				System.out.println("port: " + socket.getPort());
-				// Pobranie input i output streamu
-				DataInputStream dis = new DataInputStream(socket.getInputStream());
-				DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 
-				System.out.println("Assigning new thread for client: " + socket.getPort());
 
 				// Stworzenie nowego wątku osbługującego klienta
 				Thread t = new ClientHandler(socket, dis, dos, color);
