@@ -125,7 +125,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
     this.setSize(900,700);
     this.setResizable(false);
     this.chatJPanel.setSize(220,400);
-
+    startRefreshingMapThread();
   }
 
   @Override

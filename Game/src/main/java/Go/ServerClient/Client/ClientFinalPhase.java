@@ -44,7 +44,6 @@ public abstract class ClientFinalPhase extends JFrame {
 			ex.printStackTrace();
 		}
 		this.stage = FinalPhaseGUI.Stage.DEADSTONES;
-		startRefreshingMapThread();
 	}
 
 	/**
@@ -137,7 +136,6 @@ public abstract class ClientFinalPhase extends JFrame {
 	}
 
 	protected int getPoints() {
-		// int points =0;
 		try {
 			dos.writeUTF("GetPoints");
 			String[] pointsString = dis.readUTF().split(";");
@@ -149,7 +147,6 @@ public abstract class ClientFinalPhase extends JFrame {
 				enemyPoints = Integer.parseInt(pointsString[1]);
 			}
 
-			// points = Integer.parseInt(dis.readUTF());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -195,9 +192,8 @@ public abstract class ClientFinalPhase extends JFrame {
 					case DEADSTONES:
 						if (status.equals("PickingTerritory")) {
 							stage = Stage.TERRITORY;
-							JOptionPane.showMessageDialog(this,
-									"Następnie zaznacz wszystkie pola otoczone całkowicie Twoimi kamieniami.\n"
-											+ "Jak poprzednio, możesz zaakceptować wybór lub go odrzucić :>");
+							JOptionPane.showMessageDialog(this, "Następnie zaznacz wszystkie pola otoczone całkowicie Twoimi kamieniami.\n"
+									+ "Jak poprzednio, możesz zaakceptować wybór lub go odrzucić.");
 							isAccepted = false;
 							updatePointsLabel(getPoints());
 						}
@@ -207,13 +203,13 @@ public abstract class ClientFinalPhase extends JFrame {
 							stage = Stage.THEEND;
 							updatePointsLabel(getPoints());
 							if (myPoints > enemyPoints) {
-								JOptionPane.showMessageDialog(this, "Zwyciętwo " + myColor + "! :>\n" + "Wygrywasz "
-										+ String.valueOf(myPoints) + " punktów do " + String.valueOf(enemyPoints));
+								JOptionPane.showMessageDialog(this, "Wygrywasz !\n" + 
+										String.valueOf(myPoints) + " punktów do " + String.valueOf(enemyPoints) + " punktów.");
 							} else if (myPoints < enemyPoints) {
-								JOptionPane.showMessageDialog(this, "Porażka " + myColor + "! :C\n" + "Masz ledwo "
-										+ String.valueOf(myPoints) + " punktów do " + String.valueOf(enemyPoints));
+								JOptionPane.showMessageDialog(this, "Przegrywasz!\n" +
+										String.valueOf(myPoints) + " punktów do " + String.valueOf(enemyPoints) + " punktów.");
 							} else {
-								JOptionPane.showMessageDialog(this, "Remis! O.o");
+								JOptionPane.showMessageDialog(this, "Remis!\nKażdy ma " + String.valueOf(myPoints) + " punktów.");
 							}
 						}
 						break;

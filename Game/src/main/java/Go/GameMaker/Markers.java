@@ -1,14 +1,22 @@
 package Go.GameMaker;
 
 public enum Markers {
-	EMPTY('0', "Empty"), WHITE('1', "White"), BLACK('2', "Black"), DONE('D'), // znaczniki planszy
-	WHITEPASSED("WhitePassed"), BLACKPASSED("BlackPassed"), BOTHPASSED("BothPassed"), // skipowanie tury
-	BLACKWIN("BlackWins"), WHITEWIN("WhiteWins"), // Wygrana
-	WHITEDEAD('3'), BLACKDEAD('4'), // oznaczenia martwych kamieni wedlug graczy
-	WHITECLAIM('5'), BLACKCLAIM('6'), // oznaczenia terrytorium wedlug graczy
-	WHITETERRITORY('7'), BLACKTERRITORY('8'), // oznaczenia zaakceptowanego terrytorium
-	DEADSTONES("PickingDeadStones"), TERRITORY("PickingTerritory"), THEEND("End"),// fazy koncowe gry
-	WHITEACCEPTED("WhiteAccepted"), BLACKACCEPTED("BlackAccepted"); // sygnały aprobaty
+	// znaczniki planszy
+	EMPTY('0', "Empty"), WHITE('1', "White"), BLACK('2', "Black"), DONE('D'),
+	// skipowanie tury
+	WHITEPASSED("WhitePassed"), BLACKPASSED("BlackPassed"), BOTHPASSED("BothPassed"),
+	// rezultat gry
+	BLACKWIN("BlackWins"), WHITEWIN("WhiteWins"), DRAW("Draw"),
+	// oznaczenia martwych kamieni wedlug graczy
+	WHITEDEAD('3'), BLACKDEAD('4'),
+	// oznaczenia terrytorium wedlug graczy
+	WHITECLAIM('5'), BLACKCLAIM('6'),
+	// oznaczenia zaakceptowanego terrytorium
+	WHITETERRITORY('7'), BLACKTERRITORY('8'),
+	// fazy koncowe gry
+	DEADSTONES("PickingDeadStones"), TERRITORY("PickingTerritory"), THEEND("End"),
+	// sygnały zaakcpetowania stanu planszy
+	WHITEACCEPTED("WhiteAccepted"), BLACKACCEPTED("BlackAccepted");
 
 	private final char asChar;
 	private final String asString;
@@ -45,12 +53,13 @@ public enum Markers {
 	}
 
 	public Markers asClaimTerritory() {
-		if(this == WHITE)
+		if (this == WHITE)
 			return WHITECLAIM;
-		if(this == BLACK)
+		if (this == BLACK)
 			return BLACKCLAIM;
 		return null;
 	}
+
 	public Markers asAccepted() {
 		if (this == WHITE)
 			return WHITEACCEPTED;
@@ -58,6 +67,7 @@ public enum Markers {
 			return BLACKACCEPTED;
 		return EMPTY;
 	}
+
 	public Markers asWinner() {
 		if (this == WHITE)
 			return WHITEWIN;
@@ -65,6 +75,7 @@ public enum Markers {
 			return BLACKWIN;
 		return null;
 	}
+
 	public Markers asPassed() {
 		if (this == WHITE)
 			return WHITEPASSED;
@@ -72,6 +83,7 @@ public enum Markers {
 			return BLACKPASSED;
 		return null;
 	}
+
 	public Markers nextStage() {
 		if (this == BOTHPASSED)
 			return TERRITORY;
@@ -79,12 +91,12 @@ public enum Markers {
 			return THEEND;
 		return null;
 	}
+
 	public static Markers getColor(int i) {
-		if(i == 0)
+		if (i == 0)
 			return WHITE;
 		else
 			return BLACK;
 	}
 
-	
 }

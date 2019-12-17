@@ -285,6 +285,14 @@ public class Board {
 		gameState = gameState.nextStage();
 		isGameResultAccepted = false;
 		playerWhoAccepted = Markers.EMPTY;
+		if(gameState == Markers.THEEND) {
+			if(totalWhite > totalBlack)
+				gameState = Markers.WHITEWIN;
+			else if(totalWhite < totalBlack)
+				gameState = Markers.BLACKWIN;
+			else
+				gameState = Markers.DRAW;
+		}
 	}
 
 	// pozostałe metody są self explanatory
