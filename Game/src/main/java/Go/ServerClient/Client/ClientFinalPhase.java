@@ -44,6 +44,7 @@ public abstract class ClientFinalPhase extends JFrame {
 			ex.printStackTrace();
 		}
 		this.stage = FinalPhaseGUI.Stage.DEADSTONES;
+		startRefreshingMapThread();
 	}
 
 	/**
@@ -51,7 +52,7 @@ public abstract class ClientFinalPhase extends JFrame {
 	 * 
 	 * @param status
 	 */
-	protected void disconnect(String status) {
+	public void disconnect(String status) {
 		this.socket = null;
 		this.chatSocket = null;
 		this.dos = null;
@@ -119,7 +120,7 @@ public abstract class ClientFinalPhase extends JFrame {
 	/**
 	 * Akceptacja przez gracza aktualnego stanu
 	 */
-	protected void acceptStage() {
+	public void acceptStage() {
 		try {
 			dos.writeUTF("AcceptStage");
 		} catch (IOException e) {
@@ -127,7 +128,7 @@ public abstract class ClientFinalPhase extends JFrame {
 		}
 	}
 
-	protected void declineStage() {
+	public void declineStage() {
 		try {
 			dos.writeUTF("DeclineStage");
 		} catch (IOException e) {
@@ -222,10 +223,10 @@ public abstract class ClientFinalPhase extends JFrame {
 					JOptionPane.showMessageDialog(this, "Przeciwnik zaakceptował!");
 					isAccepted = true;
 				} 
-				//else if (isAccepted && whoAccepted.equals("Empty")) {
+				else if (isAccepted && whoAccepted.equals("Empty")) {
 				//	JOptionPane.showMessageDialog(this, "Przeciwnik odrzucił wybór!");
-				//	isAccepted = false;
-				//} TODO na razie disabled
+					isAccepted = false;
+				} //TODO na razie disabled
 			}
 		});
 		refresh.start();

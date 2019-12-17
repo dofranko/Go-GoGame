@@ -172,10 +172,11 @@ public abstract class Client {
 
 	/**
 	 * Gracz wysyła swój ruch
-	 * @param move (x,y) punkt ruchu
+	 *
 	 */
-	public void sendMakeMove(String move) {
+	public void sendMakeMove(int x, int y) {
 		if (isItMyTurn) {
+			String move = x + "," + y;
 			try {
 				dos.writeUTF("MakeMove");
 				dos.writeUTF(move);
@@ -376,7 +377,7 @@ public abstract class Client {
 			ex.printStackTrace();
 		}
 	}
-	protected Socket getChatSocket(){
+	public Socket getChatSocket(){
 		return this.chatSocket;
 	}
 	public String getEnemyPlayerId(){

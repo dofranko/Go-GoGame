@@ -23,5 +23,6 @@ public class DeployServerForTests {
       isEverythingOkay = false;
     }
     assertTrue(true);
+
   }
 }

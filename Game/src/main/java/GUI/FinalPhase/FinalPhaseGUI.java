@@ -125,7 +125,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
     this.setSize(900,700);
     this.setResizable(false);
     this.chatJPanel.setSize(220,400);
-    startRefreshingMapThread();
+
   }
 
   @Override
@@ -140,7 +140,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
   }
 
   @Override
-  protected void disconnect(String status) {
+  public void disconnect(String status) {
     if(status.equals("!dc"))
       this.parentGame.finishGame();
     super.disconnect(status);

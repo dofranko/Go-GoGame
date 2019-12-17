@@ -56,8 +56,11 @@ public class Bot extends Client{
             String myMove = decideTheBestMove();
             if(myMove.equals("Pass"))
               sendPass();
-            else
-              sendMakeMove(myMove);
+            else {
+              int x = Integer.parseInt(myMove.split(",")[0]);
+              int y = Integer.parseInt(myMove.split(",")[1]);
+              sendMakeMove(x,y);
+            }
             System.out.println("moj ruch: " + myMove);
             chatJPanel.sendChatMessage("Ha!:(" + myMove + ")");
           }

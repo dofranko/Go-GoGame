@@ -12,7 +12,7 @@ public class MultiClientTest {
   @BeforeClass
   public static void createPlayers() throws InterruptedException {
     player1 = new ClientExtendToTest(19);
-    Thread.sleep(2000);
+    Thread.sleep(5000);
     player2 = new ClientExtendToTest(19);
   }
   @AfterClass
@@ -30,14 +30,14 @@ public class MultiClientTest {
   public void simpleInsert() throws InterruptedException {
     Thread.sleep(2000);
     System.out.println("Ruch robi gracz 1: 1,1");
-    player1.sendMakeMove("1,1");
-    Thread.sleep(2000);
-    player2.sendMakeMove("2,3");
+    player1.sendMakeMove(1,1);
+    Thread.sleep(5000);
+    player2.sendMakeMove(2,3);
     System.out.println("Ruch robi gracz 2: 2,3");
-    Thread.sleep(2000);
-    player1.sendMakeMove("0,10");
+    Thread.sleep(5000);
+    player1.sendMakeMove(0,10);
     System.out.println("Ruch robi gracz 1: 0,10");
-    Thread.sleep(2000);
+    Thread.sleep(5000);
 
     int[][] array = createArrayForGameBoard();
     array[1][1] = 2;

@@ -99,7 +99,7 @@ public class ClientGUI extends Client {
             posY++;
         }
         if(isGameActive)
-          sendMakeMove(posX+","+posY);
+          sendMakeMove(posX,posY);
       }
       @Override
       public void mousePressed(MouseEvent e) {
