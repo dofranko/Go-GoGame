@@ -333,6 +333,9 @@ public abstract class Client {
 					System.out.println(whoseMove);
 					System.out.println("Watki:" + Thread.activeCount());//Debugowanie TODO
 
+					if(received.contains("BothPassed"))
+						break;
+
 				} while (true);
 
 			}
