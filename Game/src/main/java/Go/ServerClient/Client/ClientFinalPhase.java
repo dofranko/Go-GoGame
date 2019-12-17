@@ -121,6 +121,16 @@ public abstract class ClientFinalPhase extends JFrame {
 		}
 	}
 
+	public void sendExit() {
+		try {
+			dos.writeUTF("Exit");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println("Connection closed");
+	}
+
 	/**
 	 * metoda pobierająca ilość punktów
 	 * @return
@@ -174,6 +184,7 @@ public abstract class ClientFinalPhase extends JFrame {
 				try {
 					Integer.parseInt(stones.split(";")[0]);
 					updateGameBoard(stones);
+					status = "";
 				} catch (Exception ex) {
 					status = stones.split(";")[0];
 					stones = stones.substring(status.length() + 1);
@@ -214,6 +225,9 @@ public abstract class ClientFinalPhase extends JFrame {
 				//	JOptionPane.showMessageDialog(this, "Przeciwnik odrzucił wybór!");
 					isAccepted = false;
 				} //TODO na razie disabled
+				if(status.contains("Wins") && !status.contains(myColor))
+					JOptionPane.showMessageDialog(this, "Przeciwnik wyszedł z gry!");
+
 			}
 		});
 		refresh.start();

@@ -67,7 +67,6 @@ public class ClientGUI extends Client {
     jFrame.setVisible(true);
     jFrame.setResizable(false);
 
-    startWaitingForTurnThread();
   }
   private GameBoardJPanel createGameBoard(){
     return new GameBoardJPanel(getMyColor(), getBoardSize());
@@ -237,6 +236,9 @@ public class ClientGUI extends Client {
         this.statusJLabel.setText("Przegrałeś. :'(");
         this.statusJLabel.setForeground(new Color(34, 0, 2));
         this.gameBoardJPanel.setVisible(false);
+        break;
+      case "WaitingForEnemy":
+        this.statusJLabel.setText("Oczekiwanie na gracza");
         break;
       default:
         this.statusJLabel.setText("Jeśli to widzisz to zgłoś się do programisty ;-;");

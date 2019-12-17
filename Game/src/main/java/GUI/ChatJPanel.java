@@ -47,7 +47,7 @@ public class ChatJPanel extends JPanel {
     this.add(sendMessageJButton);
 
     chatJTextArea = new JTextArea("Witaj w czacie!",1,10);
-    chatJTextArea.setBackground(new Color(99, 78, 3));
+    chatJTextArea.setBackground(new Color(255, 255, 231));
     chatJTextArea.setEnabled(false);
     chatJTextArea.setDisabledTextColor(Color.BLACK);
     chatJTextArea.setLineWrap(true);

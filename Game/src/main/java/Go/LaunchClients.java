@@ -20,7 +20,7 @@ public class LaunchClients
 
       ClientGUI gui = new ClientGUI(9);
       try {
-        Thread.sleep(500);
+        Thread.sleep(5000);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }

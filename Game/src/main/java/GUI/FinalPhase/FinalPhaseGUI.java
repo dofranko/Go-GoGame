@@ -74,6 +74,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
       public void windowClosing(WindowEvent e) {
         chatJPanel.sendChatMessage("Wychodzę z gry!");
         stage = Stage.THEEND;
+        sendExit();
         chatJPanel.sendChatMessage("!dc");
         disconnect("!dc");
       }

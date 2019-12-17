@@ -28,6 +28,7 @@ public abstract class Client {
 
 	private boolean isItMyTurn = false;
 	private boolean didIPass = false;
+	private boolean isGameStarted = false;
 	/**
 	 * Wątek, który wyczekuje ruchu przeciwnika odpytując serwer o aktualizację danych.
 	 */
@@ -75,6 +76,15 @@ public abstract class Client {
 		 * Przypisanie id gracza
 		 */
 		myPlayerId = playerIdToSet;
+
+		if(!getEnemyPlayerId().equals("NoSuchPlayer"))
+			isGameStarted = true;
+		startWaitingForTurnThread();
+	}
+
+	public void isEnemyPlayerThere(){
+		if(!getEnemyPlayerId().equals("NoSuchPlayer"))
+			isGameStarted = true;
 	}
 
 	public String getMyPlayerId() {
@@ -108,7 +118,6 @@ public abstract class Client {
 		try {
 			received = "Exit";
 			dos.writeUTF("Exit");
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -145,15 +154,17 @@ public abstract class Client {
 		switch (colorMove){
 			case "BlackPassed":
 			case "WhitePassed":
-				if(!didIPass){
+				if(!colorMove.contains(myColor) && !didIPass){
 					isItMyTurn = true;
+					didIPass = true;
 					updateStatusLabel("EnemyPassed");
 				}
-				else
+				else if(colorMove.contains(myColor))
 					updateStatusLabel("YouPassed");
 				break;
 			case "BothPassed":
 				updateStatusLabel("BothPassed");
+				removeWaitingForMoveThread();
 				break;
 			case "BlackWins":
 			case "WhiteWins":
@@ -173,7 +184,7 @@ public abstract class Client {
 	 *
 	 */
 	public void sendMakeMove(int x, int y) {
-		if (isItMyTurn) {
+		if (isItMyTurn && !getEnemyPlayerId().equals("NoSuchPlayer")) {
 			String move = x + "," + y;
 			try {
 				dos.writeUTF("MakeMove");
@@ -195,16 +206,14 @@ public abstract class Client {
 				String arrayOfStonesToUpdate = received.substring(myPoints.length() + 1);
 				updateGameBoard(arrayOfStonesToUpdate);
 
-				waitingForTurnThread = createWaitingForTurnThread();
-				startWaitingForTurnThread();
 			} else if (received.equals("NotYrMove")) {
 				this.isItMyTurn = false;
-				updateStatusLabel("NotYrMove");
-				startWaitingForTurnThread();
 				System.out.println(received);
 			} else if (received.equals("IllegalMove"))
 				updateStatusLabel("IllegalMove");
-		} else
+		}else if(getEnemyPlayerId().equals("NoSuchPlayer"))
+			updateStatusLabel("WaitingForEnemy");
+		else
 			updateStatusLabel("NotYrMove");
 	}
 
@@ -219,9 +228,7 @@ public abstract class Client {
 				isItMyTurn = false;
 			} catch (IOException e) {
 				e.printStackTrace();
-			}
-			startWaitingForTurnThread();
-		}
+			} }
 		else
 			updateStatusLabel("NotYrMove");
 	}
@@ -232,7 +239,7 @@ public abstract class Client {
 	public void sendGiveUp() {
 		try {
 			dos.writeUTF("GiveUp");
-			startWaitingForTurnThread();
+			removeWaitingForMoveThread();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -309,6 +316,8 @@ public abstract class Client {
 				String decision="";
 				String whoseMove="";
 				do {
+					if(!isGameStarted)
+						isEnemyPlayerThere();
 					try { sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
 					try {
 						if(socket.isClosed())
@@ -320,23 +329,17 @@ public abstract class Client {
 						disconnect();
 						break;
 					} catch (UnsupportedOperationException ex){break;}
+					catch (SecurityException ex){continue;}
 					System.out.println(whoseMove);
 					System.out.println("Watki:" + Thread.activeCount());//Debugowanie TODO
 
-
-					if (decision.equals("BothPassed"))
-						break;
-					//przeciwnik pasuje
-					if ((decision.equals("BlackPassed") || decision.equals("WhitePassed")) && didIPass == false)
-						break;
-					//przeciwnik się poddał
-					if(decision.equals("WhiteWins") || decision.equals("BlackWins"))
-						break;
-
-				} while (!isItMyTurn);
+				} while (true);
 
 			}
 		};
+	}
+	public void removeWaitingForMoveThread(){
+		this.waitingForTurnThread = null;
 	}
 
 	protected abstract void updateStatusLabel(String info);
@@ -348,6 +351,7 @@ public abstract class Client {
 	 * w nowym oknie
 	 */
 	protected void startFinalPhase(){
+		removeWaitingForMoveThread();
 		this.socket = null;
 		this.dis = null;
 		this.dos = null;
