@@ -9,19 +9,21 @@ import java.io.IOException;
 public class DeployServerForTests {
 
   @Test
-  public void launchServer() {
+  public void launchServer() throws InterruptedException {
     Server server = new Server();
     String[] args = {""};
-    boolean isEverythingOkay = true;
-    try {
-      server.main(args);
-    } catch (IOException e) {
-      e.printStackTrace();
-      isEverythingOkay = false;
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-      isEverythingOkay = false;
-    }
+    Thread serverThread = new Thread() {
+      @Override
+      public void run() {
+        try {
+          server.main(args);
+        } catch (IOException e) {  }
+        catch (InterruptedException e) { }
+      }
+    };
+    serverThread.start();
+    Thread.sleep(30000);
+
     assertTrue(true);
 
   }

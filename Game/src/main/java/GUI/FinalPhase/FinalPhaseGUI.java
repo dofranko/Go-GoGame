@@ -106,7 +106,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
           else
             posY++;
         }
-        sendPickStones(posX+","+posY);
+        sendPickStones(posX, posY);
       }
       @Override
       public void mousePressed(MouseEvent e) {
@@ -146,11 +146,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
     super.disconnect(status);
   }
 
-  @Override
-  protected void resumeGame() {
-    this.parentGame.resumeGame(this.socket);
-    super.resumeGame();
-  }
+
 }
 
 

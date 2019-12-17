@@ -67,10 +67,7 @@ public class ClientGUI extends Client {
     jFrame.setVisible(true);
     jFrame.setResizable(false);
 
-
     startWaitingForTurnThread();
-
-
   }
   private GameBoardJPanel createGameBoard(){
     return new GameBoardJPanel(getMyColor(), getBoardSize());

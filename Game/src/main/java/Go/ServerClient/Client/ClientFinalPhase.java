@@ -14,6 +14,7 @@ public abstract class ClientFinalPhase extends JFrame {
 	}
 
 	protected String myColor;
+
 	protected int myPoints;
 	protected int enemyPoints;
 
@@ -27,7 +28,7 @@ public abstract class ClientFinalPhase extends JFrame {
 	protected DataOutputStream chatos;
 	protected DataInputStream chatis;
 
-	// protected ClientGUI parentGame;
+
 
 	protected Stage stage;
 
@@ -43,7 +44,7 @@ public abstract class ClientFinalPhase extends JFrame {
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
-		this.stage = FinalPhaseGUI.Stage.DEADSTONES;
+		this.stage = Stage.DEADSTONES;
 	}
 
 	/**
@@ -61,28 +62,23 @@ public abstract class ClientFinalPhase extends JFrame {
 		this.dispose();
 	}
 
-	/**
-	 * wznowienie gry
-	 */
-	protected void resumeGame() {
-		disconnect("");
-	}
 
 	/**
 	 * wysłanie wybrangeo pola do swerwera
 	 * 
-	 * @param move
+	 *
 	 */
-	protected void sendPickStones(String move) {
+	public void sendPickStones(int x, int y) {
 		String received = "";
-		if (stage.equals(FinalPhaseGUI.Stage.DEADSTONES)) {
+		String move = x + "," + y;
+		if (stage.equals(Stage.DEADSTONES)) {
 			try {
 				dos.writeUTF("PickDeadStones");
 				dos.writeUTF(move);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		} else if (stage.equals(FinalPhaseGUI.Stage.TERRITORY)) {
+		} else if (stage.equals(Stage.TERRITORY)) {
 			try {
 				dos.writeUTF("PickTerritory");
 				dos.writeUTF(move);
@@ -100,22 +96,12 @@ public abstract class ClientFinalPhase extends JFrame {
 	 */
 	protected abstract void updateGameBoard(String stonesInString);
 
+	/**
+	 * aktualizacja labela punktów
+	 * @param points ilosc punktow
+	 */
 	protected abstract void updatePointsLabel(int points);
 
-	/*
-	 * Zamiana String w tablice int[][] kamieni
-	 * 
-	 * @param stonesInString kamienie w Stringu
-	 * 
-	 * @return tablica int[][] kamieni
-	 * 
-	 * protected int[][] convertStonesToIntFromString(String stonesInString) {
-	 * int[][] stones; String[] columns = stonesInString.split(";"); stones = new
-	 * int[columns.length][columns.length]; int i = 0; int j = 0; for (String column
-	 * : columns) { String[] fields = column.split(","); for (String field : fields)
-	 * { stones[i][j] = Integer.parseInt(field); j++; } j = 0; i++; } return stones;
-	 * }
-	 */
 	/**
 	 * Akceptacja przez gracza aktualnego stanu
 	 */
@@ -135,6 +121,10 @@ public abstract class ClientFinalPhase extends JFrame {
 		}
 	}
 
+	/**
+	 * metoda pobierająca ilość punktów
+	 * @return
+	 */
 	protected int getPoints() {
 		try {
 			dos.writeUTF("GetPoints");
@@ -189,30 +179,31 @@ public abstract class ClientFinalPhase extends JFrame {
 					stones = stones.substring(status.length() + 1);
 					updateGameBoard(stones);
 					switch (stage) {
-					case DEADSTONES:
-						if (status.equals("PickingTerritory")) {
-							stage = Stage.TERRITORY;
-							JOptionPane.showMessageDialog(this, "Następnie zaznacz wszystkie pola otoczone całkowicie Twoimi kamieniami.\n"
-									+ "Jak poprzednio, możesz zaakceptować wybór lub go odrzucić.");
-							isAccepted = false;
-							updatePointsLabel(getPoints());
-						}
-						break;
-					case TERRITORY:
-						if (status.equals("End")) {
-							stage = Stage.THEEND;
-							updatePointsLabel(getPoints());
-							if (myPoints > enemyPoints) {
-								JOptionPane.showMessageDialog(this, "Wygrywasz !\n" + 
-										String.valueOf(myPoints) + " punktów do " + String.valueOf(enemyPoints) + " punktów.");
-							} else if (myPoints < enemyPoints) {
-								JOptionPane.showMessageDialog(this, "Przegrywasz!\n" +
-										String.valueOf(myPoints) + " punktów do " + String.valueOf(enemyPoints) + " punktów.");
-							} else {
-								JOptionPane.showMessageDialog(this, "Remis!\nKażdy ma " + String.valueOf(myPoints) + " punktów.");
+						case DEADSTONES:
+							if (status.equals("PickingTerritory")) {
+								stage = Stage.TERRITORY;
+								JOptionPane.showMessageDialog(this,
+												"Następnie zaznacz wszystkie pola otoczone całkowicie Twoimi kamieniami.\n"
+																+ "Jak poprzednio, możesz zaakceptować wybór lub go odrzucić :>");
+								isAccepted = false;
+								updatePointsLabel(getPoints());
 							}
-						}
-						break;
+							break;
+						case TERRITORY:
+							if (status.equals("End")) {
+								stage = Stage.THEEND;
+								updatePointsLabel(getPoints());
+								if (myPoints > enemyPoints) {
+									JOptionPane.showMessageDialog(this, "Zwyciętwo " + myColor + "! :>\n" + "Wygrywasz "
+													+ String.valueOf(myPoints) + " punktów do " + String.valueOf(enemyPoints));
+								} else if (myPoints < enemyPoints) {
+									JOptionPane.showMessageDialog(this, "Porażka " + myColor + "! :C\n" + "Masz ledwo "
+													+ String.valueOf(myPoints) + " punktów do " + String.valueOf(enemyPoints));
+								} else {
+									JOptionPane.showMessageDialog(this, "Remis! O.o");
+								}
+							}
+							break;
 					}
 				}
 				if (whoAccepted.contains("Accepted") && !whoAccepted.contains(myColor) && !isAccepted) {

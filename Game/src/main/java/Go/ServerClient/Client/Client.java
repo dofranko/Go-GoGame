@@ -37,9 +37,7 @@ public abstract class Client {
 		this.boardSize = size;
 		String playerIdToSet = "";
 		try {
-			// Ip lokalne hosta
 			InetAddress ip = InetAddress.getByName("localhost");
-
 			//Zamiast ip mozna podac ip sieci lokalnej do gry między urządzeniami
 
 			/**

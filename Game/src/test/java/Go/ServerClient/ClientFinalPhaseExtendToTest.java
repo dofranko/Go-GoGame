@@ -7,6 +7,7 @@ public class ClientFinalPhaseExtendToTest extends ClientFinalPhase {
 
   public ClientFinalPhaseExtendToTest(Client client){
     super(19, client.getMyColor(), client.getSocket(), client.getChatSocket());
+    startRefreshingMapThread();
   }
 
   @Override

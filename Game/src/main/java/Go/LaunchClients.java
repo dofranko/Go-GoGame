@@ -17,8 +17,14 @@ public class LaunchClients
     	//Bot bot3 = new Bot(19);
     	//Bot bot4 = new Bot(9);
 
-        ClientGUI gui = new ClientGUI(9);
-        ClientGUI gui2 = new ClientGUI(9);
+
+      ClientGUI gui = new ClientGUI(9);
+      try {
+        Thread.sleep(500);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+      ClientGUI gui2 = new ClientGUI(9);
         //Bot bot1 = new Bot(9);
         
        //ClientGUI gui3 = new ClientGUI(9);
