@@ -52,7 +52,7 @@ public class TheGame {
 
 		}
 		case 1: { // dobieranie graczy w pary i budowa planszy
-			Board b = new Board(19);
+			Board b = new Board(size);
 			b.setGameState(Markers.BLACK);
 			colors.put(clientID, Markers.WHITE);
 			boards.put(clientID, b);
@@ -151,20 +151,6 @@ public class TheGame {
 		boards.get(clientID).restoreBoard();
 	}
 
-	public String getEnemyID(String clientID) {
-		String enemyID;
-		if (playerPairs.containsKey(clientID)) {
-			enemyID = playerPairs.get(clientID);
-
-		} else if (playerPairs.containsValue(clientID)) {
-			enemyID = getKeyByValue(playerPairs, clientID);
-
-		} else
-			enemyID = "NoSuchPlayer";
-		return enemyID;
-
-	}
-
 	public void exit(String clientID) { // czyszczenie map
 		//Board board = boards.get(clientID);
 		//Markers playerColor = colors.get(clientID);
@@ -181,6 +167,20 @@ public class TheGame {
 		Markers playerColor = colors.get(clientID);
 		if (board.getGameState() != playerColor.asWinner() && board.getGameState() != playerColor.asEnemy().asWinner())
 			board.setGameState(playerColor.asEnemy().asWinner());
+
+	}
+	
+	public String getEnemyID(String clientID) {
+		String enemyID;
+		if (playerPairs.containsKey(clientID)) {
+			enemyID = playerPairs.get(clientID);
+
+		} else if (playerPairs.containsValue(clientID)) {
+			enemyID = getKeyByValue(playerPairs, clientID);
+
+		} else
+			enemyID = "NoSuchPlayer";
+		return enemyID;
 
 	}
 

@@ -21,7 +21,7 @@ public class FinalBoardJPanel extends GameBoardJPanel {
   protected void updateGameBoard() {
     super.updateGameBoard();
     for (int i = 0; i < 19; i++) {
-      for (int j = 0; j < 19; j++) {
+      for (int j = 0; j < 19; j++) { //TODO
         switch (stones[i][j]){
           case 0:
           case 1:

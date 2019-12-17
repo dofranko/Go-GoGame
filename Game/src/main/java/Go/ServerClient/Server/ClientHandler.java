@@ -80,6 +80,7 @@ class ClientHandler extends Thread {
 					}
 					//Szukanie nowej gry przez gracza
 					case "FindGame": {
+						//received = dis.readUTF();
 						toReturn = gameServer.addPlayer(this.playerID, 19);
 						break;
 					}

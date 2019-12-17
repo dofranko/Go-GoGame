@@ -264,8 +264,8 @@ public class ClientGUI extends Client {
             this, this.getSocket(), this.getChatSocket(), this.chatJPanel);
     finalJFrame.setVisible(true);
     super.startFinalPhase();
-    JOptionPane.showMessageDialog(finalJFrame, "Końcowa faza rozgrywki: Zaznacz wspólnie z przeciwnikiem, które kamienie uważacie za martwe.\n"
-    		+ "Jeśli czujesz się robiony w bambo przez przeciwnikia, to w każdej chwili możesz odrzucic propozycję i zacząc od nowa! ");
+    JOptionPane.showMessageDialog(finalJFrame, "Końcowa faza rozgrywki: Zaznacz wspólnie z przeciwnikiem kamienie, które uważacie za martwe.\n"
+    		+ "Jeśli czujesz się robiony w bambo przez przeciwnikia, to w każdej chwili możesz odrzucić propozycję i zacząć od nowa!");
   }
 
   /**
