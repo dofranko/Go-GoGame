@@ -18,6 +18,8 @@ public class Board {
 	private Markers gameState;
 	private Markers playerWhoAccepted;
 	private boolean isGameResultAccepted;
+	private boolean arePlayersFound;
+	private String hostID;
 
 	public Board(int size) {
 		this.size = size;
@@ -34,6 +36,7 @@ public class Board {
 		totalPointsMap.put(Markers.WHITE, 0);
 		playerWhoAccepted = Markers.EMPTY;
 		isGameResultAccepted = false;
+		arePlayersFound = false;
 	}
 
 	public int insert(int x, int y, Markers playerColor) {
@@ -327,6 +330,9 @@ public class Board {
 
 	}
 
+	public int getSize() {
+		return size;
+	}
 	public int getPoints(Markers color) {
 		return totalPointsMap.get(color);
 	}
@@ -349,6 +355,23 @@ public class Board {
 	}
 	public boolean isGameResultAccepted() {
 		return isGameResultAccepted;
+	}
+
+	public boolean arePlayersFound() {
+		return arePlayersFound;
+	}
+
+	public void setPlayersFound(boolean bool) {
+		this.arePlayersFound = bool;
+		this.hostID = ""; // RODO
+	}
+
+	public String getHostID() {
+		return hostID;
+	}
+
+	public void setHostID(String hostID) {
+		this.hostID = hostID;
 	}
 
 	public char[][] getBoard() {

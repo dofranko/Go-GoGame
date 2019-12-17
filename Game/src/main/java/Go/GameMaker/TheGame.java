@@ -3,6 +3,7 @@ package Go.GameMaker;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 
 public class TheGame {
 
@@ -12,12 +13,6 @@ public class TheGame {
 	// tablica plansz
 	private Map<String, Board> boards;
 
-	// licznik graczy
-	private int playerCounter;
-
-	// mapa parująca ID clienta z jego ID w TheGame
-	private Map<String, Integer> players;
-
 	// mapa parująca ID clienta z jego kolorem
 	private Map<String, Markers> colors;
 
@@ -25,11 +20,9 @@ public class TheGame {
 	private Map<String, String> playerPairs;
 
 	private TheGame() { // inicializacja
-		players = new HashMap<String, Integer>();
 		colors = new HashMap<String, Markers>();
 		playerPairs = new HashMap<String, String>();
 		boards = new HashMap<String, Board>();
-		playerCounter = 0;
 	}
 
 	public static TheGame getInstance() { // double checker metoda statyczna na zwracanie singletona
@@ -45,28 +38,25 @@ public class TheGame {
 	}
 
 	public String addPlayer(String clientID, int size) {
-		switch (playerCounter % 2) { // co drugiego gracza tworzy nową rozgrywkę
-		case 0: {
-			colors.put(clientID, Markers.BLACK); // gracz który pierwszy się połączył jest czarny
-			break;
-
+		for(Entry<String, Board> board: boards.entrySet()) {
+			Board b = board.getValue();
+			if(b.getSize() == size && !b.arePlayersFound()) {
+				boards.put(clientID, b);
+				playerPairs.put(clientID, b.getHostID());
+				Markers color = b.getGameState().asEnemy();
+				colors.put(clientID, color);
+				b.setPlayersFound(true);
+				return "Succes;" + color.asString();
+			}
 		}
-		case 1: { // dobieranie graczy w pary i budowa planszy
-			Board b = new Board(size);
-			b.setGameState(Markers.BLACK);
-			colors.put(clientID, Markers.WHITE);
-			boards.put(clientID, b);
-
-			String enemyPlayerID = getKeyByValue(players, playerCounter - 1); // id poprzedniego clienta
-			boards.put(enemyPlayerID, b);
-			playerPairs.put(enemyPlayerID, clientID); // dobieranie ich w pary
-			break;
-		}
-
-		}
-		players.put(clientID, playerCounter);
-		playerCounter++;
-		return "Succes;" + colors.get(clientID).asString();
+		Board b = new Board(size);
+		b.setHostID(clientID);
+		int i = new Random().nextInt(2);
+		Markers playerColor = Markers.getColor(i);
+		b.setGameState(playerColor);
+		boards.put(clientID, b);
+		colors.put(clientID, playerColor);
+		return "Succes;" + playerColor.asString();
 
 	}
 
@@ -152,10 +142,7 @@ public class TheGame {
 	}
 
 	public void exit(String clientID) { // czyszczenie map
-		//Board board = boards.get(clientID);
-		//Markers playerColor = colors.get(clientID);
 		giveUp(clientID);
-		players.remove(clientID);
 		playerPairs.remove(clientID);
 		colors.remove(clientID);
 		boards.remove(clientID);
@@ -197,10 +184,7 @@ public class TheGame {
 		return boards.get(clientID);
 	}
 
-	public Map<String, Integer> getPlayers() {
-		return players;
-	}
-
+	
 	public String getPoints(String clientID) {
 		String enemyID = getEnemyID(clientID);
 		Markers playerColor = colors.get(clientID);

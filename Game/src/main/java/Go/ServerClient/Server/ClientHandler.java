@@ -78,12 +78,6 @@ class ClientHandler extends Thread {
 						catch (Exception ex){}
 						break;
 					}
-					//Szukanie nowej gry przez gracza
-					case "FindGame": {
-						//received = dis.readUTF();
-						toReturn = gameServer.addPlayer(this.playerID, 19);
-						break;
-					}
 					//Gracz się poddaje
 					case "GiveUp": {
 						gameServer.giveUp(this.playerID);
