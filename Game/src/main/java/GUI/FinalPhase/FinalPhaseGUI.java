@@ -45,9 +45,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
             450, 200,30);
     mainJPanel.add(acceptStageJButton);
 
-    this.pointsJLabel = new JLabel("Punkty: ");
-    this.pointsJLabel.setBounds(5,5,500,30);
-    mainJPanel.add(pointsJLabel);
+
 
     JButton declineStageJButton = new JButton("Odrzuć");
     declineStageJButton.addActionListener(new ActionListener() {
@@ -61,6 +59,10 @@ public class FinalPhaseGUI extends ClientFinalPhase {
             acceptStageJButton.getY() + acceptStageJButton.getHeight() + 30,
             acceptStageJButton.getWidth(),acceptStageJButton.getHeight());
     mainJPanel.add(declineStageJButton);
+    this.pointsJLabel = new JLabel("Punkty: ");
+    this.pointsJLabel.setBounds(declineStageJButton.getX(),declineStageJButton.getY()+declineStageJButton.getHeight() + 30,
+            500,30);
+    mainJPanel.add(pointsJLabel);
     this.chatJPanel = chatJPanel;
     this.chatJPanel.setLocation(650, 5);
     this.chatJPanel.setSize(220,400);

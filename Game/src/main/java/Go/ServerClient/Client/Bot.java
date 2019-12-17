@@ -211,7 +211,7 @@ public class Bot extends Client{
       @Override
       public void run() {
         int lengthOfChat = chatJPanel.getChatJTextAreaText().length();
-        while(!received.contains("Wins")){
+        while(!received.contains("Wins") && !received.contains("End")){
           try { sleep(100); } catch (InterruptedException e) { e.printStackTrace(); }
           String chatText = chatJPanel.getChatJTextAreaText();
           if(chatText.length() > lengthOfChat){
@@ -236,6 +236,7 @@ public class Bot extends Client{
     try {
       new DataOutputStream(getSocket().getOutputStream()).writeUTF("AcceptStage");
       chatJPanel.sendChatMessage("Akceptuję!");
+      new DataOutputStream(getSocket().getOutputStream()).writeUTF("MapRefresh");
     }
     catch (IOException e) { e.printStackTrace();}
 

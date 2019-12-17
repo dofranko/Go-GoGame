@@ -36,10 +36,7 @@ public class Server {
 		final TheGame gameServer = TheGame.getInstance();
 
 		System.out.println("Server has started");
-		// gameServer.setBoard(19);		
-		// TODO na razie TheGame tworzy domyślnie planszę 19x19, w przyszłości należy mu przekazac rozmiar w addPlayer()
 
-		//
 		/**
 		 * Tutaj server oczekuje cały czas na nowych klientów, których ackeptuje.
 		 */

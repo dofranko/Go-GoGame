@@ -15,7 +15,7 @@ public class GameBoardJPanel extends JPanel {
 
   public GameBoardJPanel(String color, int size) {
     this.setLayout(null);
-    this.setBounds(0, 0, 608, 608);
+    this.setBounds(0, 0, 32*size, 32*size);
     this.setOpaque(true);
     this.setBackground(Color.GRAY);
     this.setMinimumSize(new Dimension(this.getWidth(), this.getHeight()));
