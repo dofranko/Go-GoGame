@@ -92,11 +92,4 @@ public enum Markers {
 		return null;
 	}
 
-	public static Markers getColor(int i) {
-		if (i == 0)
-			return WHITE;
-		else
-			return BLACK;
-	}
-
 }

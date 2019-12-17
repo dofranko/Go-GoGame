@@ -51,8 +51,7 @@ public class TheGame {
 		}
 		Board b = new Board(size);
 		b.setHostID(clientID);
-		int i = new Random().nextInt(2);
-		Markers playerColor = Markers.getColor(i);
+		Markers playerColor = Markers.BLACK;
 		b.setGameState(playerColor);
 		boards.put(clientID, b);
 		colors.put(clientID, playerColor);
