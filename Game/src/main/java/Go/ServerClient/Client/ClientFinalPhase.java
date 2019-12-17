@@ -220,12 +220,13 @@ public abstract class ClientFinalPhase extends JFrame {
 				if (whoAccepted.contains("Accepted") && !whoAccepted.contains(myColor) && !isAccepted) {
 					JOptionPane.showMessageDialog(this, "Przeciwnik zaakceptował!");
 					isAccepted = true;
+					stage = Stage.THEEND;
 				} 
 				else if (isAccepted && whoAccepted.equals("Empty")) {
 				//	JOptionPane.showMessageDialog(this, "Przeciwnik odrzucił wybór!");
 					isAccepted = false;
 				} //TODO na razie disabled
-				if(status.contains("Wins") && !status.contains(myColor))
+				if(status.contains("Wins") && status.contains(myColor))
 					JOptionPane.showMessageDialog(this, "Przeciwnik wyszedł z gry!");
 
 			}
@@ -233,6 +234,11 @@ public abstract class ClientFinalPhase extends JFrame {
 		refresh.start();
 	}
 
+	/**
+	 * Konwerter z String na tablice int
+	 * @param stonesInString
+	 * @return
+	 */
 	protected int[][] convertStonesToIntFromString(String stonesInString) {
 		int[][] stones;
 		String[] columns = stonesInString.split(";");

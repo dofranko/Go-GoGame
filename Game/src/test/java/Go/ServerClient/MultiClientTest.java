@@ -21,10 +21,6 @@ public class MultiClientTest {
     player1.sendExit();
   }
 
-  //TODO dodać metody testujące przebieg rozgrywki, typu ruch jeen ruch drugi,
-  //sprawdzenie isItmyTurn
-  //meotdy sprawdzające insertowanie kamieni przy dwóch graczach może
-  //WAŻNE: clienci pracują na wątkach więc trzeba odczekiwać zanim się zrobic ruch i sprawdzanie
 
   @Test
   public void simpleInsert() throws InterruptedException {
