@@ -177,7 +177,8 @@ public class ClientGUI extends Client {
   @Override
   public void updateGameBoard(String stonesInString){
       int[][] stones = convertStonesToIntFromString(stonesInString);
-      gameBoardJPanel.setStones(stones);
+      if(gameBoardJPanel != null)
+       gameBoardJPanel.setStones(stones);
   }
 
   /**

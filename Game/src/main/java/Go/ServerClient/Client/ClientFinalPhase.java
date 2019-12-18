@@ -226,7 +226,7 @@ public abstract class ClientFinalPhase extends JFrame {
 				else if (isAccepted && whoAccepted.equals("Empty")) {
 				//	JOptionPane.showMessageDialog(this, "Przeciwnik odrzucił wybór!");
 					isAccepted = false;
-				} //TODO na razie disabled
+				}
 				if(status.contains("Wins") && status.contains(myColor)) {
 					JOptionPane.showMessageDialog(this, "Przeciwnik wyszedł z gry!");
 					stage = Stage.THEEND;
