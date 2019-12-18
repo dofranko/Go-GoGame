@@ -19,11 +19,7 @@ public class LaunchClients
 
 
       FirstPhaseGUI gui = new FirstPhaseGUI(9);
-      try {
-        Thread.sleep(5000);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
+
       //ClientGUI gui2 = new ClientGUI(9);
         Bot bot1 = new Bot(9);
         

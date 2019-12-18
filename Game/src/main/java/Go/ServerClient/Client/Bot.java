@@ -206,15 +206,18 @@ public class Bot extends ClientFirstPhase {
   @Override
   protected void startFinalPhase() {
     Thread thread = new Thread(() -> {
-      while(!received.contains("Wins") && !received.contains("End")){
+      int countAccepted =0;
+      while(!received.contains("Wins") && !received.contains("End") && countAccepted < 2){
         String whoAccepted = "";
         try { Thread.sleep(100); } catch (InterruptedException e) { System.out.println("Nie działa sleep O.o"); }
         try {
           dos.writeUTF("WhoAccepted");
           whoAccepted = dis.readUTF();
         }catch(IOException ex){}
-        if(whoAccepted.contains("Accepted"))
+        if(whoAccepted.contains("Accepted")) {
           acceptStage();
+          countAccepted++;
+        }
       }
     });
     thread.run();
