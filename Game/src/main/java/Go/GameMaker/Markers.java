@@ -1,21 +1,21 @@
 package Go.GameMaker;
 
 public enum Markers {
-	// znaczniki planszy
+	/** Znaczniki planszy*/
 	EMPTY('0', "Empty"), WHITE('1', "White"), BLACK('2', "Black"), DONE('D'),
-	// skipowanie tury
+	/** Sygnał pasowania tury*/
 	WHITEPASSED("WhitePassed"), BLACKPASSED("BlackPassed"), BOTHPASSED("BothPassed"),
-	// rezultat gry
-	BLACKWIN("BlackWins"), WHITEWIN("WhiteWins"), DRAW("Draw"),
-	// oznaczenia martwych kamieni wedlug graczy
+	/** Sygnał rezultatu gry*/
+	BLACKWIN("BlackWins"), WHITEWIN("WhiteWins"),
+	/** Oznaczenia martwych kamieni według graczy*/
 	WHITEDEAD('3'), BLACKDEAD('4'),
-	// oznaczenia terrytorium wedlug graczy
+	/** Oznaczenia terytorium według graczy*/
 	WHITECLAIM('5'), BLACKCLAIM('6'),
-	// oznaczenia zaakceptowanego terrytorium
+	/** Znacznik zaakceptowanego terytorium*/
 	WHITETERRITORY('7'), BLACKTERRITORY('8'),
-	// fazy koncowe gry
+	/** Sygnał faz końcowych gry*/
 	DEADSTONES("PickingDeadStones"), TERRITORY("PickingTerritory"), THEEND("End"),
-	// sygnały zaakcpetowania stanu planszy
+	/** Sygnał zaakceptowania stanu planszy*/
 	WHITEACCEPTED("WhiteAccepted"), BLACKACCEPTED("BlackAccepted");
 
 	private final char asChar;
@@ -91,5 +91,5 @@ public enum Markers {
 			return THEEND;
 		return null;
 	}
-
+	
 }

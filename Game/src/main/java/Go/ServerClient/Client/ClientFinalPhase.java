@@ -195,7 +195,7 @@ public abstract class ClientFinalPhase extends JFrame {
 								stage = Stage.TERRITORY;
 								JOptionPane.showMessageDialog(this,
 												"Następnie zaznacz wszystkie pola otoczone całkowicie Twoimi kamieniami.\n"
-																+ "Jak poprzednio, możesz zaakceptować wybór lub go odrzucić :>");
+																+ "Jak poprzednio, możesz zaakceptować wybór lub go odrzucić.");
 								isAccepted = false;
 								updatePointsLabel(getPoints());
 							}
@@ -205,29 +205,32 @@ public abstract class ClientFinalPhase extends JFrame {
 								stage = Stage.THEEND;
 								updatePointsLabel(getPoints());
 								if (myPoints > enemyPoints) {
-									JOptionPane.showMessageDialog(this, "Zwyciętwo " + myColor + "! :>\n" + "Wygrywasz "
-													+ String.valueOf(myPoints) + " punktów do " + String.valueOf(enemyPoints));
+									JOptionPane.showMessageDialog(this, "Wygrywasz - " + myColor + "!\n"
+													+ String.valueOf(myPoints) + " punktów do " + String.valueOf(enemyPoints) + " punktów.");
 								} else if (myPoints < enemyPoints) {
-									JOptionPane.showMessageDialog(this, "Porażka " + myColor + "! :C\n" + "Masz ledwo "
-													+ String.valueOf(myPoints) + " punktów do " + String.valueOf(enemyPoints));
+									JOptionPane.showMessageDialog(this, "Przegrywasz - " + myColor + "!\n"
+											+ String.valueOf(myPoints) + " punktów do " + String.valueOf(enemyPoints) + " punktów.");
 								} else {
-									JOptionPane.showMessageDialog(this, "Remis! O.o");
+									JOptionPane.showMessageDialog(this, "Remis!\nKażdy ma " + String.valueOf(myPoints) + " punktów.");
 								}
 							}
 							break;
+					default:
+						break;
 					}
 				}
 				if (whoAccepted.contains("Accepted") && !whoAccepted.contains(myColor) && !isAccepted) {
 					JOptionPane.showMessageDialog(this, "Przeciwnik zaakceptował!");
 					isAccepted = true;
-					stage = Stage.THEEND;
 				} 
 				else if (isAccepted && whoAccepted.equals("Empty")) {
 				//	JOptionPane.showMessageDialog(this, "Przeciwnik odrzucił wybór!");
 					isAccepted = false;
 				} //TODO na razie disabled
-				if(status.contains("Wins") && status.contains(myColor))
+				if(status.contains("Wins") && status.contains(myColor)) {
 					JOptionPane.showMessageDialog(this, "Przeciwnik wyszedł z gry!");
+					stage = Stage.THEEND;
+				}
 
 			}
 		});

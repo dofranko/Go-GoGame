@@ -257,13 +257,14 @@ public class ClientGUI extends Client {
   @Override
   protected void startFinalPhase() {
     this.chatJPanel.sendChatMessage("Czas na zliczanie punktów ;-)");
-    JOptionPane.showMessageDialog(jFrame, "Oboje spasowaliście. Zaraz rozpocznie się etap końcowy");
+    JOptionPane.showMessageDialog(jFrame, "Oboje spasowaliście. Zaraz rozpocznie się etap końcowy.");
     this.jFrame.setVisible(false);
     JFrame finalJFrame = new FinalPhaseGUI(gameBoardJPanel.getStones(), this.getMyColor(),
             this, this.getSocket(), this.getChatSocket(), this.chatJPanel);
     finalJFrame.setVisible(true);
     super.startFinalPhase();
-    JOptionPane.showMessageDialog(finalJFrame, "Końcowa faza rozgrywki: Zaznacz wspólnie z przeciwnikiem kamienie, które uważacie za martwe.\n"
+    JOptionPane.showMessageDialog(finalJFrame, "Końcowa faza rozgrywki.\n"
+    		+ "Zaznacz wspólnie z przeciwnikiem wszystkie kamienie, które uważacie za martwe.\n"
     		+ "Jeśli czujesz, że wynik jest niesprawiedliwy, to w każdej chwili możesz odrzucić propozycję i zacząć od nowa!");
   }
 

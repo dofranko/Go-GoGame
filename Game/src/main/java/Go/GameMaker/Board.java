@@ -7,20 +7,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/** Klasa, w której odbywa się rozgrywka*/
 public class Board {
-
+	/** Rozmiar planszy */ /** */
 	private int size;
+	/** Reprezentacja planszy*/
 	private char[][] board;
+	/** Lista kamieni rozieszczonych na planszy*/
 	private List<Stone> listOfStones;
+	/** Zbiór kamieni, które gracze oznaczyli jako martwe*/
 	private Set<Stone> stonesVotedDead;
+	/** Pomocniczy rejest w celu wykrycia sytucaji ko na planszy*/
 	private Stone koCandidate;
+	/** Mapa przechowująca liczbę punktów każdego z graczy*/
 	private Map<Markers, Integer> totalPointsMap;
+	/** Aktualny stan rozgrywki*/
 	private Markers gameState;
+	/** Znacznik, że gracz zaakceptował stan gry w ostatnij fazie*/
 	private Markers playerWhoAccepted;
 	private boolean isGameResultAccepted;
+	/** Flaga oznaczająca, czy gra się zaczęła*/
 	private boolean arePlayersFound;
+	/** Tymczasowy rejestr w celu sparowania ID graczy*/
 	private String hostID;
 
+	/** Konstruktor, inicjalizacja planszy i pól*/
 	public Board(int size) {
 		this.size = size;
 		board = new char[size][size];
@@ -38,14 +49,16 @@ public class Board {
 		isGameResultAccepted = false;
 		arePlayersFound = false;
 	}
-
+	
+	/** Dodaje kamień na planszę
+	 * @return liczba zbitych wrogich kamieni lub -1 jeśli ruch nie jest możliwy
+	 * */
 	public int insert(int x, int y, Markers playerColor) {
 		if (x >= 0 && y >= 0 && x < size && y < size) {
-			char allyColor = playerColor.asChar();
-			Stone s = new Stone(x, y, allyColor);
+			Stone s = new Stone(x, y, playerColor);
 			int pointsScored = possibleInsert(s); 
 			if (pointsScored >= 0) {
-				board[x][y] = allyColor;
+				board[x][y] = playerColor.asChar();
 				listOfStones.add(s);
 				int totalPoints = totalPointsMap.get(playerColor) + pointsScored;
 				totalPointsMap.replace(playerColor, totalPoints);
@@ -57,7 +70,8 @@ public class Board {
 
 	}
 
-	// sprawdza czy ruch jest legalny
+	/** Sprawdza czy ruch jest legalny 
+	 * @return liczba zbitych wrogich kamieni lub -1 jeśli ruch nie jest możliwy */ /** */
 	private int possibleInsert(Stone stone) {
 
 		if (board[stone.getX()][stone.getY()] != Markers.EMPTY.asChar())
@@ -67,7 +81,7 @@ public class Board {
 		killList.addAll(prepareKillList(stone)); // kamienie, które zostałyby zabite tym ruchem
 		int killScore = killList.size();
 
-		if (blockedKo(stone, killScore))
+		if (blockedKo(stone, killScore)) // srawdzanie warunku ko
 			return -1;
 
 		if (killScore == 1)
@@ -89,12 +103,14 @@ public class Board {
 		return 0;
 	}
 
-	// zlicza wolne pola dookoła struktury
-	public int countLiberties(int posX, int posY, char color, char[][] copyBoard) {
+	/** ZLicza rekurencyjnie wole pola dookoła grupy
+	 * @return liczba wolych pól dookoła*/
+	public int countLiberties(int posX, int posY, char color, char[][] copyBoard) { 
 		int liberties = 0;
 		if (posX >= 0 && posY >= 0 && posX < size && posY < size && copyBoard[posX][posY] == color) {
-			copyBoard[posX][posY] = Markers.DONE.asChar(); // oznacza juz odwiedzone pole i zapobiega nieskończonej
-															// rekursji
+			// oznacza juz odwiedzone pole i zapobiega nieskończonej rekursji
+			copyBoard[posX][posY] = Markers.DONE.asChar(); 
+			
 			if (posX != size - 1 && copyBoard[posX + 1][posY] == Markers.EMPTY.asChar()) {
 				copyBoard[posX + 1][posY] = Markers.DONE.asChar();
 				liberties++;
@@ -122,7 +138,8 @@ public class Board {
 
 		return liberties;
 	}
-
+	
+	/** Przygotowanie zbioru kamieni,które zostałyby zabite tym ruchem*/
 	private Set<Stone> prepareKillList(Stone stone) {
 		int x = stone.getX();
 		int y = stone.getY();
@@ -143,7 +160,7 @@ public class Board {
 
 	}
 
-	// lista wrogich sąsiadów
+	/** Zwraca listę wrogich sąsiadów*/
 	private List<Stone> getEnemyNeighbours(Stone stone) {
 		int x = stone.getX();
 		int y = stone.getY();
@@ -164,7 +181,8 @@ public class Board {
 
 	}
 
-	// łączy rekurencyjnie pionki będącę w grupie
+	/** łączy rekurencyjnie kamienie będące w grupie 
+	 * @return Lista kamieni będacych bezpośrednio obok siebie*/
 	private List<Stone> findChain(int posX, int posY, char color, char[][] copyBoard) {
 		List<Stone> chain = new ArrayList<Stone>();
 		if (posX >= 0 && posY >= 0 && posX < size && posY < size && copyBoard[posX][posY] == color) {
@@ -185,7 +203,7 @@ public class Board {
 		return chain;
 	}
 
-	// warunek blokady ko
+	/** Sprawdza warunke blokady ko*/
 	private boolean blockedKo(Stone stone, int kills) {
 		if (koCandidate != null) {
 			// próba ruchu w to samo pole z warunkiem zabicia jednego pionka
@@ -198,12 +216,13 @@ public class Board {
 		}
 		return false;
 	}
-
+	
+	/** Oznacza kamienie wybrane przez gracza jako martwe*/
 	public void markDeadStones(int x, int y) {
 		char color = 0;
 		for (Stone s : listOfStones) {
 			if (s.getX() == x && s.getY() == y) {
-				color = s.getColorAlly();
+				color = s.getColorAlly(); //określenie koloru jaki wybrał gracz
 				break;
 			}
 		}
@@ -219,12 +238,14 @@ public class Board {
 		}
 
 	}
-
+	
+	/** Wywołuje metodę rekurencyjną na zajmowanie terytorium*/
 	public void claimTerritory(int x, int y, Markers playerColor) {
 
 		claimRecursive(x, y, playerColor.asClaimTerritory().asChar());
 	}
-
+	
+	/** Meotda rekurencyjna wypełniająca wolne pola kolorem gracza*/
 	private void claimRecursive(int posX, int posY, char color) {
 		if (posX >= 0 && posY >= 0 && posX < size && posY < size && board[posX][posY] == Markers.EMPTY.asChar()) {
 			board[posX][posY] = color;
@@ -236,7 +257,8 @@ public class Board {
 		}
 
 	}
-
+	
+	/** Przywraca planszę do stanu sprzed oznaczania przez graczy*/
 	public void restoreBoard() { // w przypadku jak gracze się rozmyślą
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
@@ -250,7 +272,8 @@ public class Board {
 		isGameResultAccepted = false;
 		playerWhoAccepted = Markers.EMPTY;
 	}
-
+	
+	/** Zatwierdza oznaczenia graczy i przechodzi do następnej fazy*/
 	public void confirmChanges() {
 		int whiteBonusPoints = 0;
 		int blackBonusPoints = 0;
@@ -287,14 +310,16 @@ public class Board {
 		playerWhoAccepted = Markers.EMPTY;
 	}
 
-	// pozostałe metody są self explanatory
+	/** Usuwa z planszy daną listę kamieni*/
 	public void kill(List<Stone> list) {
 		for (Stone s : list) {
 			board[s.getX()][s.getY()] = Markers.EMPTY.asChar();
 		}
 		listOfStones.removeAll(list);
 	}
-
+	
+	/** Wiele metod rekurencyjnych zaznacza odwiedzone przez siebie pola planszy dlatego pracują na jej kopii
+	 * @return kopia aktualnej planszy*/
 	public char[][] copyBoard() {
 		char[][] copy = new char[size][size];
 		for (int i = 0; i < size; i++) {
@@ -302,7 +327,7 @@ public class Board {
 		}
 		return copy;
 	}
-
+	/** Graficznie prezentuje planszę w konsoli*/
 	public void printBoard(char[][] arr) {
 		for (int i = 0; i < size; i++) {
 			String s = "";
@@ -316,7 +341,7 @@ public class Board {
 		}
 		System.out.println("+-----------------------------+");
 	}
-
+	/** Drukuje planszę w postaci ciągu znaków*/
 	public String boardToString() {
 		String string = "";
 		for (int i = 0; i < size; i++) {

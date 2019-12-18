@@ -2,21 +2,19 @@ package Go.GameMaker;
 
 public class Stone {
 
+	/** Współrzędne*/
 	private int x, y;
+	/** Kolor gracza*/
 	private char colorAlly;
+	/** Pomocniczy kolor przeciwnika*/
 	private char colorEnemy;
-	//boolean isAlive;
-
-	public Stone(int x, int y, char colorAlly) {
+			
+	public Stone(int x, int y, Markers colorAlly) {
 		this.x = x;
 		this.y = y;
-		//this.isAlive = true;
-		this.colorAlly = colorAlly;
-		if (colorAlly == Markers.WHITE.asChar())
-			this.colorEnemy = Markers.WHITE.asEnemy().asChar();
-		else
-			this.colorEnemy = Markers.BLACK.asEnemy().asChar();
-		
+		this.colorAlly = colorAlly.asChar();
+		this.colorEnemy = colorAlly.asEnemy().asChar();
+			
 	}
 
 	public int getX() {
