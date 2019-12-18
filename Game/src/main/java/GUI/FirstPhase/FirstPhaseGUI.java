@@ -270,6 +270,7 @@ public class FirstPhaseGUI extends ClientFirstPhase {
     JOptionPane.showMessageDialog(finalJFrame, "Końcowa faza rozgrywki.\n"
     		+ "Zaznacz wspólnie z przeciwnikiem wszystkie kamienie, które uważacie za martwe.\n"
     		+ "Jeśli czujesz, że wynik jest niesprawiedliwy, to w każdej chwili możesz odrzucić propozycję i zacząć od nowa!");
+    myJFrame.dispose();
   }
 
   /**
