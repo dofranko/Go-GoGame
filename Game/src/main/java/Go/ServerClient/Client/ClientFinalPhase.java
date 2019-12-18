@@ -201,12 +201,12 @@ public abstract class ClientFinalPhase extends JFrame {
 								updatePointsLabel(getPoints());
 								if (myPoints > enemyPoints) {
 									JOptionPane.showMessageDialog(this, "Wygrywasz - " + myColor + "!\n"
-													+ String.valueOf(myPoints) + " punktów do " + String.valueOf(enemyPoints) + " punktów.");
+													+ myPoints + " punktów do " + enemyPoints + " punktów.");
 								} else if (myPoints < enemyPoints) {
 									JOptionPane.showMessageDialog(this, "Przegrywasz - " + myColor + "!\n"
-											+ String.valueOf(myPoints) + " punktów do " + String.valueOf(enemyPoints) + " punktów.");
+											+ myPoints + " punktów do " + enemyPoints + " punktów.");
 								} else {
-									JOptionPane.showMessageDialog(this, "Remis!\nKażdy ma " + String.valueOf(myPoints) + " punktów.");
+									JOptionPane.showMessageDialog(this, "Remis!\nKażdy ma " + myPoints + " punktów.");
 								}
 							}
 							break;

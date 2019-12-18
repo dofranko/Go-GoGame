@@ -2,17 +2,16 @@ package GUI.FirstPhase;
 
 import GUI.ChatJPanel;
 import GUI.FinalPhase.FinalPhaseGUI;
-import Go.ServerClient.Client.Client;
+import Go.ServerClient.Client.ClientFirstPhase;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.net.Socket;
 
 /**
  * Głowne okno gry. Wygląd
  */
-public class ClientGUI extends Client {
+public class FirstPhaseGUI extends ClientFirstPhase {
 
 
   private GameBoardJPanel gameBoardJPanel;
@@ -23,7 +22,7 @@ public class ClientGUI extends Client {
   private boolean isGameActive = true;
   final private JFrame myJFrame;
 
-  public ClientGUI(int size){
+  public FirstPhaseGUI(int size){
     super(size);
     myJFrame = new JFrame();
     if(!getMyColor().equals("Empty"))

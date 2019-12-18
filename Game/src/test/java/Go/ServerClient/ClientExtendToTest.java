@@ -1,9 +1,9 @@
 package Go.ServerClient;
 
 import GUI.FirstPhase.GameBoardJPanel;
-import Go.ServerClient.Client.Client;
+import Go.ServerClient.Client.ClientFirstPhase;
 
-public class ClientExtendToTest extends Client {
+public class ClientExtendToTest extends ClientFirstPhase {
 
   public GameBoardJPanel gameBoard = new GameBoardJPanel("Black", 19);
 

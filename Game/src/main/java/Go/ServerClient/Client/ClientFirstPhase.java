@@ -10,7 +10,7 @@ import java.net.Socket;
 /**
  * Klasa clienta. Logika clienta.
  */
-public abstract class Client {
+public abstract class ClientFirstPhase {
 
 	private Socket socket;
 	protected DataInputStream dis;
@@ -34,7 +34,7 @@ public abstract class Client {
 	 */
 	private Thread waitingForTurnThread = createWaitingForTurnThread();
 
-	public Client(int size) {
+	public ClientFirstPhase(int size) {
 		this.boardSize = size;
 		String playerIdToSet = "";
 		try {

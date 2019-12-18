@@ -1,6 +1,6 @@
 package GUI;
 
-import Go.ServerClient.Client.Client;
+import Go.ServerClient.Client.ClientFirstPhase;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,12 +26,12 @@ public class ChatJPanel extends JPanel {
   private DataInputStream chatdis;
   private String enemyPlayerId = "";
   private String myPlayerId = "";
-  private Client parentFrame;
+  private ClientFirstPhase parentFrame;
 
   /**
    * Stworzenie wyglądu panelu chatu
    */
-  public ChatJPanel(Socket chatSocket, Client parentFrame, String playerID){
+  public ChatJPanel(Socket chatSocket, ClientFirstPhase parentFrame, String playerID){
     this.chatSocket = chatSocket;
     this.myPlayerId = playerID;
     this.parentFrame = parentFrame;

@@ -1,11 +1,10 @@
 package GUI.FinalPhase;
 
 import GUI.ChatJPanel;
-import GUI.FirstPhase.ClientGUI;
+import GUI.FirstPhase.FirstPhaseGUI;
 import Go.ServerClient.Client.ClientFinalPhase;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.*;
 import java.net.Socket;
 
@@ -18,12 +17,12 @@ public class FinalPhaseGUI extends ClientFinalPhase {
   private FinalBoardJPanel boardJPanel;
   private ChatJPanel chatJPanel;
   private JLabel pointsJLabel;
-  protected ClientGUI parentGame;
+  protected FirstPhaseGUI parentGame;
 
 
 
 
-  public FinalPhaseGUI(int[][] actualStones, String color, final ClientGUI parent, Socket socket, Socket chatSocket,
+  public FinalPhaseGUI(int[][] actualStones, String color, final FirstPhaseGUI parent, Socket socket, Socket chatSocket,
                        ChatJPanel chatJPanel){
     super(actualStones[0].length, color,  socket, chatSocket);
     this.boardJPanel = new FinalBoardJPanel(actualStones, color);

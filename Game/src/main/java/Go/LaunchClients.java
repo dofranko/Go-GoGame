@@ -1,6 +1,6 @@
 package Go;
 
-import GUI.FirstPhase.ClientGUI;
+import GUI.FirstPhase.FirstPhaseGUI;
 import Go.ServerClient.Client.Bot;
 
 /**
@@ -18,7 +18,7 @@ public class LaunchClients
     	//Bot bot4 = new Bot(9);
 
 
-      ClientGUI gui = new ClientGUI(9);
+      FirstPhaseGUI gui = new FirstPhaseGUI(9);
       try {
         Thread.sleep(5000);
       } catch (InterruptedException e) {

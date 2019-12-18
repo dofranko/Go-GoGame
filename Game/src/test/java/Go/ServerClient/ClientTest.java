@@ -1,7 +1,7 @@
 package Go.ServerClient;
 
 import Go.ServerClient.Client.Bot;
-import Go.ServerClient.Client.Client;
+import Go.ServerClient.Client.ClientFirstPhase;
 import Go.ServerClient.Client.ClientFinalPhase;
 import org.junit.*;
 
@@ -10,8 +10,8 @@ import java.io.IOException;
 import static org.junit.Assert.*;
 
 public class ClientTest {
-  static Client client;
-  static Client bot;
+  static ClientFirstPhase client;
+  static ClientFirstPhase bot;
   //UWAGA! Żeby testować tę klasę trzeba najpierw odpalic DeployServerForTest
   @BeforeClass
   public static void prepareClient() throws InterruptedException {

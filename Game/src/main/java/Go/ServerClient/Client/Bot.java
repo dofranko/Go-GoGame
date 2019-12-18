@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-public class Bot extends Client{
+public class Bot extends ClientFirstPhase {
   private int[][] stones;
   private Thread waitingToMoveThread;
   private boolean isItEnd = false;
