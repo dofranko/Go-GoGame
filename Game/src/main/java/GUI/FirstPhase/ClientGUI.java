@@ -21,18 +21,19 @@ public class ClientGUI extends Client {
   private ChatJPanel chatJPanel;
 
   private boolean isGameActive = true;
-  final private JFrame jFrame;
+  final private JFrame myJFrame;
 
   public ClientGUI(int size){
     super(size);
-    jFrame = new JFrame();
+    myJFrame = new JFrame();
     if(!getMyColor().equals("Empty"))
       initialize();
     else
-      jFrame.dispatchEvent(new WindowEvent(jFrame, WindowEvent.WINDOW_CLOSING));
+      myJFrame.dispatchEvent(new WindowEvent(myJFrame, WindowEvent.WINDOW_CLOSING));
+    startWaitingForTurnThread();
   }
   private void initialize(){
-    jFrame.setLayout(null);
+    myJFrame.setLayout(null);
     createChatJPanel();
 
     JPanel mainJPanel = createMainBoard();
@@ -42,14 +43,14 @@ public class ClientGUI extends Client {
     mainJPanel.add(gameBoardJPanel);
 
     //jFrame właściwości
-    jFrame.add(mainJPanel);
-    jFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-    jFrame.addWindowListener(new WindowAdapter() {
+    myJFrame.add(mainJPanel);
+    myJFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    myJFrame.addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
         chatJPanel.sendChatMessage("Wychodzę z gry!");
         sendExit();
-        jFrame.dispose();
+        myJFrame.dispose();
       }
     });
 
@@ -59,13 +60,13 @@ public class ClientGUI extends Client {
     addMoustListenerForGameBoard();
 
     gameBoardJPanel.repaint();
-    jFrame.repaint();
-    jFrame.pack();
+    myJFrame.repaint();
+    myJFrame.pack();
     //insets = rozmiary dla ramki wokól frame
-    jFrame.setSize(new Dimension(jFrame.getInsets().left + jFrame.getInsets().right + mainJPanel.getWidth(),
-            jFrame.getInsets().top + jFrame.getInsets().bottom + mainJPanel.getHeight()));
-    jFrame.setVisible(true);
-    jFrame.setResizable(false);
+    myJFrame.setSize(new Dimension(myJFrame.getInsets().left + myJFrame.getInsets().right + mainJPanel.getWidth(),
+            myJFrame.getInsets().top + myJFrame.getInsets().bottom + mainJPanel.getHeight()));
+    myJFrame.setVisible(true);
+    myJFrame.setResizable(false);
 
   }
   private GameBoardJPanel createGameBoard(){
@@ -77,6 +78,9 @@ public class ClientGUI extends Client {
    */
   private void addMoustListenerForGameBoard(){
 
+    /**
+     * Mouse listener, ktory wylicza miejsce kliknięcia i wywołuje metodę
+     */
     gameBoardJPanel.addMouseListener(new MouseListener() {
       @Override
       public void mouseClicked(MouseEvent e) {
@@ -123,7 +127,7 @@ public class ClientGUI extends Client {
   }
 
   private void createJLabels(JPanel panel){
-    this.statusJLabel = new JLabel("Ruch przeciwnika.");
+    this.statusJLabel = new JLabel("Witam!");
     this.statusJLabel.setBounds(2,5,400,30);
     this.statusJLabel.setFont(new Font(statusJLabel.getFont().getFontName(), Font.BOLD, 23));
     panel.add(this.statusJLabel);
@@ -167,7 +171,7 @@ public class ClientGUI extends Client {
     this.chatJPanel = new ChatJPanel(getChatSocket(), this, getMyPlayerId());
     this.chatJPanel.setLocation(650,5);
     this.chatJPanel.setSize(220,400);
-    this.jFrame.add(chatJPanel);
+    this.myJFrame.add(chatJPanel);
   }
 
   /**
@@ -175,10 +179,10 @@ public class ClientGUI extends Client {
    * @param stonesInString
    */
   @Override
-  public void updateGameBoard(String stonesInString){
-      int[][] stones = convertStonesToIntFromString(stonesInString);
-      if(gameBoardJPanel != null)
-       gameBoardJPanel.setStones(stones);
+  public void updateGameBoard(String stonesInString) {
+    int[][] stones = convertStonesToIntFromString(stonesInString);
+    if (gameBoardJPanel != null)
+      gameBoardJPanel.setStones(stones);
   }
 
   /**
@@ -207,7 +211,7 @@ public class ClientGUI extends Client {
       case "EnemyPassed":
         this.statusJLabel.setText("Przeciwnik pasuje.");
         this.statusJLabel.setForeground(new Color(255, 9, 88));
-        JOptionPane.showMessageDialog(jFrame, "Przeciwnik pasuje!");
+        JOptionPane.showMessageDialog(myJFrame, "Przeciwnik pasuje!");
         break;
       case "BothPassed":
         this.statusJLabel.setText("Przeciwnik również pasuje!");
@@ -258,8 +262,8 @@ public class ClientGUI extends Client {
   @Override
   protected void startFinalPhase() {
     this.chatJPanel.sendChatMessage("Czas na zliczanie punktów ;-)");
-    JOptionPane.showMessageDialog(jFrame, "Oboje spasowaliście. Zaraz rozpocznie się etap końcowy.");
-    this.jFrame.setVisible(false);
+    JOptionPane.showMessageDialog(myJFrame, "Oboje spasowaliście. Zaraz rozpocznie się etap końcowy.");
+    this.myJFrame.setVisible(false);
     JFrame finalJFrame = new FinalPhaseGUI(gameBoardJPanel.getStones(), this.getMyColor(),
             this, this.getSocket(), this.getChatSocket(), this.chatJPanel);
     finalJFrame.setVisible(true);
@@ -270,23 +274,10 @@ public class ClientGUI extends Client {
   }
 
   /**
-   * W przypadku wznowienia gry - przywrócenie starych wartości
-   * @param socket
-   *
-   *
-   */
-  public void resumeGame(Socket socket) {
-    super.connect(socket);
-    this.jFrame.setVisible(true);
-    updateStatusLabel("ResumeGame");
-
-  }
-
-  /**
    * W przypadku, gdy gracz rozłączy się z grą w nowym oknie
    */
   public void finishGame(){
-	  jFrame.dispatchEvent(new WindowEvent(jFrame, WindowEvent.WINDOW_CLOSING));
+	  myJFrame.dispatchEvent(new WindowEvent(myJFrame, WindowEvent.WINDOW_CLOSING));
   }
 
 

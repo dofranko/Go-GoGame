@@ -1,6 +1,5 @@
 package Go.ServerClient.Client;
 
-import GUI.FinalPhase.FinalPhaseGUI;
 
 import javax.swing.*;
 import java.io.DataInputStream;
@@ -9,9 +8,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 public abstract class ClientFinalPhase extends JFrame {
-	public enum Stage {
-		DEADSTONES, TERRITORY, THEEND
-	}
+	public enum Stage {DEADSTONES, TERRITORY, THEEND}
 
 	protected String myColor;
 
@@ -25,10 +22,8 @@ public abstract class ClientFinalPhase extends JFrame {
 	protected DataInputStream dis;
 
 	protected Socket chatSocket;
-	protected DataOutputStream chatos;
-	protected DataInputStream chatis;
-
-
+	protected DataOutputStream chatDos;
+	protected DataInputStream chatDis;
 
 	protected Stage stage;
 
@@ -39,10 +34,10 @@ public abstract class ClientFinalPhase extends JFrame {
 		try {
 			this.dis = new DataInputStream(socket.getInputStream());
 			this.dos = new DataOutputStream(socket.getOutputStream());
-			this.chatos = new DataOutputStream(chatSocket.getOutputStream());
-			this.chatis = new DataInputStream(chatSocket.getInputStream());
+			this.chatDos = new DataOutputStream(chatSocket.getOutputStream());
+			this.chatDis = new DataInputStream(chatSocket.getInputStream());
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			System.out.println("Nie udało się przyjąć rozgrywki z CLienta");
 		}
 		this.stage = Stage.DEADSTONES;
 	}
@@ -57,14 +52,14 @@ public abstract class ClientFinalPhase extends JFrame {
 		this.chatSocket = null;
 		this.dos = null;
 		this.dis = null;
-		this.chatos = null;
-		this.chatis = null;
+		this.chatDos = null;
+		this.chatDis = null;
 		this.dispose();
 	}
 
 
 	/**
-	 * wysłanie wybrangeo pola do swerwera
+	 * wysłanie wybrangeo pola do serwera
 	 * 
 	 *
 	 */
@@ -109,7 +104,7 @@ public abstract class ClientFinalPhase extends JFrame {
 		try {
 			dos.writeUTF("AcceptStage");
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Nie udało się zaakceptować");
 		}
 	}
 
@@ -117,7 +112,7 @@ public abstract class ClientFinalPhase extends JFrame {
 		try {
 			dos.writeUTF("DeclineStage");
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Nie udało się odrzucić");
 		}
 	}
 
@@ -126,7 +121,7 @@ public abstract class ClientFinalPhase extends JFrame {
 			dos.writeUTF("Exit");
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("Nie udało się wyjść");
 		}
 		System.out.println("Connection closed");
 	}
@@ -148,7 +143,7 @@ public abstract class ClientFinalPhase extends JFrame {
 			}
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Nie udało się pobrać punktów");
 		}
 		return myPoints;
 	}

@@ -13,8 +13,8 @@ import java.net.Socket;
 public abstract class Client {
 
 	private Socket socket;
-	private DataInputStream dis;
-	private DataOutputStream dos;
+	protected DataInputStream dis;
+	protected DataOutputStream dos;
 
 	private int boardSize;
 
@@ -39,7 +39,6 @@ public abstract class Client {
 		String playerIdToSet = "";
 		try {
 			InetAddress ip = InetAddress.getByName("localhost");
-			//Zamiast ip mozna podac ip sieci lokalnej do gry między urządzeniami
 
 			/**
 			 * Połączenia z socketami
@@ -71,7 +70,7 @@ public abstract class Client {
 				isItMyTurn = true;
 			else if (myColor.equals("Empty"))
 				disconnect();
-		} catch (Exception e) { e.printStackTrace(); }
+		} catch (Exception e) { System.out.println("Połączenie z serverem nie udało się."); }
 		/**
 		 * Przypisanie id gracza
 		 */
@@ -79,7 +78,6 @@ public abstract class Client {
 
 		if(!getEnemyPlayerId().equals("NoSuchPlayer"))
 			isGameStarted = true;
-		startWaitingForTurnThread();
 	}
 
 	public void isEnemyPlayerThere(){
@@ -119,7 +117,7 @@ public abstract class Client {
 			received = "Exit";
 			dos.writeUTF("Exit");
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("Nie dostarczono Exit");
 		}
 		disconnect();
 		System.out.println("Connection closed");
@@ -193,7 +191,7 @@ public abstract class Client {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			System.out.println(received); //Tylko do debugowania TODO
+			System.out.println(received);
 			if (!received.equals("NotYrMove") && !received.equals("IllegalMove")&& !received.equals("UnknownCommand") ) {
 				isItMyTurn = false;
 				updateStatusLabel("MoveMade");
@@ -227,7 +225,7 @@ public abstract class Client {
 				didIPass = true;
 				isItMyTurn = false;
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.out.println("Nie dostarczono passa");
 			} }
 		else
 			updateStatusLabel("NotYrMove");
@@ -241,7 +239,7 @@ public abstract class Client {
 			dos.writeUTF("GiveUp");
 			removeWaitingForMoveThread();
 		} catch (IOException e) {
-			e.printStackTrace();
+          System.out.println("Nie dostarczono poddania sie");
 		}
 	}
 
@@ -254,9 +252,9 @@ public abstract class Client {
 			dis.close();
 			dos.close();
 			socket.close();
-		} catch (Exception e) { e.printStackTrace(); }
+		} catch (Exception e) { System.out.println("Sockety już rozłączone"); }
 		try {new DataOutputStream(chatSocket.getOutputStream()).writeUTF(myPlayerId+";"+"!dc");}
-		catch(Exception e){e.printStackTrace();}
+		catch(Exception e){	System.out.println("Nieznany błąd w disconnect"); }
 	}
 
 	/**
@@ -318,21 +316,19 @@ public abstract class Client {
 				do {
 					if(!isGameStarted)
 						isEnemyPlayerThere();
-					try { sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
+					try { sleep(1000); } catch (InterruptedException e) { System.out.println("Nie udało się spać"); }
 					try {
 						if(socket.isClosed())
 							throw new UnsupportedOperationException();
 						whoseMove = sendWhoseMove();
 						decision = whoseMove.split(";")[0];
 					} catch (IOException e) {
-						e.printStackTrace();
+                      System.out.println("Bład sprawdzania gry.");
 						disconnect();
 						break;
 					} catch (UnsupportedOperationException ex){break;}
 					catch (SecurityException ex){continue;}
 					System.out.println(whoseMove);
-					System.out.println("Watki:" + Thread.activeCount());//Debugowanie TODO
-
 					if(received.contains("BothPassed"))
 						break;
 
@@ -368,20 +364,7 @@ public abstract class Client {
 		return this.socket;
 	}
 
-	/**
-	 * Ponowne połączenie się z socketami w przypadku wznowienia rozgrywki
-	 * @param socket
-	 *
-	 */
-	protected void connect(Socket socket) {
-		this.socket = socket;
-		try {
-			this.dos = new DataOutputStream(socket.getOutputStream());
-			this.dis = new DataInputStream(socket.getInputStream());
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-	}
+
 	public Socket getChatSocket(){
 		return this.chatSocket;
 	}
@@ -390,7 +373,7 @@ public abstract class Client {
 		try {
 			dos.writeUTF("GetEnemyId");
 			 enemyId = dis.readUTF();
-		}catch (IOException ex){ex.printStackTrace();}
+		}catch (IOException ex){System.out.println("Nie udało się dostać gracza");}
 		return enemyId;
 	}
 	public int getBoardSize(){

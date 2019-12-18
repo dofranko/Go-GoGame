@@ -36,7 +36,7 @@ public class Bot extends Client{
           try {
             sleep(2000);
           } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.out.println("Wątek nie chce spać");
           }
           if(received.split(";")[0].contains("Wins")) {
             isItEnd = true;
@@ -62,11 +62,13 @@ public class Bot extends Client{
               sendMakeMove(x,y);
             }
             System.out.println("moj ruch: " + myMove);
-            chatJPanel.sendChatMessage("Ha!:(" + myMove + ")");
+            chatJPanel.sendChatMessage("Ruch:(" + myMove + ")");
           }
           if(received.equals("NotYrMove")) {
             try { sendWhoseMove(); } catch (IOException e) { break; }
           }
+          if(received.equals("IllegalMove"))
+            sendPass();
         }
       }
     };
@@ -96,7 +98,6 @@ public class Bot extends Client{
         //Sprawdzanie czy są nasi obok
         scoreForMove += countFriendsPoints(myColorNumber, i, j);
         scoreForMove += countEnemiesPoints(myColorNumber, i, j);
-        //TODO metoda na sprawdzanie bicia. Tak samo jak powyzsze metody
         if(scoreForMove > actualHighScore) {
           actualHighScore = scoreForMove;
           bestMoves = new LinkedList<>();
@@ -201,35 +202,21 @@ public class Bot extends Client{
     return scoreForMove;
   }
 
-  private int countKills(int myColorNumber, int i, int j){
-    int points =0;
-    //TODO metoda zliczajaca ilosc zbic. Kazde zbicie to 10 pkt.
-
-    return  points;
-  }
 
   @Override
   protected void startFinalPhase() {
-    Thread thread = new Thread(){
-      @Override
-      public void run() {
-        int lengthOfChat = chatJPanel.getChatJTextAreaText().length();
-        while(!received.contains("Wins") && !received.contains("End")){
-          try { sleep(100); } catch (InterruptedException e) { e.printStackTrace(); }
-          String chatText = chatJPanel.getChatJTextAreaText();
-          if(chatText.length() > lengthOfChat){
-            String lastLine = chatText.substring(lengthOfChat);
-            System.out.println(lastLine);
-            lengthOfChat = chatText.length();
-            if(lastLine.contains("Akceptuję!") && lastLine.contains("Enemy"))
-              acceptStage();
-            else if(lastLine.contains("!dc"))
-              break;
-          }
-
-        }
+    Thread thread = new Thread(() -> {
+      while(!received.contains("Wins") && !received.contains("End")){
+        String whoAccepted = "";
+        try { Thread.sleep(100); } catch (InterruptedException e) { System.out.println("Nie działa sleep O.o"); }
+        try {
+          dos.writeUTF("WhoAccepted");
+          whoAccepted = dis.readUTF();
+        }catch(IOException ex){}
+        if(whoAccepted.contains("Accepted"))
+          acceptStage();
       }
-    };
+    });
     thread.run();
   }
   /**
@@ -241,7 +228,7 @@ public class Bot extends Client{
       chatJPanel.sendChatMessage("Akceptuję!");
       new DataOutputStream(getSocket().getOutputStream()).writeUTF("MapRefresh");
     }
-    catch (IOException e) { e.printStackTrace();}
+    catch (IOException e) { System.out.println("Bot: mój socket się zepsuł :(");}
 
   }
 
