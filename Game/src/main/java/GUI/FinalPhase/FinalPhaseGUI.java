@@ -17,7 +17,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
 
   private FinalBoardJPanel boardJPanel;
   private ChatJPanel chatJPanel;
-  private JLabel pointsJLabel; // TODO przenieśc pod przycisk odrzuc
+  private JLabel pointsJLabel;
   protected ClientGUI parentGame;
 
 
@@ -82,13 +82,7 @@ public class FinalPhaseGUI extends ClientFinalPhase {
     //this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
    // this.setSize(new Dimension(this.getInsets().left + this.getInsets().right + mainJPanel.getWidth() ,
        //     this.getInsets().top + this.getInsets().bottom + mainJPanel.getHeight()+30));
-    JButton acceptJButton = new JButton("Akceptuj wybór");
-    acceptJButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        acceptStage();
-      }
-    });
+
 
     boardJPanel.addMouseListener(new MouseListener() {
       @Override

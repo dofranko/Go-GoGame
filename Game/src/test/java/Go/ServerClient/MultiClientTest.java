@@ -36,6 +36,7 @@ public class MultiClientTest {
     Thread.sleep(5000);
 
     int[][] array = createArrayForGameBoard();
+    array[1][1] = 2;
     array[2][3]= 1 ;
     array[0][10] = 2;
     int[][] st = player1.gameBoard.getStones();

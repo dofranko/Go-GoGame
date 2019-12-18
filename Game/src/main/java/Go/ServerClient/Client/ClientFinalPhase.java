@@ -180,7 +180,7 @@ public abstract class ClientFinalPhase extends JFrame {
 					ex.printStackTrace();
 					break;
 				}
-				System.out.println("Hi:" + stones);
+				System.out.println(myColor + "Hi:" + stones);
 				try {
 					Integer.parseInt(stones.split(";")[0]);
 					updateGameBoard(stones);
