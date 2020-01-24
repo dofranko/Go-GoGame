@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import static org.junit.Assert.*;
 
+@Ignore
 public class ClientTest {
   static ClientFirstPhase client;
   static ClientFirstPhase bot;

@@ -6,6 +6,10 @@ package Go.ServerClient.Server;
 
 import Go.GameMaker.Markers;
 import Go.GameMaker.TheGame;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -19,12 +23,35 @@ import static Go.ServerClient.Server.Server.chatOutputs;
 
 // Server class
 public class Server {
+	//############## Hibernate Stuff
+	private static final SessionFactory ourSessionFactory;
+	static {
+		try {
+			Configuration configuration = new Configuration();
+			configuration.configure();
+
+			ourSessionFactory = configuration.buildSessionFactory();
+		} catch (Throwable ex) {
+			throw new ExceptionInInitializerError(ex);
+		}
+	}
+
+	public static Session getSession() throws HibernateException {
+		return ourSessionFactory.openSession();
+	}
+	//##############
+
 	/**
 	 * Mapa przetrzymująca id graczy oraz odpowiadające im outputStreamy do chatów
 	 */
 	public static Map<String, DataOutputStream> chatOutputs = new HashMap<>();
 
 	public static void main(String[] args) throws IOException, InterruptedException {
+		/**
+		 * Hibernate stuff
+		 */
+		final Session session = getSession();
+
 		/**
 		 * Stworzenie server socketa na porcie: 8523
  		 */
@@ -36,6 +63,7 @@ public class Server {
 		final TheGame gameServer = TheGame.getInstance();
 
 		System.out.println("Server has started");
+
 
 		/**
 		 * Tutaj server oczekuje cały czas na nowych klientów, których ackeptuje.

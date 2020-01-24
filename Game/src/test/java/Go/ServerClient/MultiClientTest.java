@@ -4,6 +4,7 @@ import org.junit.*;
 
 import static org.junit.Assert.assertEquals;
 
+@Ignore
 public class MultiClientTest {
 
   static ClientExtendToTest player1;
