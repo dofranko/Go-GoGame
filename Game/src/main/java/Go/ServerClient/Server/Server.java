@@ -24,21 +24,7 @@ import static Go.ServerClient.Server.Server.chatOutputs;
 // Server class
 public class Server {
 	//############## Hibernate Stuff
-	private static final SessionFactory ourSessionFactory;
-	static {
-		try {
-			Configuration configuration = new Configuration();
-			configuration.configure();
-
-			ourSessionFactory = configuration.buildSessionFactory();
-		} catch (Throwable ex) {
-			throw new ExceptionInInitializerError(ex);
-		}
-	}
-
-	public static Session getSession() throws HibernateException {
-		return ourSessionFactory.openSession();
-	}
+	
 	//##############
 
 	/**
@@ -47,11 +33,7 @@ public class Server {
 	public static Map<String, DataOutputStream> chatOutputs = new HashMap<>();
 
 	public static void main(String[] args) throws IOException, InterruptedException {
-		/**
-		 * Hibernate stuff
-		 */
-		final Session session = getSession();
-
+		
 		/**
 		 * Stworzenie server socketa na porcie: 8523
  		 */

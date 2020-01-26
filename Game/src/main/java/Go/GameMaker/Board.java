@@ -30,6 +30,10 @@ public class Board {
 	private boolean arePlayersFound;
 	/** Tymczasowy rejestr w celu sparowania ID graczy*/
 	private String hostID;
+	/**ID gry na potrzeby bazy danych*/
+	private int boardID;
+	/**Licznik ruchów na potrzeby bazy*/
+	private int movesMade;
 
 	/** Konstruktor, inicjalizacja planszy i pól*/
 	public Board(int size) {
@@ -48,6 +52,7 @@ public class Board {
 		playerWhoAccepted = Markers.EMPTY;
 		isGameResultAccepted = false;
 		arePlayersFound = false;
+		movesMade = 0;
 	}
 	
 	/** Dodaje kamień na planszę
@@ -397,6 +402,22 @@ public class Board {
 
 	public void setHostID(String hostID) {
 		this.hostID = hostID;
+	}
+
+	public int getBoardID() {
+		return boardID;
+	}
+
+	public void setBoardID(int boardID) {
+		this.boardID = boardID;
+	}
+
+	public int getMovesMade() {
+		return movesMade;
+	}
+
+	public void incMovesMade() {
+		this.movesMade++;
 	}
 
 	public char[][] getBoard() {

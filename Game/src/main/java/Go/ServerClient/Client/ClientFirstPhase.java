@@ -43,11 +43,11 @@ public abstract class ClientFirstPhase {
 			/**
 			 * Połączenia z socketami
 			 */
-			socket = new Socket("10.182.89.206", 8523);
+			socket = new Socket(ip, 8523);
 			dis = new DataInputStream(socket.getInputStream());
 			dos = new DataOutputStream(socket.getOutputStream());
 
-			chatSocket = new Socket("10.182.89.206", 8524);
+			chatSocket = new Socket(ip, 8524);
 
 			/**
 			 * Wysłanie rozmiaru planszy

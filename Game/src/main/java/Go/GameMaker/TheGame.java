@@ -4,10 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import Go.ServerClient.Hibernate.DBManager;
+
 public class TheGame {
 
 	private static final Object LOCK = new Object();
 	private static volatile TheGame instance;
+	DBManager db;
 
 	/** Mapa parująca ID gracza z planszą, na której gra*/
 	private Map<String, Board> boards;
@@ -23,10 +26,11 @@ public class TheGame {
 		colors = new HashMap<String, Markers>();
 		playerPairs = new HashMap<String, String>();
 		boards = new HashMap<String, Board>();
+		db = new DBManager();
 	}
 
 	/** Double checker metoda statyczna na zwracanie singletona*/
-	public static TheGame getInstance() {
+	public synchronized static TheGame getInstance() {
 		TheGame result = instance;
 		if (result == null) {
 			synchronized (LOCK) {
@@ -47,6 +51,8 @@ public class TheGame {
 				playerPairs.put(clientID, b.getHostID());
 				Markers color = Markers.WHITE; //b.getGameState().asEnemy();
 				colors.put(clientID, color);
+				int boardID = db.insertGame(b.getHostID(), clientID);
+				b.setBoardID(boardID);
 				b.setPlayersFound(true);
 				return "Succes;" + color.asString();
 			}
@@ -80,6 +86,8 @@ public class TheGame {
 		if (board.getGameState() == playerColor) {
 			int pointsScored = board.insert(x, y, playerColor);
 			if (pointsScored >= 0) {
+				board.incMovesMade();
+				db.insertMove(clientID, board.boardToString(), "ruch", board.getMovesMade(), board.getBoardID());
 				return Integer.toString(pointsScored) + ";" + board.boardToString();
 			} else
 				return "IllegalMove";
@@ -103,6 +111,8 @@ public class TheGame {
 	public void skip(String clientID) {
 		Board board = boards.get(clientID);
 		Markers playerColor = colors.get(clientID);
+		board.incMovesMade();
+		db.insertMove(clientID, board.boardToString(), "pass", board.getMovesMade(), board.getBoardID());
 		if (board.getGameState() != playerColor.asEnemy().asPassed()) {
 			board.setGameState(playerColor.asPassed());
 
@@ -164,8 +174,11 @@ public class TheGame {
 	public void giveUp(String clientID) {
 		Board board = boards.get(clientID);
 		Markers playerColor = colors.get(clientID);
-		if (board.getGameState() != playerColor.asWinner() && board.getGameState() != playerColor.asEnemy().asWinner())
+		if (board.getGameState() != playerColor.asWinner() && board.getGameState() != playerColor.asEnemy().asWinner()) {
 			board.setGameState(playerColor.asEnemy().asWinner());
+			board.incMovesMade();
+			db.insertMove(clientID, board.boardToString(), "poddanie sie", board.getMovesMade(), board.getBoardID());
+		}
 
 	}
 	

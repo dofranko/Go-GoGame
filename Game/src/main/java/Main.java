@@ -13,7 +13,7 @@ CREATE TABLE games (
  ID int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
  BlackPlayerID int(11) DEFAULT NULL,
 WhitePlayerID int(11) DEFAULT NULL,
- reg_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+ reg_date timestamp DEFAULT CURRENT_TIMESTAMP
     );
 
     CREATE TABLE moves (
@@ -22,8 +22,8 @@ WhitePlayerID int(11) DEFAULT NULL,
  Move int(11) DEFAULT NULL,
  PlayerIDMove int(11) DEFAULT NULL,
  TypeOfMove enum('ruch','pass','poddanie sie') DEFAULT 'ruch',
- Board varchar(511) DEFAULT NULL,
- reg_date timestamp NOT NULL DEFAULT current_timestamp,
+ Board varchar(750) DEFAULT NULL,
+ reg_date timestamp DEFAULT current_timestamp,
  FOREIGN KEY (GameID) REFERENCES games(ID)
 )
 TODO
@@ -64,7 +64,7 @@ public class Main {
       GamesEntity game = new GamesEntity();
       game.setBlackPlayerId(123);
       game.setWhitePlayerId(12);
-      game.setId(0);
+      //game.setId(0);
       gameId = (int)session.save(game);
 
       MovesEntity move = new MovesEntity();

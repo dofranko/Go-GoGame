@@ -9,7 +9,7 @@ public class GamesEntity {
   private int id;
   private Integer blackPlayerId;
   private Integer whitePlayerId;
-  private Timestamp regDate;
+   private Timestamp regDate;
 
   @Id
   @Column(name = "ID", nullable = false)
