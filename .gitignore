@@ -43,5 +43,4 @@ target/
 .project
 
 # Hibernate files
-.cfg.xml
-.hbm.xml
+.xml
