@@ -33,14 +33,14 @@ target/
 *.iml
 *.iws
 *.ipr
-.idea/
+*.idea/
 *.idea
 *.idea/
 
 # eclipse project file
-.settings/
-.classpath
-.project
+*.settings/
+*.classpath
+*.project
 
 # Hibernate files
-.xml
+*.xml
