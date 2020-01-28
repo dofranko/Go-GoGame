@@ -84,14 +84,18 @@ public class ReplayGame extends JFrame {
       @Override
       public void actionPerformed(ActionEvent e) {
         int number = 0;
-        try{ number = Integer.parseInt(gameIDTextField.getText()); }
+        try{
+          number = Integer.parseInt(gameIDTextField.getText());
+          gameDataMoves = downloadGameData(number);
+          gameIDTextField.setText("");
+          if(gameDataMoves.size()!=0)
+            prepareBoard();
+          else
+            JOptionPane.showMessageDialog(null,"Brak takiej gry");
+        }
         catch(Exception ex){gameIDTextField.setText("Podaj liczbe");}
-        gameDataMoves = downloadGameData(number);
-        gameIDTextField.setText("");
-        if(gameDataMoves.size()!=0)
-          prepareBoard();
-        else
-          JOptionPane.showMessageDialog(null,"Brak takiej gry");
+
+
       }
     });
     playerColorMoveJLabel = new JLabel();
