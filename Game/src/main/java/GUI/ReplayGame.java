@@ -88,12 +88,13 @@ public class ReplayGame extends JFrame {
           number = Integer.parseInt(gameIDTextField.getText());
           gameDataMoves = downloadGameData(number);
           gameIDTextField.setText("");
-          if(gameDataMoves.size()!=0)
-            prepareBoard();
-          else
-            JOptionPane.showMessageDialog(null,"Brak takiej gry");
+
         }
-        catch(Exception ex){gameIDTextField.setText("Podaj liczbe");}
+        catch (IllegalArgumentException ex){
+          JOptionPane.showMessageDialog(null,"Brak takiej gry");
+          gameIDTextField.setText("");
+        }
+        catch(Exception ex){gameIDTextField.setText("Podaj liczbę");}
 
 
       }
@@ -172,9 +173,11 @@ public class ReplayGame extends JFrame {
     return stones;
   }
 
-  private List<MovesEntity> downloadGameData(int gameID) {
+  private List<MovesEntity> downloadGameData(int gameID) throws IllegalArgumentException {
     Session session = getSession();
     List<MovesEntity> moves = session.createQuery("from MovesEntity  where Gameid = " + gameID).list();
+    if(moves.size()==0)
+      throw new IllegalArgumentException();
     GamesEntity game = (GamesEntity) session.createQuery("from GamesEntity where id = " + gameID).list().get(0);
     playersJLabel.setText("<html><pre>Zawodnicy:\nBiały: " + game.getWhitePlayerId() + "\tCzarny: " + game.getBlackPlayerId() + "</pre></html>");
     playersJLabel.setBounds(300,10,400,60);
