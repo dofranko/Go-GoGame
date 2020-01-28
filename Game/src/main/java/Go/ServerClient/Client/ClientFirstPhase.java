@@ -184,6 +184,7 @@ public abstract class ClientFirstPhase {
 	public void sendMakeMove(int x, int y) {
 		if (isItMyTurn && !getEnemyPlayerId().equals("NoSuchPlayer")) {
 			String move = x + "," + y;
+			didIPass = false;
 			try {
 				dos.writeUTF("MakeMove");
 				dos.writeUTF(move);
