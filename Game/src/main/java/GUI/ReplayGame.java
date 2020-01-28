@@ -67,7 +67,7 @@ public class ReplayGame extends JFrame {
     this.add(mainJPanel);
     mainJPanel.setBounds(0,0,900,700);
    // this.boardJPanel.repaint();
-    this.setSize(900, 700);
+    this.setSize(900, 800);
     this.setResizable(false);
 
     JTextField gameIDTextField = new JTextField();
@@ -88,7 +88,7 @@ public class ReplayGame extends JFrame {
           number = Integer.parseInt(gameIDTextField.getText());
           gameDataMoves = downloadGameData(number);
           gameIDTextField.setText("");
-
+          prepareBoard();
         }
         catch (IllegalArgumentException ex){
           JOptionPane.showMessageDialog(null,"Brak takiej gry");
@@ -188,17 +188,15 @@ public class ReplayGame extends JFrame {
     return moves;
   }
   private void prepareBoard(){
-    if(boardJPanel == null){
+    if(boardJPanel!=null)
+      mainJPanel.remove(boardJPanel);
+
       boardJPanel = new ReplayGameJBoard(convertStonesToIntFromString(gameDataMoves.get(0).getBoard()));
       this.boardJPanel.setSize(900,800);
       mainJPanel.add(boardJPanel);
       boardJPanel.setLocation(0, 70);
-    }
-    else {
 
-      boardJPanel.setStones(getNullStones());
-      boardJPanel.setStones(convertStonesToIntFromString(gameDataMoves.get(0).getBoard()));
-    }
+
     boardJPanel.repaint();
   }
   private int[][] getNullStones(){
