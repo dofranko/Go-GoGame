@@ -42,10 +42,10 @@ public class ReplayGame extends JFrame {
 
 
   private ReplayGameJBoard boardJPanel;
-  private JLabel pointsJLabel;
+  private JLabel playersJLabel = new JLabel();
+  private JLabel playerColorMoveJLabel;
   private JPanel mainJPanel;
-  private int whitePlayerID;
-  private int blackPlayerID;
+  private int whitePlayerId;
   private int moveNumber = 0;
   private List<MovesEntity> gameDataMoves;
 
@@ -62,6 +62,7 @@ public class ReplayGame extends JFrame {
     //
     mainJPanel = new JPanel();
     mainJPanel.setLayout(null);
+    mainJPanel.add(playersJLabel);
     //
     this.add(mainJPanel);
     mainJPanel.setBounds(0,0,900,700);
@@ -87,10 +88,15 @@ public class ReplayGame extends JFrame {
         catch(Exception ex){gameIDTextField.setText("Podaj liczbe");}
         gameDataMoves = downloadGameData(number);
         gameIDTextField.setText("");
-
-        prepareBoard();
+        if(gameDataMoves.size()!=0)
+          prepareBoard();
+        else
+          JOptionPane.showMessageDialog(null,"Brak takiej gry");
       }
     });
+    playerColorMoveJLabel = new JLabel();
+    mainJPanel.add(playerColorMoveJLabel);
+    playerColorMoveJLabel.setBounds(600,10,200,30);
   }
 
   private void createNextPreviousButtons(){
@@ -98,7 +104,7 @@ public class ReplayGame extends JFrame {
     mainJPanel.add(nextMove);
     nextMove.setBounds(200,10,50,50);
 
-    JButton previousMove = new JButton(">");
+    JButton previousMove = new JButton("<");
     mainJPanel.add(previousMove);
     previousMove.setBounds(140,10,50,50);
 
@@ -118,6 +124,7 @@ public class ReplayGame extends JFrame {
           moveNumber--;
           updateGameBoard(gameDataMoves.get(moveNumber).getBoard());
         }
+
       }
     });
   }
@@ -125,6 +132,22 @@ public class ReplayGame extends JFrame {
   protected void  updateGameBoard(String stonesInString){
     int[][] stones = convertStonesToIntFromString(stonesInString);
     this.boardJPanel.setStones(stones);
+    if(gameDataMoves.get(moveNumber).getPlayerIdMove().equals(whitePlayerId))
+      this.playerColorMoveJLabel.setText("Biały ");
+    else
+      this.playerColorMoveJLabel.setText("Czarny ");
+    switch (gameDataMoves.get(moveNumber).getTypeOfMove()){
+      case "ruch":
+        this.playerColorMoveJLabel.setText(playerColorMoveJLabel.getText()+"wykonał ruch.");
+        break;
+      case "pass":
+        this.playerColorMoveJLabel.setText(playerColorMoveJLabel.getText()+"spasował.");
+        break;
+      case "poddanie sie":
+        this.playerColorMoveJLabel.setText(playerColorMoveJLabel.getText()+"oddał grę.");
+        break;
+    }
+
   }
 
   protected int[][] convertStonesToIntFromString(String stonesInString) {
@@ -149,9 +172,10 @@ public class ReplayGame extends JFrame {
     Session session = getSession();
     List<MovesEntity> moves = session.createQuery("from MovesEntity  where Gameid = " + gameID).list();
     GamesEntity game = (GamesEntity) session.createQuery("from GamesEntity where id = " + gameID).list().get(0);
-    whitePlayerID = game.getWhitePlayerId();
-    blackPlayerID = game.getBlackPlayerId();
-    moveNumber = 1;
+    playersJLabel.setText("<html><pre>Zawodnicy:\nBiały: " + game.getWhitePlayerId() + "\tCzarny: " + game.getBlackPlayerId() + "</pre></html>");
+    playersJLabel.setBounds(300,10,400,60);
+    whitePlayerId = game.getWhitePlayerId();
+    moveNumber = 0;
     session.close();
 
     return moves;
@@ -163,11 +187,22 @@ public class ReplayGame extends JFrame {
       mainJPanel.add(boardJPanel);
       boardJPanel.setLocation(0, 70);
     }
-    else
+    else {
+
+      boardJPanel.setStones(getNullStones());
       boardJPanel.setStones(convertStonesToIntFromString(gameDataMoves.get(0).getBoard()));
+    }
     boardJPanel.repaint();
   }
+  private int[][] getNullStones(){
+    int size = gameDataMoves.get(0).getBoard().split(";").length;
+    int[][] nullStones = new int[size][size];
+    for(int i = 0; i< size; i++)
+      for(int j = 0; j<size; j++)
+        nullStones[i][j]=0;
 
+      return nullStones;
+  }
 
 
 
