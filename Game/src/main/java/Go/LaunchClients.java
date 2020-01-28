@@ -18,8 +18,8 @@ public class LaunchClients
     	//Bot bot4 = new Bot(9);
 
 
-      FirstPhaseGUI gui = new FirstPhaseGUI(19);
-      FirstPhaseGUI gui2 = new FirstPhaseGUI(19);
+      FirstPhaseGUI gui = new FirstPhaseGUI(9);
+      FirstPhaseGUI gui2 = new FirstPhaseGUI(9);
 
       //ClientGUI gui2 = new ClientGUI(9);
        // Bot bot1 = new Bot(9);
