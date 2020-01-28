@@ -21,7 +21,7 @@ WhitePlayerID int(11) DEFAULT NULL,
  GameID int(11) DEFAULT NULL,
  Move int(11) DEFAULT NULL,
  PlayerIDMove int(11) DEFAULT NULL,
- TypeOfMove enum('ruch','pass','poddanie sie') DEFAULT 'ruch',
+ TypeOfMove enum('ruch','pass','poddanie sie', 'zwycięstwo', 'remis') DEFAULT 'ruch',
  Board varchar(750) DEFAULT NULL,
  reg_date timestamp DEFAULT current_timestamp,
  FOREIGN KEY (GameID) REFERENCES games(ID)

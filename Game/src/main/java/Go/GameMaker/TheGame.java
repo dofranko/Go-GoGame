@@ -12,16 +12,15 @@ public class TheGame {
 	private static volatile TheGame instance;
 	DBManager db;
 
-	/** Mapa parująca ID gracza z planszą, na której gra*/
+	/** Mapa parująca ID gracza z planszą, na której gra */
 	private Map<String, Board> boards;
 
-	/** Mapa parująca ID clienta z jego kolorem*/
+	/** Mapa parująca ID clienta z jego kolorem */
 	private Map<String, Markers> colors;
 
-	/** Mapa parująca graczy ze sobą*/
+	/** Mapa parująca graczy ze sobą */
 	private Map<String, String> playerPairs;
 
-	
 	private TheGame() { // inicializacja
 		colors = new HashMap<String, Markers>();
 		playerPairs = new HashMap<String, String>();
@@ -29,7 +28,7 @@ public class TheGame {
 		db = new DBManager();
 	}
 
-	/** Double checker metoda statyczna na zwracanie singletona*/
+	/** Double checker metoda statyczna na zwracanie singletona */
 	public synchronized static TheGame getInstance() {
 		TheGame result = instance;
 		if (result == null) {
@@ -41,15 +40,18 @@ public class TheGame {
 		}
 		return result;
 	}
-	
-	/** Dodaje nowego gracza do już istniejącej gry, lub w przeciwnym razie tworzy nową*/
+
+	/**
+	 * Dodaje nowego gracza do już istniejącej gry, lub w przeciwnym razie tworzy
+	 * nową
+	 */
 	public String addPlayer(String clientID, int size) {
-		for(Entry<String, Board> board: boards.entrySet()) {
+		for (Entry<String, Board> board : boards.entrySet()) {
 			Board b = board.getValue();
-			if(b.getSize() == size && !b.arePlayersFound()) {
+			if (b.getSize() == size && !b.arePlayersFound()) {
 				boards.put(clientID, b);
 				playerPairs.put(clientID, b.getHostID());
-				Markers color = Markers.WHITE; //b.getGameState().asEnemy();
+				Markers color = Markers.WHITE; // b.getGameState().asEnemy();
 				colors.put(clientID, color);
 				int boardID = db.insertGame(b.getHostID(), clientID);
 				b.setBoardID(boardID);
@@ -67,9 +69,12 @@ public class TheGame {
 
 	}
 
-	/** Wykonanie ruchu przez gracza
-	 * @return liczba punktów zdobyta tym ruchem + plansza w stringu lub IllegalMove 
-	 * @param */
+	/**
+	 * Wykonanie ruchu przez gracza
+	 * 
+	 * @return liczba punktów zdobyta tym ruchem + plansza w stringu lub IllegalMove
+	 * @param
+	 */
 	public String makeMove(String move) {
 
 		String[] splittedCommand = move.split(","); // parsing
@@ -95,19 +100,20 @@ public class TheGame {
 			return "NotYrMove";
 
 	}
-	/** Zwraca stan gry + plansza w stringu*/
+
+	/** Zwraca stan gry + plansza w stringu */
 	public String getGameState(String clientID) {
 		Board b = boards.get(clientID);
 		return b.getGameState().asString() + ";" + b.boardToString();
 	}
 
-	/** Zwraca kolor gracza, który zaakceptował stan planszy w ostatniej fazie*/
+	/** Zwraca kolor gracza, który zaakceptował stan planszy w ostatniej fazie */
 	public String getPlayerWhoAccepted(String clientID) {
 		Board b = boards.get(clientID);
 		return b.getPlayerWhoAccepted().asAccepted().asString();
 	}
 
-	/** Pasowanie tury*/
+	/** Pasowanie tury */
 	public void skip(String clientID) {
 		Board board = boards.get(clientID);
 		Markers playerColor = colors.get(clientID);
@@ -121,18 +127,32 @@ public class TheGame {
 
 	}
 
-	/** Akceptowanie stanu planszy*/
+	/** Akceptowanie stanu planszy */
 	public void acceptStage(String clientID) {
 		Board b = boards.get(clientID);
 		Markers playerColor = colors.get(clientID);
-		if (b.getPlayerWhoAccepted() == playerColor.asEnemy())
+		if (b.getPlayerWhoAccepted() == playerColor.asEnemy()) {
 			b.confirmChanges();
-		else
+			if (b.getGameState() == Markers.THEEND) { // zapis finalnej fazy do bazy i określenie kto wygrał
+				int allyPoints = b.getPoints(colors.get(clientID));
+				int enemyPoints = b.getPoints(colors.get(getEnemyID(clientID)));
+				if (allyPoints > enemyPoints) {
+					b.incMovesMade();
+					db.insertMove(clientID, b.boardToString(), "zwycięstwo", b.getMovesMade(), b.getBoardID());
+				} else if (allyPoints < enemyPoints) {
+					b.incMovesMade();
+					db.insertMove(getEnemyID(clientID), b.boardToString(), "zwycięstwo", b.getMovesMade(), b.getBoardID());
+				} else {
+					b.incMovesMade();
+					db.insertMove(clientID, b.boardToString(), "remis", b.getMovesMade(), b.getBoardID());
+				}
+			}
+		} else
 			b.setGameResultAccepted(playerColor);
 
 	}
 
-	/** Wybór martwych kamieni*/
+	/** Wybór martwych kamieni */
 	public void pickDeadStones(String move) {
 		String[] splittedCommand = move.split(","); // parsing
 		String clientID = splittedCommand[0];
@@ -144,7 +164,7 @@ public class TheGame {
 
 	}
 
-	/** Wybór terytorium*/
+	/** Wybór terytorium */
 	public void pickTerritory(String move) {
 		String[] splittedCommand = move.split(",");
 		String clientID = splittedCommand[0];
@@ -156,13 +176,13 @@ public class TheGame {
 			board.claimTerritory(x, y, playerColor);
 	}
 
-	/** Przywróceniu poprzedniego stanu planszy*/
+	/** Przywróceniu poprzedniego stanu planszy */
 	public void cancelVote(String clientID) {
 		boards.get(clientID).restoreBoard();
 	}
 
-	/** Gracz wychodzi z rozgrywki*/
-	public void exit(String clientID) { 
+	/** Gracz wychodzi z rozgrywki */
+	public void exit(String clientID) {
 		giveUp(clientID);
 		playerPairs.remove(clientID);
 		colors.remove(clientID);
@@ -170,19 +190,20 @@ public class TheGame {
 
 	}
 
-	/** Gracz poddaje się*/
+	/** Gracz poddaje się */
 	public void giveUp(String clientID) {
 		Board board = boards.get(clientID);
 		Markers playerColor = colors.get(clientID);
-		if (board.getGameState() != playerColor.asWinner() && board.getGameState() != playerColor.asEnemy().asWinner()) {
+		if (board.getGameState() != playerColor.asWinner() && board.getGameState() != playerColor.asEnemy().asWinner()
+				&& board.getGameState() != Markers.THEEND) {
 			board.setGameState(playerColor.asEnemy().asWinner());
 			board.incMovesMade();
 			db.insertMove(clientID, board.boardToString(), "poddanie sie", board.getMovesMade(), board.getBoardID());
 		}
 
 	}
-	
-	/** Zwraca ID przeciwnika*/
+
+	/** Zwraca ID przeciwnika */
 	public String getEnemyID(String clientID) {
 		String enemyID;
 		if (playerPairs.containsKey(clientID)) {
@@ -210,14 +231,15 @@ public class TheGame {
 		return boards.get(clientID);
 	}
 
-	/** @return kolor graczy i ich punkty*/
+	/** @return kolor graczy i ich punkty */
 	public String getPoints(String clientID) {
 		String enemyID = getEnemyID(clientID);
 		Markers playerColor = colors.get(clientID);
 		Markers enemyColor = colors.get(enemyID);
 		int playerPoints = boards.get(clientID).getPoints(playerColor);
 		int enemyPoints = boards.get(enemyID).getPoints(enemyColor);
-		return playerColor.asString() + ";" + String.valueOf(playerPoints) + ";" + enemyColor.asString() + ";" + String.valueOf(enemyPoints);
+		return playerColor.asString() + ";" + String.valueOf(playerPoints) + ";" + enemyColor.asString() + ";"
+				+ String.valueOf(enemyPoints);
 	}
 
 	public Map<String, Markers> getColors() {
